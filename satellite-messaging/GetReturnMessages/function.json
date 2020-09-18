@@ -1,0 +1,10 @@
+{
+  "bindings": [
+    {
+      "name": "timerGetReturnMessages",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "*/12 * * * * *"
+    }
+  ]
+}

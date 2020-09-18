@@ -1,0 +1,30 @@
+{
+  "name": "microservice-satellite-messaging",
+  "version": "1.0.0",
+  "description": "Integration of Inmarsat's IsatData Pro (IDP) satellite IoT service with Azure",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "applicationinsights": "1.8.0",
+    "azure-eventgrid": "1.6.0",
+    "dotenv": "8.2.0",
+    "isatdatapro-microservices": "~1.0.2",
+    "ms-rest": "2.5.4",
+    "ms-rest-azure": "3.0.0",
+    "uuid": "8.2.0",
+    "winston": "3.3.3"
+  },
+  "devDependencies": {},
+  "main": "index.js",
+  "keywords": [
+    "IoT",
+    "Satellite",
+    "Inmarsat",
+    "IDP",
+    "IsatData Pro"
+  ],
+  "author": "G.Bruce-Payne",
+  "license": "Apache-2.0"
+}

@@ -1,0 +1,9 @@
+{
+  "bindings": [
+    {
+      "name": "eventGridOtherClientForwardSubmission",
+      "type": "eventGridTrigger",
+      "direction": "in"
+    }
+  ]
+}

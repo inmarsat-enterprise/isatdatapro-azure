@@ -1,0 +1,9 @@
+{
+  "bindings": [
+    {
+      "name": "command",
+      "type": "activityTrigger",
+      "direction": "in"
+    }
+  ]
+}

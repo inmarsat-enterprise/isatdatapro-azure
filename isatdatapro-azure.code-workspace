@@ -1,0 +1,42 @@
+{
+	"folders": [
+		{
+			"path": "satellite-messaging"
+		},
+		{
+			"path": "data-transformer"
+		},
+		{
+			"path": "iotc-integration"
+		},
+		{
+			"path": "docs"
+		},
+		{
+			"path": "notifications"
+		},
+		{
+			"path": "orchestrators"
+		},
+		{
+			"path": "web"
+		}
+	],
+	"settings": {
+		"debug.internalConsoleOptions": "neverOpen"
+	},
+	"launch": {
+		"configurations": [],
+		"compounds": [
+			{
+				"name": "Attach to all apps",
+				"configurations": [
+					"Attach to satellite-messaging",
+					"Attach to data-transformer",
+					"Attach to iotc-integration",
+					"Attach to orchestrators"
+				]
+			}
+		]
+	}
+}

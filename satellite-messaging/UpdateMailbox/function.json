@@ -1,0 +1,9 @@
+{
+  "bindings": [
+    {
+      "name": "eventGridUpdateMailbox",
+      "type": "eventGridTrigger",
+      "direction": "in"
+    }
+  ]
+}
