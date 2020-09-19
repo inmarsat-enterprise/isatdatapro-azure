@@ -11,6 +11,7 @@ In this document:
       - [Create the Storage account](#create-the-storage-account)
       - [Create the Azure Function Apps](#create-the-azure-function-apps)
       - [Create the Event Grid Topic](#create-the-event-grid-topic)
+      - **WORK IN PROGRESS BELOW THIS LINE**
       - [Create the Web App Service Plan](#create-the-web-app-service-plan)
       - [Create the Web App](#create-the-web-app)
       - [Create the Azure SQL Database assets](#create-the-azure-sql-database-assets)
@@ -72,23 +73,24 @@ The following is a summary of all Azure resources required to deploy the solutio
 | Prod Resource Name | Dev Resource Name | Type | Provision Mode |
 |---|---|---|:---:|
 | serverless-microservices | serverless-microservices-dev | Resource Group | Auto | 
-| idpdata | idpdata | Cosmos DB Account | Auto |
-| Main | Main | Cosmos DB Container | Auto |
-| Archive | Archive | Cosmos DB Container | Auto |
-| idpfunctionstore | idpfunctionstoredev | Storage Account | Auto |
-| IdpFunctionAppPlan | IdpFunctionAppPlan | Consumption Plan | Auto |
-| IdpMessagingFunctionApp | IdpMessagingFunctionAppDev | Function App | Auto |
-| IdpOrchestratorsFunctionApp | IdpOrchestratorsFunctionAppDev | Function App | Auto |
-| IdpMessageArchiverFunctionApp | IdpMessageArchiverFunctionAppDev | Function App | Auto |
+| iotstoragewarm | iotstoragewarm-dev | Cosmos DB Account | Auto |
+| IsatDataPro | IsatDataProDev | Cosmos DB Container | Auto |
+| idpfunctionstore | idpfunctionstore-dev | Storage Account | Auto |
+| *Location*Plan | *Location*Plan | App Service (Consumption) Plan | Auto |
+| idpMessagingFunctionApp | idpMessagingFunctionAppDev | Function App | Auto |
+| idpOrchestratorsFunctionApp | idpOrchestratorsFunctionAppDev | Function App | Auto |
+| idpIotHubBridgeFunctionApp | idpIotHubBridgeFunctionAppDev | Function App | Auto |
+| IdpExternalizations | IdpExternalizationsDev | Event Grid Topic | Manual |
+| IdpApiNotifications | IdpApiNotificationsDev | Logic App | Manual |
 | IdpAdminAppServicePlan | IdpAdminAppServicePlanDev | Web App Service Plan | Auto |
 | IdpAdmin | IdpAdminDev | Web App Service | Auto |
-| IdpExternalizations | IdpExternalizationsDev | Event Grid Topic | Manual |
 | isatdatapro | isatdatapro-dev | Application Insights | Manual |
-| ProcessTripExternalization | ProcessTripExternalizationDev | Logic App | Manual |
 | idpadmin | N/A | API Management Service | Manual |
 | IdpVault | IdpVaultDev | Azure Key Vault | Manual |
 
-:eight_spoked_asterisk: **Please note** that, in some cases, the resource names must be unique globally. We suggest you append an identifier to the above resource names so they become unique i.e. `isatdatapro-xyzw`, etc.
+> :exclamation: **Please note** that, in some cases, the resource names 
+must be unique globally. We suggest you append an identifier to the above 
+resource names so they become unique i.e. `isatdatapro-xyzw`, etc.
 
 ## Provision
 
@@ -98,31 +100,38 @@ Log in to the [Azure portal](https://portal.azure.com).
 
 #### Create the Resource Group
 
-1.  Type **Resource** into the Search box at the top of the `All Services` page, then select **Resource Groups**  section.
+1.  Type **Resource** into the Search box at the top of the `All Services` 
+page, then select **Resource Groups**  section.
 
 2.  Click the **Add** button to create a new resource group.
 
 3.  Complete the resource group creation form with the following:
 
-    1. **Name**: Enter a unique value for the **resource group** e.g. `serverless-microservices`.
+    1. **Name**: Enter a unique value for the **resource group** 
+    e.g. `serverless-microservices`.
     2. **Subscription**: Select your Azure subscription.
-    3. **Location**: Select a region closest to you. Make sure you select the same region for the rest of your resources.
+    3. **Location**: Select a region closest to you. Make sure you select the 
+    same region for the rest of your resources.
 
     ![Screenshot of the resource group form](media/resource-group-creation.png)
 
 #### Create the Azure Cosmos DB assets
 
-1.  Type **Cosmos** into the Search box at the top of the `All Services` page, then select **Azure Cosmos DB**  section.
+1.  Type **Cosmos** into the Search box at the top of the `All Services` page, 
+then select **Azure Cosmos DB**  section.
 
 2.  Click the **Add** button to create a new Cosmos DB Account.
 
 3.  Complete the resource group creation form with the following:
 
     3. **Subscription**: Select your Azure subscription.
-    4. **Resource Group**: Select the Resource Group you created above, such as `serverless-microservices`.
-    5. **Account Name**: Enter a unique ID for the **Cosmos DB Account**, such as `idpdata`.
+    4. **Resource Group**: Select the Resource Group you created above, 
+    such as `serverless-microservices`.
+    5. **Account Name**: Enter a unique ID for the **Cosmos DB Account**, 
+    such as `iot-storage-warm`.
     6. **API**: Select `Core (SQL)`.
-    7. **Location**: Select a region closest to you. Make sure you select the same region for the rest of your resources.
+    7. **Location**: Select a region closest to you. Make sure you select the 
+    same region for the rest of your resources.
     8. **Geo-Redundancy**: Disable.
     9. **Multi-region Writes**: Disable.
 
@@ -130,20 +139,23 @@ Log in to the [Azure portal](https://portal.azure.com).
 
 4.  Select **Review + Create**, then select **Create** on the review screen.
 
-    **Please note** that this process of creating a Cosmos DB Account can take between 5-10 minutes.
+    **Please note** that this process of creating a Cosmos DB Account can take 
+    between 5-10 minutes.
 
-5.  Once Cosmos Database is online, open it and select **Data Explorer** on the left-hand menu.
+5.  Once Cosmos Database is online, open it and select **Data Explorer** on the 
+left-hand menu.
 
-6.  (Optional) Select **New Container** on the toolbar. In the Add Container form that appears, enter the following:
+6.  (Optional) Select **New Container** on the toolbar. In the Add Container 
+form that appears, enter the following:
 
     1. **Database ID**: Select **Create new** and enter `IsatDataPro`.
     2. **Container Id**: Enter `Main`.
-    3. **Partition key**: Enter `/code`.
-    4. **Throughput**: Select 400.
+    3. **Partition key**: Enter `/category`.
+    4. **Throughput**: Select `400`.
 
     ![Screenshot of the Cosmos DB container](media/comos-creation1.png)
 
-7.  (Optional) Repeat step 6 for a new container called `Archive`
+7.  (Optional) Repeat step 6 for a new container called `IsatDataProDev`
 
 8.  Take note of the DB Account keys:
 
@@ -151,19 +163,23 @@ Log in to the [Azure portal](https://portal.azure.com).
 
 #### Create the Storage account
 
-1.  Type **Storage** into the Search box at the top of the `All Services` page, then select **Storage accounts**  section.
+1.  Type **Storage** into the Search box at the top of the `All Services` page, 
+then select **Storage accounts**  section.
 
 2.  Click the **Add** button to create a new Storage Account.
 
 3.  Complete the storage creation form with the following:
 
-    1. **Name**: Enter a unique name for the **Storage Account** e.g. `idpfunctionstore`.
+    1. **Name**: Enter a unique name for the **Storage Account** 
+    e.g. `idpfunctionstore`.
     2. **Deployment Model**: Select `Resource Manager`.
-    3. **Account Kind**: Select ``Storage V2``.
-    4. **Location**: Select a region closest to you. Make sure you select the same region for the rest of your resources.
+    3. **Account Kind**: Select `Storage V2`.
+    4. **Location**: Select a region closest to you. Make sure you select the 
+    same region for the rest of your resources.
     5. **Subscription**: Select your Azure subscription.
-    6. **Resource Group**: Select the resource group to which you have added your other services, such as `serverless-microservices`.
-    7. **Replication**: Select ``RA-GRS`` (to be confirmed)
+    6. **Resource Group**: Select the resource group to which you have added 
+    your other services, such as `serverless-microservices`.
+    7. **Replication**: Select `RA-GRS`
 
     ![Screenshot of the storage creation](media/storage-creation.png)
 
@@ -173,51 +189,74 @@ Log in to the [Azure portal](https://portal.azure.com).
 
 #### Create the Azure Function Apps
 
-In this step, you will be creating six new Azure Function Apps in the Azure portal. There are many ways this can be accomplished, such as [publishing from Visual Studio](), [Visual Studio Code](), the [Azure CLI](), Azure [Cloud Shell](), an [Azure Resource Manager (ARM) template](), and through the Azure portal.
+In this step, you will be creating several new Azure Function Apps in the Azure 
+portal. There are many ways this can be accomplished, such as 
+[Visual Studio Code](https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs-code), 
+[Visual Studio](https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs), 
+[Azure CLI](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-first-azure-function-azure-cli?tabs=bash%2Cbrowser&pivots=programming-language-javascript), Azure [Cloud Shell](https://docs.microsoft.com/en-us/azure/azure-functions/scripts/functions-cli-create-function-app-vsts-continuous),
+[Azure Resource Manager (ARM) template](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-first-function-resource-manager?tabs=visual-studio-code%2Cazure-cli), 
+and through the Azure portal.
 
-Each of these Function Apps act as a hosting platform for one or more functions. In our solution, they double as microservices with each function serving as an endpoint or method. Having functions distributed amongst multiple function apps enables isolation, providing physical boundaries between the microservices, as well as independent release schedules, administration, and scaling.
+Each of these Function Apps act as a hosting platform for one or more functions. 
+In our solution, they double as microservices with each function serving as an 
+endpoint or method. Having functions distributed amongst multiple function apps 
+enables isolation, providing physical boundaries between the microservices, as 
+well as independent release schedules, administration, and scaling.
 
 1.  Log in to the [Azure portal](https://portal.azure.com).
 
-2.  Type **Function App** into the Search box at the top of the page, then select **Function App** within the Marketplace section.
+2.  Type **Function App** into the Search box at the top of the page, then 
+select **Function App** within the Marketplace section.
 
     ![Type Function App into the Search box](media/function-app-search-box.png 'Function App search')
 
 3.  Complete the function app creation form with the following:
 
-    1. **App name**: Enter a unique value for the **IdpMessagingFunctionApp** function app.
+    1. **App name**: Enter a unique value for the **idpMessagingFunctionApp** 
+    function app.
     2. **Subscription**: Select your Azure subscription.
-    3. **Resource Group**: Select the resource group to which you have added your other services, such as `serverless-microservices`.
+    3. **Resource Group**: Select the resource group to which you have added 
+    your other services, such as `serverless-microservices`.
     4. **OS**: Select Windows.
     5. **Hosting Plan**: Select Consumption Plan.
-    6. **Location**: Select a region closest to you. Make sure you select the same region for the rest of your resources.
+    6. **Location**: Select a region closest to you. Make sure you select the 
+    same region for the rest of your resources.
     7. **Runtime Stack**: Select **Node.js**.
-    8. **Storage**: Select Create new and supply a unique name. You will use this storage account for the remaining function apps.
-    9. **Application Insights**: Set to Disabled. We will create an Application Insights instance later that will be associated with all of the Function Apps and other services.
+    8. **Storage**: Select Create new and supply a unique name. You will use 
+    this storage account for the remaining function apps.
+    9. **Application Insights**: Set to Disabled. We will create an Application 
+    Insights instance later that will be associated with all of the Function 
+    Apps and other services.
 
     ![Screenshot of the Function App creation form](media/new-function-app-form.png 'Create Function App form')
 
-4.  Repeat the steps above to create the **tbd** function app.
+4.  Repeat the steps above to create the **idpOrchestratorsFunctionApp**, 
+**idpIotcBridgeFunctionApp**, and **idpIotHubBridgeFunctionApp** function apps.
 
-    - Enter a unique value for the App name, ensuring it has the word **tbd** within the name so you can easily identify it.
-    - Make sure you enter the same remaining settings and select the storage account you created in the previous step.
-
-5.  Repeat the steps above to create the **Orchestrators** function app.
+    - Enter a unique value for the App name, ensuring it has the word **tbd** 
+    within the name so you can easily identify it.
+    - Make sure you enter the same remaining settings and select the storage 
+    account you created in the previous step.
 
 #### Create the Event Grid Topic
 
-1.  Type **Event Grid** into the Search box at the top of the `All Services` page, then select **Event Grid Topics**  section.
+1.  Type **Event Grid** into the Search box at the top of the `All Services` 
+page, then select **Event Grid Topics**  section.
 
 2.  Click the **Add** button to create a new Event Grid Topic.
 
 3.  Complete the event grid topic creation form with the following:
 
     1. **Subscription**: Select your Azure subscription.
-    2. **Resource Group**: Select the resource group to which you have added your other services, such as `serverless-microservices`.
-    3. **Name**: Enter a unique value for the Event Grid **Topic** i.e. `IdpExternalizations`.
-    4. **Location**: Select a region closest to you. Make sure you select the same region for the rest of your resources.
+    2. **Resource Group**: Select the resource group to which you have added 
+    your other services, such as `serverless-microservices`.
+    3. **Name**: Enter a unique value for the Event Grid **Topic** 
+    i.e. `IdpExternalizations`.
+    4. **Location**: Select a region closest to you. Make sure you select the 
+    same region as the rest of your resources.
     5. Click the **Review + create** button.
-    6. Once completed, click the resource group link, then click the Event Grid Topic link.
+    6. Once completed, click the resource group link, then click the Event Grid 
+    Topic link.
 
     ![Screenshot of the Event Grid Topic form](media/event-grid-topic-creation.png)
 
@@ -231,20 +270,27 @@ Each of these Function Apps act as a hosting platform for one or more functions.
 
 #### Create the Web App Service Plan
 
-1.  Type **App Service** into the Search box at the top of the `All Services` page, then select **App Service Plans**  section.
+1.  Type **App Service** into the Search box at the top of the `All Services` 
+page, then select **App Service Plans**  section.
 
 2.  Click the **Add** button to create a new app service plan.
 
 3.  Complete the app service plan creation form with the following:
 
-    1. **App Service Plan**: Enter a unique value for the **App Service Plan** i.e. `RideShareAppServicePlan`.
+    1. **App Service Plan**: Enter a unique value for the **App Service Plan** 
+    i.e. `RideShareAppServicePlan`.
     2. **Subscription**: Select your Azure subscription.
-    3. **Resource Group**: Select the resource group to which you have added your other services, such as `serverless-microservices`.
+    3. **Resource Group**: Select the resource group to which you have added 
+    your other services, such as `serverless-microservices`.
     3. **Operating system**: Select `Windows`
-    4. **Location**: Select a region closest to you. Make sure you select the same region for the rest of your resources.
+    4. **Location**: Select a region closest to you. Make sure you select the 
+    same region for the rest of your resources.
     5. **Pricing Tier**: Select `Free`.
 
     ![Screenshot of the app service plan](media/app-service-plan-creation.png)
+
+
+> :warning: **WARNING: WORK IN PROGRESS BELOW - DO NOT USE**
 
 #### Create the Web App
 
