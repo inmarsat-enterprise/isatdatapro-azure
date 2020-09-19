@@ -128,7 +128,7 @@ then select **Azure Cosmos DB**  section.
     4. **Resource Group**: Select the Resource Group you created above, 
     such as `serverless-microservices`.
     5. **Account Name**: Enter a unique ID for the **Cosmos DB Account**, 
-    such as `iot-storage-warm`.
+    such as `iotstoragewarm`.
     6. **API**: Select `Core (SQL)`.
     7. **Location**: Select a region closest to you. Make sure you select the 
     same region for the rest of your resources.
@@ -230,8 +230,8 @@ select **Function App** within the Marketplace section.
 
     ![Screenshot of the Function App creation form](media/new-function-app-form.png 'Create Function App form')
 
-4.  Repeat the steps above to create the **idpOrchestratorsFunctionApp**, 
-**idpIotcBridgeFunctionApp**, and **idpIotHubBridgeFunctionApp** function apps.
+4.  Repeat the steps above to create the **idpOrchestratorsFunctionApp** and 
+**idpIotHubBridgeFunctionApp** function apps.
 
     - Enter a unique value for the App name, ensuring it has the word **tbd** 
     within the name so you can easily identify it.
@@ -268,6 +268,8 @@ page, then select **Event Grid Topics**  section.
 
     ![Screenshot of the Event Grid Topic key](media/event-grid-topic-creation1.png)
 
+> :warning: **WARNING: WORK IN PROGRESS BELOW - DO NOT USE**
+
 #### Create the Web App Service Plan
 
 1.  Type **App Service** into the Search box at the top of the `All Services` 
@@ -288,9 +290,6 @@ page, then select **App Service Plans**  section.
     5. **Pricing Tier**: Select `Free`.
 
     ![Screenshot of the app service plan](media/app-service-plan-creation.png)
-
-
-> :warning: **WARNING: WORK IN PROGRESS BELOW - DO NOT USE**
 
 #### Create the Web App
 
