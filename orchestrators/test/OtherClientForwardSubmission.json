@@ -1,0 +1,13 @@
+{
+  "id": "0f98deae-c172-4115-8813-d03d2640f938",
+  "subject": "Other Client submitted forward message 5659483 via 590",
+  "data": {
+    "messageId": 5659483,
+    "mailboxId": "590"
+  },
+  "eventType": "OtherClientForwardSubmission",
+  "dataVersion": "2.0",
+  "metadataVersion": "1",
+  "eventTime": "2020-09-19T21:21:34.896Z",
+  "topic": "/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/enterprise-iot-poc/providers/Microsoft.EventGrid/topics/IdpExternalizations"
+}

@@ -12,11 +12,15 @@
       ]
     },
     {
-      "name": "Attach to orchestrators",
+      "name": "Attach to device-bridge",
       "type": "node",
       "request": "attach",
-      "port": 9232,
-      "preLaunchTask": "func: host start --port 7074"
+      "port": 9231,
+      "preLaunchTask": "func: host start --port 7073"
     }
-  ]
+  ],
+  "resolveSourceMapLocations": [
+    "${workspaceFolder}/**",
+    "!**/node_modules/**"
+  ],
 }

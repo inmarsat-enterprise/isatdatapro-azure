@@ -2,6 +2,16 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Current File",
+      "program": "${file}",
+      "outputCapture": "std",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
       "name": "Attach to satellite-messaging",
       "type": "node",
       "request": "attach",

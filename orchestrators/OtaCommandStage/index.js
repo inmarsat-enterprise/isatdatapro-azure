@@ -1,4 +1,5 @@
-﻿const df = require("durable-functions");
+﻿// Orchestrator Client
+const df = require("durable-functions");
 
 module.exports = async function (context, req) {
     const client = df.getClient(context);

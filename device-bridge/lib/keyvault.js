@@ -1,12 +1,12 @@
 
-const request = require('request-promise-native');
+//const request = require('request-promise-native');
 
-require('dotenv');
+//require('dotenv');
 //TODO: not clear where this MSI information comes from may need to be in FuncApp index.js
 const msiEndpoint = process.env.MSI_ENDPOINT;
 const msiSecret = process.env.MSI_SECRET;
 
-const localSecret = process.env.TEMP_IOTC_SAS_KEY;
+const localSecret = process.env.IOTC_SAS_KEY;
 
 let kvToken;
 
@@ -22,6 +22,7 @@ async function getKeyVaultSecret(context, secretUrl, forceTokenRefresh = false) 
     context.log.warn(`Using temporary variable SAS key`);
     return localSecret;
   }
+  /*
   // Production version should use key vault properly
   if (!kvToken || forceTokenRefresh) {
     const options = {
@@ -54,6 +55,7 @@ async function getKeyVaultSecret(context, secretUrl, forceTokenRefresh = false) 
       throw new Error('Unable to fetch secret');
     }
   }
+  */
 }
 
 module.exports = getKeyVaultSecret;

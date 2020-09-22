@@ -1,0 +1,383 @@
+{
+  "@type": "InterfaceInstance",
+  "name": "satelliteModem",
+  "schema": {
+    "comment": "DTDL v1",
+    "@id": "urn:example:inmarsat-idp:ut:1",
+    "@type": "Interface",
+    "displayName": "Satellite Modem Information",
+    "@context": "http://azureiot.com/v1/contexts/IoTModel.json",
+    "contents": [
+      {
+        "@type": "Property",
+        "displayName": "Mobile ID",
+        "name": "mobileId",
+        "schema": "string"
+      },
+      {
+        "@type": "Property",
+        "displayName": "Last Reset Reason",
+        "name": "lastResetReason",
+        "schema": {
+          "@type": "Enum",
+          "valueSchema": "integer",
+          "enumValues": [
+            {
+              "name": "unknown",
+              "diplayName": "Unknown",
+              "enumValue": 0
+            },
+            {
+              "name": "powerOn",
+              "diplayName": "Power On",
+              "enumValue": 1
+            },
+            {
+              "name": "newTrafficChannel",
+              "diplayName": "New Traffic Channel",
+              "enumValue": 2
+            },
+            {
+              "name": "localExternal",
+              "diplayName": "Local External",
+              "enumValue": 3
+            },
+            {
+              "name": "otaCommand",
+              "diplayName": "Remote Command",
+              "enumValue": 4
+            },
+            {
+              "name": "brownout",
+              "diplayName": "Brownout",
+              "enumValue": 5
+            },
+            {
+              "name": "watchdog",
+              "diplayName": "Watchdog",
+              "enumValue": 6
+            },
+            {
+              "name": "software",
+              "diplayName": "Software",
+              "enumValue": 7
+            },
+            {
+              "name": "reserved",
+              "diplayName": "Reserved",
+              "enumValue": 8
+            },
+            {
+              "name": "dspError1",
+              "diplayName": "DSP Error 1",
+              "enumValue": 9
+            },
+            {
+              "name": "dspError2",
+              "diplayName": "DSP Error 2",
+              "enumValue": 10
+            },
+            {
+              "name": "dspError3",
+              "diplayName": "DSP Error 3",
+              "enumValue": 11
+            },
+            {
+              "name": "dspError4",
+              "diplayName": "DSP Error 4",
+              "enumValue": 0
+            }
+          ]
+        }
+      },
+      {
+        "@type": "Property",
+        "displayName": "Broadcast Groups",
+        "name": "broadcastIds",
+        "schema": {
+          "@type": "Array",
+          "elementSchema": "string"
+        }
+      },
+      {
+        "@type": "Property",
+        "displayName": "User Mute State",
+        "name": "userTxState",
+        "schema": "boolean"
+      },
+      {
+        "@type": "Property",
+        "displayName": "Operator Mute State",
+        "name": "operatorTxState",
+        "schema": "boolean"
+      },
+      {
+        "@type": "Property",
+        "displayName": "Power Mode",
+        "name": "powerMode",
+        "schema": {
+          "@type": "Enum",
+          "valueSchema": "integer",
+          "enumValues": [
+            {
+              "name": "mobilePowered",
+              "displayName": "Mobile, Powered",
+              "enumValue": 0
+            },
+            {
+              "name": "fixedPowered",
+              "displayName": "Fixed, Powered",
+              "enumValue": 1
+            },
+            {
+              "name": "mobileBattery",
+              "displayName": "Mobile, Battery",
+              "enumValue": 2
+            },
+            {
+              "name": "fixedBattery",
+              "displayName": "Fixed, Battery",
+              "enumValue": 3
+            },
+            {
+              "name": "mobileMinBattery",
+              "displayName": "Mobile, MinBattery",
+              "enumValue": 4
+            },
+            {
+              "name": "mobileParked",
+              "displayName": "Mobile, Parked",
+              "enumValue": 5
+            }
+          ]
+        }
+      },
+      {
+        "@type": "Property",
+        "displayName": "Wakeup Period",
+        "description": "The low power wakeup (listen) period of the modem",
+        "name": "wakeupPeriod",
+        "comment": "Indirectly writable via setWakeupInterval command",
+        "schema": {
+          "@type": "Enum",
+          "valueSchema": "integer",
+          "enumValues": [
+            {
+              "name": "none",
+              "displayName": "5 sec",
+              "enumValue": 0
+            },
+            {
+              "name": "seconds30",
+              "displayName": "30 sec",
+              "enumValue": 1
+            },
+            {
+              "name": "seconds60",
+              "displayName": "60 sec",
+              "enumValue": 2
+            },
+            {
+              "name": "minutes3",
+              "displayName": "3 min",
+              "enumValue": 3
+            },
+            {
+              "name": "minutes10",
+              "displayName": "10 min",
+              "enumValue": 4
+            },
+            {
+              "name": "minutes30",
+              "displayName": "30 min",
+              "enumValue": 5
+            },
+            {
+              "name": "minutes60",
+              "displayName": "60 min",
+              "enumValue": 6
+            },
+            {
+              "name": "minutes2",
+              "displayName": "2 min",
+              "enumValue": 7
+            },
+            {
+              "name": "minutes5",
+              "displayName": "5 min",
+              "enumValue": 8
+            },
+            {
+              "name": "minutes15",
+              "displayName": "15 min",
+              "enumValue": 9
+            },
+            {
+              "name": "minutes20",
+              "displayName": "20 min",
+              "enumValue": 10
+            }
+          ]
+        }
+      },
+      {
+        "@type": "Property",
+        "name": "lastRxMsgTime",
+        "schema": "datetime"
+      },
+      {
+        "@type": "Property",
+        "name": "lastRegisteredTime",
+        "schema": "datetime"
+      },
+      {
+        "@type": "Property",
+        "name": "regionName",
+        "schema": "string"
+      },
+      {
+        "@type": "Telemetry",
+        "displayName": "Location",
+        "name": "location",
+        "schema": "geopoint"
+      },
+      {
+        "@type": "Telemetry",
+        "displayName": "Receive Metrics",
+        "name": "rxMetrics",
+        "schema": {
+          "@type": "Object",
+          "fields": [
+            {
+              "name": "avgCn",
+              "schema": "double"
+            },
+            {
+              "name": "averagingPeriod",
+              "schema": "integer"
+            }
+          ]
+        }
+      },
+      {
+        "@type": "Command",
+        "name": "reset",
+        "commandType": "asynchronous",
+        "request": {
+          "name": "resetType",
+          "displayName": "Reset Type",
+          "schema": {
+            "@type": "Enum",
+            "valueSchema": "integer",
+            "enumValues": [
+              {
+                "name": "modemPreserve",
+                "enumValue": 0
+              },
+              {
+                "name": "modemFlush",
+                "enumValue": 1
+              },
+              {
+                "name": "terminalModemPreserve",
+                "enumValue": 0
+              },
+              {
+                "name": "terminalModemFlush",
+                "enumValue": 0
+              }
+            ]
+          }
+        },
+        "response": {
+          "name": "receivedTime",
+          "schema": "datetime"
+        }
+      },
+      {
+        "@type": "Mute",
+        "name": "setTxMute",
+        "commandType": "asynchronous",
+        "request": {
+          "name": "mute",
+          "schema": "boolean"
+        },
+        "response": {
+          "name": "receivedTime",
+          "schema": "datetime"
+        }
+      },
+      {
+        "@type": "Command",
+        "name": "getLocation",
+        "commandType": "asynchronous",
+        "response": {
+          "name": "location",
+          "schema": {
+            "@type": "Object",
+            "fields": [
+              {
+                "name": "fixStatus",
+                "schema": "integer"
+              },
+              {
+                "name": "latitude",
+                "schema": "integer"
+              },
+              {
+                "name": "longitude",
+                "schema": "integer"
+              },
+              {
+                "name": "altitude",
+                "schema": "integer"
+              },
+              {
+                "name": "speed",
+                "schema": "integer"
+              },
+              {
+                "name": "heading",
+                "schema": "integer"
+              },
+              {
+                "name": "dayOfMonth",
+                "schema": "integer"
+              },
+              {
+                "name": "minuteOfDay",
+                "schema": "integer"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "@type": "Command",
+        "name": "pingModem",
+        "comment": "Must convert ISO to ping time format",
+        "commandType": "asynchronous",
+        "request": {
+          "name": "pingTime",
+          "schema": "datetime"
+        },
+        "response": {
+          "name": "report",
+          "schema": {
+            "@type": "Object",
+            "fields": [
+              {
+                "name": "requestTime",
+                "schema": "datetime"
+              },
+              {
+                "name": "responseTime",
+                "schema": "datetime"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

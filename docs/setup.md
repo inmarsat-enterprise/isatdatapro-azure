@@ -79,7 +79,7 @@ The following is a summary of all Azure resources required to deploy the solutio
 | *Location*Plan | *Location*Plan | App Service (Consumption) Plan | Auto |
 | idpMessagingFunctionApp | idpMessagingFunctionAppDev | Function App | Auto |
 | idpOrchestratorsFunctionApp | idpOrchestratorsFunctionAppDev | Function App | Auto |
-| idpIotHubBridgeFunctionApp | idpIotHubBridgeFunctionAppDev | Function App | Auto |
+| idpDeviceBridgeFunctionApp | idpDeviceBridgeFunctionAppDev | Function App | Auto |
 | IdpExternalizations | IdpExternalizationsDev | Event Grid Topic | Manual |
 | IdpApiNotifications | IdpApiNotificationsDev | Logic App | Manual |
 | IdpAdminAppServicePlan | IdpAdminAppServicePlanDev | Web App Service Plan | Auto |
@@ -212,26 +212,30 @@ select **Function App** within the Marketplace section.
 
 3.  Complete the function app creation form with the following:
 
-    1. **App name**: Enter a unique value for the **idpMessagingFunctionApp** 
-    function app.
-    2. **Subscription**: Select your Azure subscription.
-    3. **Resource Group**: Select the resource group to which you have added 
+    1. **Subscription**: Select your Azure subscription.
+    2. **Resource Group**: Select the resource group to which you have added 
     your other services, such as `serverless-microservices`.
-    4. **OS**: Select Windows.
-    5. **Hosting Plan**: Select Consumption Plan.
-    6. **Location**: Select a region closest to you. Make sure you select the 
-    same region for the rest of your resources.
-    7. **Runtime Stack**: Select **Node.js**.
-    8. **Storage**: Select Create new and supply a unique name. You will use 
-    this storage account for the remaining function apps.
-    9. **Application Insights**: Set to Disabled. We will create an Application 
-    Insights instance later that will be associated with all of the Function 
-    Apps and other services.
+    3. **Function App name**: Enter a unique value for the 
+    **`idpMessagingFunctionApp`** function app.
+    4. **Publish**: Select `Code`.
+    5. **Runtime stack**: Select `Node.js`.
+    6. **Version**: Select `10 LTS`.
+    7. **Region**: Select a region closest to you. Make sure you select the 
+    same region as the rest of your resources.
+    8. Click **Next: Hosting >**
+    9. **Storage Account**: Select the storage account created above e.g. 
+    `idpfunctionstore`.
+    10. **Operating System**: Select `Windows`.
+    11. **Plan Type**: Select `Consumption (Serverless)`.
+    12. Click **Next: Monitoring >**
+    9. **Enable Application Insights**: Select `No`. We will create an 
+    Application Insights instance later that will be associated with all of the 
+    Function Apps and other services.
 
     ![Screenshot of the Function App creation form](media/new-function-app-form.png 'Create Function App form')
 
 4.  Repeat the steps above to create the **idpOrchestratorsFunctionApp** and 
-**idpIotHubBridgeFunctionApp** function apps.
+**idpDeviceBridgeFunctionApp** function apps.
 
     - Enter a unique value for the App name, ensuring it has the word **tbd** 
     within the name so you can easily identify it.
@@ -267,6 +271,38 @@ page, then select **Event Grid Topics**  section.
 5. Take note of the newly-created topic key from Settings > Access Keys:
 
     ![Screenshot of the Event Grid Topic key](media/event-grid-topic-creation1.png)
+
+#### Create the IoT Central Application
+
+1.  Type **IoT Central** into the Search box at the top of the `All Services` 
+page, then select **IoT Central Application**  section.
+
+2.  Click the **Create** button to create a new IoT Central Application.
+
+3.  Complete the IoT Central Application creation form with the following:
+
+    1. **Resource Name**: Enter a name for the application such as 
+    `satellite-iot`.  The Application URL should complete automatically.
+    2. **Subscription**: Select your Azure subscription.
+    3. **Resource Group**: Select the resource group to which you have added 
+    your other services, such as `serverless-microservices`.
+    4. **Pricing Plan**: Select `Standard 1`.
+    5. **Template**: Select `Custom application`.
+    6. **Location**: Select a location closest to you.
+
+4. Click the **Create** button.
+
+5. Once the creation is complete, go to the resource and click the 
+**IoT Central Application URL**.
+
+6. From the IoT Central Application, click **Administration**, then click 
+**API tokens**, then click **Generate token** and complete the form:
+
+    1. **Token name**: Enter a unique value e.g. `initial-token`.
+    2. **Role**: Select `Administrator`.
+    3. Click **Generate** then copy the token and save it in a secure location.
+
+7. TBD create enrollment group and SAS key for device enrollment.
 
 > :warning: **WARNING: WORK IN PROGRESS BELOW - DO NOT USE**
 

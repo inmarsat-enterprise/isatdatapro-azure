@@ -1,25 +1,32 @@
 {
 	"folders": [
 		{
-			"path": "satellite-messaging"
-		},
-		{
+			"name": "data-transformer",
 			"path": "data-transformer"
 		},
 		{
-			"path": "iotc-integration"
+			"name": "device-bridge",
+			"path": "device-bridge"
 		},
 		{
-			"path": "docs"
-		},
-		{
+			"name": "notifications",
 			"path": "notifications"
 		},
 		{
+			"name": "orchestrators",
 			"path": "orchestrators"
 		},
 		{
+			"name": "satellite-messaging",
+			"path": "satellite-messaging"
+		},
+		{
+			"name": "web",
 			"path": "web"
+		},
+		{
+			"name": "docs",
+			"path": "docs"
 		}
 	],
 	"settings": {
@@ -33,7 +40,7 @@
 				"configurations": [
 					"Attach to satellite-messaging",
 					"Attach to data-transformer",
-					"Attach to iotc-integration",
+					"Attach to device-bridge",
 					"Attach to orchestrators"
 				]
 			}
