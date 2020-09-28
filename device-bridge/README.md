@@ -6,15 +6,37 @@
 * Allows for Virtual Device Models to define data translation i.e. message 
 parsing and command translation
 
-* Picks up event `NewReturnMessage` and assesses against device templates based 
-on `codecServiceId` (SIN) and `codecMessageId` (MIN)
+* **DeviceBridge** picks up event `NewReturnMessage` and assesses against device 
+templates based on `codecServiceId` (SIN) and `codecMessageId` (MIN)
   * If match is found, parse appropriately as modem properties (SIN 0), 
   telemetry (SIN 100), device properties (SIN 101), command response (SIN 102) 
   or edge/Crosser logic (SIN 99)
+  * Checks for pending *desired properties* and if the device supports, 
+  publishes a `CommandRequest` to EventGrid indicating the expected completion.
 
-* Checks IoT Central (/Hub) for commands or property settings based on device 
-template to create new forward message submission, indirectly generating 
-`NewForwardMessage` event
+* **CommandHandler** maintains a connection to each IDP twin in IoT Central (/Hub) 
+for commands or desired property changes based on the device template to publish 
+a `CommandRequest` to EventGrid indicating the expected completion.
+
+**`CommandRequest`** event is formatted as:
+```
+{
+  mobileId: {string},
+  command: {Object},
+  completion: {[Object]},
+  retries: {[number]}
+}
+```
+
+A separate orchestrator function processes the `CommandRequest` as follows:
+1. If the same forwardMessage is already in progress, ignore the new request.
+2. Else submit command (`MessageForward`) and monitor for the completion.
+3. If forward message fails, retry up to `retries` count.
+4. After retries failure, publish `CommandFailure`.
+
+>: **Note**: IoT Central device IDs must contain the IDP *mobileId*.  If no 
+default ID format is provided as an environment variable 
+**`IOTC_DFLT_DEVICE_ID_FORMAT`** the default will be `idp-{mobileId}`.
 
 ## Device Capability Models & Device Models
 

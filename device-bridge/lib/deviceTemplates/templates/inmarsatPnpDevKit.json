@@ -1,0 +1,54 @@
+{
+  "displayName": "Inmarsat PNP Developer Kit",
+  "id": "urn:inmarsat:idp:template:inmarsatPnpDevKit:1",
+  "types": [
+    "GatewayModel"
+  ],
+  "capabilityModel": {
+    "comment": "retrieve from deviceCapabilityModels folder",
+    "@id": "urn:inmarsat:idp:capabilityModel:inmarsatPnpDevKit:1"
+  },
+  "solutionModel": {
+    "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:1",
+    "@type": [
+      "SolutionModel"
+    ],
+    "cloudProperties": [
+      {
+        "@id": "urn:example:userModel:customer",
+        "@type": [
+          "CloudProperty"
+        ],
+        "displayName": "Customer",
+        "name": "customer",
+        "schema": "string",
+        "valueDetail": {
+          "@id": "urn:example:userModel:customer:valueDetail",
+          "@type": [
+            "ValueDetail/StringValueDetail"
+          ]
+        }
+      },
+      {
+        "@id": "urn:inmarsat:idp:ut:properties:manufacturerModel:1",
+        "@type": [
+          "Property"
+        ],
+        "displayName": "Manufacturer Model",
+        "name": "manufacturerModel",
+        "schema": "string"
+      },
+      {
+        "@id": "urn:inmarsat:idp:ut:properties:manufacturerPartNumber:1",
+        "@type": [
+          "Property"
+        ],
+        "displayName": "Manufacturer Part Number",
+        "name": "manufacturerPartNumber",
+        "schema": "string"
+      }
+    ],
+    "initialValues": [],
+    "overrides": []
+  }
+}

@@ -1,5 +1,3 @@
 'use strict';
 
-module.exports = {
-  parse: require('./messageParser'),
-};
+module.exports = require('./messageParser');
