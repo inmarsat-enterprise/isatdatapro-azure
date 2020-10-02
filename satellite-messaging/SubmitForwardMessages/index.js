@@ -9,7 +9,7 @@ module.exports = async function (context, eventGridEvent) {
   try {
     const { mobileId, command } = eventGridEvent.data;
     const submitUuid = eventGridEvent.data.uuid ? eventGridEvent.data.uuid : null;
-    //TODO: append a submitter UUID to the EventGrid published event
+    
     function onNewForwardMessage(message) {
       const event = {
         id: uuid(),
@@ -19,14 +19,15 @@ module.exports = async function (context, eventGridEvent) {
         data: Object.assign({ submitUuid: submitUuid }, message),
         eventTime: new Date().toISOString()
       };
-      console.log(`Publishing ${JSON.stringify(event)}`);
-      context.bindings.outputEvent.push(event);
+      context.log(`Publishing ${JSON.stringify(event)}`);
+      context.bindings.outputEvent = event;
     }
+
     eventHandler.on('NewForwardMessage', onNewForwardMessage);
     eventHandler.on('ApiOutage', eventGrid.onApiOutage);
     eventHandler.on('ApiRecovery', eventGrid.onApiRecovery);
-    const success = await submitForwardMessage(mobileId, command);
-    context.log(`Success: ${success}`);
+    const messageId = await submitForwardMessage(mobileId, command);
+    context.log(messageId ? `Send messageId ${messageId}` : `Failed to send`);
   } catch (e) {
     context.log.error(e);
   } finally {

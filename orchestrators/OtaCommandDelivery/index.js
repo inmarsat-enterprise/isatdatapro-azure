@@ -1,32 +1,35 @@
 ﻿// Orchestrator Client
-const df = require("durable-functions");
+const df = require('durable-functions');
+const { clientGetStatusAll } = require('../SharedCode');
+
+const successStates = [
+  'DELIVERED',
+];
+const failedStates = [
+  'FAILED_DELIVERY',
+  'TIMED_OUT',
+];
+const completedStates = successStates.concat(failedStates);
 
 module.exports = async function (context, eventGridEvent) {
-  context.log(`Received event: ${JSON.stringify(eventGridEvent)}`);
+  //context.log(`Received event: ${JSON.stringify(eventGridEvent)}`);
   if (eventGridEvent.eventType === 'ForwardMessageStateChange') {
     const client = df.getClient(context);
     const { messageId, newState } = eventGridEvent.data;
-    if (newState === 'DELIVERED' || newState === 'FAILED') {
-      //TODO detect failure
-    }
-    //: work around terminated instances bug by flushing history
-    let instances = await client.getStatusAll();
-    if (typeof instances === 'string') {
-      instances = instances.replace(/undefined/g, 'null');
-      instances = JSON.parse(instances);
-      instances.forEach(async (instance) => {
-        await client.purgeInstanceHistory(instance.instanceId);
-      });
-    }
-    for (let i=0; i < instances.length; i++) {
-      context.log(`${new Date().toISOString()}: ${JSON.stringify(instances[i])}`);
-      if (instances[i].customStatus.messageId && instances[i].customStatus.messageId === messageId) {
-        const eventData = {
-          success: true,
-          deliveryTime: eventGridEvent.eventTime,   //should be a state time in the original event
-        };
-        await client.raiseEvent(instances[i].instanceId, 'CommandDelivered', eventData);
-        break;
+    if (completedStates.includes(newState)) {
+      //: work around terminated instances bug by flushing history
+      let instances = await clientGetStatusAll(context, client);
+      for (let i=0; i < instances.length; i++) {
+        if (instances[i].customStatus.messageId &&
+            instances[i].customStatus.messageId === messageId) {
+          const eventData = {
+            success: successStates.includes(newState) ? true : false,
+            deliveryTime: eventGridEvent.data.stateTimeUtc,
+          };
+          await client.raiseEvent(instances[i].instanceId, 'CommandDelivered',
+              eventData);
+          break;
+        }
       }
     }
   }
