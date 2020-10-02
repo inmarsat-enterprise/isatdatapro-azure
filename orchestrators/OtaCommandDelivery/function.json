@@ -1,0 +1,15 @@
+{
+  "bindings": [
+    {
+      "type": "eventGridTrigger",
+      "name": "eventGridEvent",
+      "direction": "in"
+    },
+    {
+      "name": "otaCommandDelivery",
+      "type": "orchestrationClient",
+      "direction": "in"
+    }
+  ],
+  "disabled": false
+}

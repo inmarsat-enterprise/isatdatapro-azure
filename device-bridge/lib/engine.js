@@ -7,6 +7,7 @@ const SymmetricKeySecurityClient = require('azure-iot-security-symmetric-key').S
 const ProvisioningDeviceClient = require('azure-iot-provisioning-device').ProvisioningDeviceClient;
 const crypto = require('crypto');
 const _ = require('lodash');
+const uuid = require('uuid').v4;
 
 const provisioningHost = 'global.azure-devices-provisioning.net';
 const idScope = process.env.IOTC_ID_SCOPE;
@@ -131,6 +132,7 @@ async function setupCommandHandlers(context, methods, twin) {
  * 
  * @param {Object} context 
  * @param {Object} properties 
+ * @param {Object} device
  */
 async function handleTwin(context, properties, device) {
   try {
@@ -150,44 +152,63 @@ async function handleTwin(context, properties, device) {
             delete delta[propName];
             patch[propName] = {
               value: properties[propName],
-              ad: 'OK',
+              ad: `Update confirmed`,
               ac: 200,
               av: delta.$version,
             };
           } else {
             //TODO: queue device method(s) for writeable property updates
             // via orchestrator(s) i.e. avoid duplicate remote operations
-            //context.log(`Attempting to set ${propName} to ${delta[propName]}`);
-            //TODO: check if propName is not writable on device model delete from delta
             const deviceModel = require('./deviceModels')[device.model];
             const writable = deviceModel.writeProperty(propName, delta[propName]);
             if (writable) {
+              writable.property = propName;
+              writable.newValue = delta[propName];
+              console.log(writable);
               writableProperties.push(writable);
+            } else {
+              console.log.warning(`${propName} not writable`
+                  + ` in model ${device.model}`);
             }
           }
         }
       }
-      writableProperties.forEach(prop => {
-        //TODO: publish event to EventGrid for orchestrator
-        const event = {
-          mobileId: device.mobileId,
-          command: prop.command,
-          completion: prop.completion,
-          retries: prop.retries,
-        };
-      });
+      if (writableProperties.length > 0) {
+        context.bindings.outputEvent = [];
+        writableProperties.forEach(prop => {
+          //TODO: publish event to EventGrid for orchestrator
+          const event = {
+            id: uuid(),
+            subject: `IOTC Desired property ${prop.property}=${prop.newValue}`
+                + ` for ${device.mobileId}`,
+            dataVersion: '2.0',
+            eventType: 'CommandRequest',
+            data: {
+              mobileId: device.mobileId,
+              command: prop.command,
+              completion: prop.completion,
+              retries: prop.retries
+            },
+            eventTime: new Date().toISOString()
+          };
+          console.log(`Publishing ${JSON.stringify(event)}`);
+          context.bindings.outputEvent.push(event);
+        });
+      }
     };
     if (properties) {
-      const patch = Object.assign({}, properties);
-      for (const prop in patch) {
-        if (prop in twin.properties.reported &&
-            _.isEqual(patch[prop], twin.properties.reported[prop])) {
-          delete patch[prop];
+      const update = Object.assign({}, properties);
+      for (const prop in update) {
+        if (prop in patch) {
+          update[prop] = patch[prop];
+        } else if (prop in twin.properties.reported &&
+            _.isEqual(update[prop], twin.properties.reported[prop])) {
+          delete update[prop];
         }
       }
-      if (!_.isEmpty(patch)) {
-        const err = await twin.properties.reported.update(patch);
-        context.log(`Sent device properties: ${JSON.stringify(patch)}`
+      if (!_.isEmpty(update)) {
+        const err = await twin.properties.reported.update(update);
+        context.log(`Sent device properties: ${JSON.stringify(update)}`
             + (err ? `; error: ${err.toString()}` : ` status: success`));
       }
     }

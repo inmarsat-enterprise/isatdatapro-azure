@@ -1,8 +1,8 @@
 {
   "bindings": [
     {
-      "type": "eventGridTrigger",
-      "name": "eventGridNewForwardSubmission",
+      "name": "command",
+      "type": "activityTrigger",
       "direction": "in"
     },
     {

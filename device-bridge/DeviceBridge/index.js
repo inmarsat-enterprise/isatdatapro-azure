@@ -15,6 +15,14 @@ const supportedCodecServiceIds = {
   102: "commands",
 };
 
+function isEventGridCompatible(event) {
+  if (event.id && event.subject && event.dataVersion &&
+      event.eventType && event.data && event.eventTime) {
+    return true;
+  }
+  return false;
+}
+
 module.exports = async function (context, eventGridEvent) {
   context.log.verbose(`IOTC bridge received ${JSON.stringify(eventGridEvent)}`);
   const returnMessage = eventGridEvent.data;

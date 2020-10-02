@@ -12,25 +12,61 @@
 const df = require("durable-functions");
 
 module.exports = df.orchestrator(function* (context) {
-    let outputs = [];
-    const input = context.df.getInput();
-    /*
-    input: {
-        commandDetails,
-        callback or event to post
-    }
-    */
-    if (input) console.log(`Orchestrating command: ${JSON.stringify(input)}`);
-    // TODO: lookup command and expected response
-    const { otaMessage, expectedResponse } = input;
+  let outputs = [];
+  const input = context.df.getInput();
+  if (input && input.data) {
+    console.log.verbose(`Orchestrating command: ${JSON.stringify(input)}`);
+    const mobileId = input.data.mobileId;
+    context.df.setCustomStatus({
+      state: 'submitting',
+      mobileId: mobileId,
+    });
     // Submit command as OTA message
-    const messageId = yield context.df.callActivity("OtaCommand", otaMessage);
-    outputs.push({commandId: messageId});
-    // Wait for event ForwardMessageStateChange for messageId
-    outputs.push({commandReceiveTime: ''});
+    const submitUuid = yield context.df.callActivity("OtaCommandSubmit", input.data);
+    context.df.setCustomStatus({
+      state: 'submitted',
+      mobileId: mobileId,
+      submitUuid: submitUuid,
+    });
+    const { messageId } = yield context.df.waitForExternalEvent('CommandSending');
+    context.df.setCustomStatus({
+      state: 'sending',
+      mobileId: mobileId,
+      messageId: messageId,
+    });
+    outputs.push({ commandMessageId: messageId });
+    // ForwardMessageStateChange captured by OtaCommandDelivery function
+    const { deliveryTime } = yield context.df.waitForExternalEvent('CommandDelivered');
+    context.df.setCustomStatus({
+      state: 'delivered',
+      mobileId: mobileId,
+      deliveryTime: deliveryTime,
+    });
+    outputs.push({ commandReceiveTime: delivered });
     // Wait for event NewReturnMessage with expectedResponse identifier(s)
-    outputs.push({responseId: 0});
-    // Callback or post event with response details
-    outputs.push({publishedTo: ''});
-    return outputs;
+    // TODO: may need an explicit timeout for this?
+    if (input.data.response) {
+      let responseCodecServiceId;
+      let responseCodecMessageId;
+      if (input.data.response.payloadJson) {
+        responseCodecServiceId = input.data.response.payloadJson.codecServiceId;
+        responseCodecMessageId = input.data.response.payloadJson.codecMessageId;
+      } else if (input.data.response.payloadRaw) {
+        responseCodecServiceId = input.data.response.payloadRaw[0];
+        responseCodecMessageId = input.data.response.payloadRaw[1];
+      }
+      context.df.setCustomStatus({
+        state: 'awaitingResponse',
+        mobileId: mobileId,
+        codecServiceId: responseCodecServiceId,
+        codecMessageId = responseCodecMessageId,
+      });
+      // ForwardMessageStateChange captured by OtaResponseReceived function
+      const response = yield context.df.waitForExternalEvent('ResponseReceived');
+      outputs.push({ response: response });
+      // TODO: derive/publish EventGrid event
+      // outputs.push({ publishedTo: '' });
+    }
+  }
+  return outputs;
 });
