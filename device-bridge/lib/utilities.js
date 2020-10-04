@@ -32,7 +32,9 @@ function importDirectory(dirname) {
   
   require('fs').readdirSync(normalizedPath).forEach(file => {
     let moduleName = file.split('.')[0];
-    modules[moduleName] = require(`./${moduleName}`);
+    if (moduleName !== 'index') {
+      modules[moduleName] = require(`./${moduleName}`);
+    }
   });
   
   return modules;

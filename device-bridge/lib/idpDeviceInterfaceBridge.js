@@ -1,8 +1,13 @@
+/*
+ * Functions implementing the IoT Central / IoT Hub device bridge for IDP
+ */
 'use strict';
 
-const iotHubTransport = require('azure-iot-device-mqtt').Mqtt;
+const singleIotHubTransport = require('azure-iot-device-mqtt').Mqtt;
+//const multiplexIotHubTransport = require('azure-iot-device-amqp').Amqp;
 const { Client, Message } = require('azure-iot-device');
-const ProvisioningTransport = require('azure-iot-provisioning-device-mqtt').Mqtt;
+const singleProvisioningTransport = require('azure-iot-provisioning-device-mqtt').Mqtt;
+//const multiplexProvisioningTransport = require('azure-iot-provisioning-device-amqp').Amqp;
 const SymmetricKeySecurityClient = require('azure-iot-security-symmetric-key').SymmetricKeySecurityClient;
 const ProvisioningDeviceClient = require('azure-iot-provisioning-device').ProvisioningDeviceClient;
 const crypto = require('crypto');
@@ -61,72 +66,33 @@ async function sendTelemetry(context, telemetry, timestamp, schema) {
   }
 }
 
-/**
- * 
- * @param {Object} context Function app context (for logging)
- * @param {Object} twin 
- * @param {Object} properties 
- */
-async function sendDeviceProperties(context, twin, properties) {
-  await twin.properties.reported.update(properties, (err) => {
-    context.log(`Sent device properties: ${JSON.stringify(properties)}`
-        + (err ? `; error: ${err.toString()}` : `status: success`));
-  });
+/* TODO: concept below would monitor for Commands
+async function processCommandResult(context, commandResult, twin) {
+  const properties = {};
+  properties[commandResult.command] = {
+    value: commandResult.result
+  };
+  const err = await twin.properties.reported.update(update);
+  context.log(`Sent device properties: ${JSON.stringify(update)}`
+      + (err ? `; error: ${err.toString()}` : ` status: success`));
 }
 
-/**
- * 
- * @param {Object} context Function app context (for logging)
- * @param {Object} writeableProperties 
- * @param {Object} twin 
- */  /*
-async function handleWriteablePropertyUpdates(context, writeableProperties, twin) {
-  twin.on('properties.desired', (desiredChange) => {
-    for (let setting in desiredChange) {
-      if (writeableProperties[setting]) {
-        context.log(`Received setting: ${setting}: ${desiredChange[setting]}`);
-        writeableProperties[setting](
-            desiredChange[setting],
-            async (newValue, status, code) => {
-          const patch = {
-            [setting]: {
-              value: newValue,
-              ad: status,
-              ac: code,
-              av: desiredChange.$version
-            }
-          }
-          await sendDeviceProperties(twin, patch);
-        });
-      }
-    }
-  });
-}
-
-/*  TODO: remove - must be implemented in orchestrator to maintain connection
-async function setupCommandHandlers(context, methods, twin) {
+async function setupCommandHandlers(context, device) {
   // Template: all functions over satellite link will be asynchronous
-  function doSomething(request, response) {
-    context.log(`Received asynchronous call to do something`);
-    const responsePayload = { status: `doing ${request.payload}` };
-    response.send(202, (err) => {
-      if (err) {
-        context.log.error(`Unable to send method response: ${err.toString()}`);
-      } else {
-        //simulate long response...need to manage with orchestrater
-        setTimeout(async () => {
-          const properties = { someProperty: { value: 'someValue' } };
-          await sendDeviceProperties(twin, properties);
-        }, 30000);
-        context.log(responsePayload);
-      }
-    });
+  const directMethods = {};
+  //: Generically map each supported model's direct methods
+  const deviceModel = require('./deviceModels')[device.model];
+  for (const commandName in deviceModel.commands) {
+    directMethods[commandName] = async (req, res) => {
+      const err = await res.send(202);
+      const dm = require('./deviceModels')[device.model];
+      //TODO: this probably won't work...needs some thought
+      dm.commands[commandName](req);
+    };
+    hubClient.onDeviceMethod(commandName, directMethods[commandName]);
   }
-
-  for (const method in methods) {
-    hubClient.onDeviceMethod(method, methods[method]);
-  }
-} // */
+}
+// */
 
 /**
  * 
@@ -152,22 +118,32 @@ async function handleTwin(context, properties, device) {
             delete delta[propName];
             patch[propName] = {
               value: properties[propName],
-              ad: `Update confirmed`,
+              ad: 'completed',
               ac: 200,
               av: delta.$version,
             };
           } else {
-            //TODO: queue device method(s) for writeable property updates
-            // via orchestrator(s) i.e. avoid duplicate remote operations
+            //: If writable in the device model get the OTA command setup
             const deviceModel = require('./deviceModels')[device.model];
             const writable = deviceModel.writeProperty(propName, delta[propName]);
             if (writable) {
+              patch[propName] = {
+                value: delta[propName],
+                ad: 'pending',
+                ac: 202,
+                av: delta.$version,
+              };
               writable.property = propName;
               writable.newValue = delta[propName];
-              console.log(writable);
               writableProperties.push(writable);
             } else {
-              console.log.warning(`${propName} not writable`
+              patch[propName] = {
+                value: delta[propName],
+                ad: 'not writable',
+                ac: 400,
+                av: delta.$version,
+              };
+              context.log.warning(`${propName} not writable`
                   + ` in model ${device.model}`);
             }
           }
@@ -176,7 +152,7 @@ async function handleTwin(context, properties, device) {
       if (writableProperties.length > 0) {
         context.bindings.outputEvent = [];
         writableProperties.forEach(prop => {
-          //TODO: publish event to EventGrid for orchestrator
+          //: publish event to EventGrid for orchestrator
           const event = {
             id: uuid(),
             subject: `IOTC Desired property ${prop.property}=${prop.newValue}`
@@ -218,14 +194,28 @@ async function handleTwin(context, properties, device) {
 }
 
 /**
+ * Placeholder for keeping a connection open listening for commands
+ * @private
+ * @param {number} milliseconds 
+ */
+function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+}
+
+/**
  * Sends device information to IoT Hub/Central
  * @param {Object} context The function app context (for logging)
  * @param {{id: string, model: string, mobileId: string}} device 
- * @param {Object} [telemetry] 
- * @param {Object} [properties] 
- * @param {*} [timestamp] 
+ * @param {Object} [telemetry] A set of telemetry
+ * @param {Object} [properties] A set of reported properties
+ * @param {string} [timestamp] ISO8601 compliant timestamp
+ * @param {number} [wait] Seconds to wait for pending commands or desired props
  */
-async function bridge(context, device, telemetry, properties, timestamp) {
+async function bridge(context, device, telemetry, properties, timestamp, wait) {
   let registrationId;
   if (device) {
     if (!device.id || 
@@ -238,26 +228,26 @@ async function bridge(context, device, telemetry, properties, timestamp) {
   } else {
     throw new Error('Invalid format: a device specification must be provided.');
   }
-  if (!telemetry && !properties) {
-    throw new Error(`No telemetry or device properties provided.`);
-  }
   const deviceSasKey = await getDeviceKey(registrationId);
   const provisioningSecurityClient =
       new SymmetricKeySecurityClient(registrationId, deviceSasKey);
   const provisioningClient = ProvisioningDeviceClient.create(
       provisioningHost,
       idScope,
-      new ProvisioningTransport(),
+      new singleProvisioningTransport(),
       provisioningSecurityClient);
   const result = await provisioningClient.register();
   const connectionString = 
       `HostName=${result.assignedHub}` 
       + `;DeviceId=${result.deviceId}`
       + `;SharedAccessKey=${deviceSasKey}`;
-  hubClient = Client.fromConnectionString(connectionString, iotHubTransport);
+  hubClient = Client.fromConnectionString(connectionString, singleIotHubTransport);
   await hubClient.open();
   if (telemetry) await sendTelemetry(context, telemetry, timestamp);
   await handleTwin(context, properties, device);
+  if (wait) {
+    //listenForCommands(wait * 1000);
+  }
   await hubClient.close();
 }
 

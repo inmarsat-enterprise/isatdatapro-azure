@@ -197,79 +197,6 @@
         }
       },
       {
-        "@id": "urn:inmarsat:idp:ut:properties:powerMode:1",
-        "@type": [
-          "Property"
-        ],
-        "displayName": "Power Mode",
-        "name": "powerMode",
-        "writable": true,
-        "schema": {
-          "@id": "urn:inmarsat:idp:ut:properties:powerMode:enum:1",
-          "@type": [
-            "Enum"
-          ],
-          "displayName": "Enum",
-          "valueSchema": "integer",
-          "enumValues": [
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:powerMode:enum:mobilePowered:1",
-              "@type": [
-                "EnumValue"
-              ],
-              "displayName": "Mobile Powered",
-              "enumValue": 0,
-              "name": "mobilePowered"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:powerMode:enum:fixedPowered:1",
-              "@type": [
-                "EnumValue"
-              ],
-              "displayName": "Fixed Powered",
-              "enumValue": 1,
-              "name": "fixedPowered"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:powerMode:enum:mobileBattery:1",
-              "@type": [
-                "EnumValue"
-              ],
-              "displayName": "Mobile Battery",
-              "enumValue": 2,
-              "name": "mobileBattery"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:powerMode:enum:fixedBattery:1",
-              "@type": [
-                "EnumValue"
-              ],
-              "displayName": "Fixed Battery",
-              "enumValue": 3,
-              "name": "fixedBattery"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:powerMode:enum:mobileMinBattery:1",
-              "@type": [
-                "EnumValue"
-              ],
-              "displayName": "Mobile Min Battery",
-              "enumValue": 4,
-              "name": "mobileMinBattery"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:powerMode:enum:mobileParked:1",
-              "@type": [
-                "EnumValue"
-              ],
-              "displayName": "Mobile Parked",
-              "enumValue": 5,
-              "name": "mobileParked"
-            }
-          ]
-        }
-      },
-      {
         "@id": "urn:inmarsat:idp:ut:properties:lastResetReason:1",
         "@type": [
           "Property"
@@ -614,14 +541,13 @@
         "schema": "string"
       },
       {
-        "@id": "urn:inmarsat:idp:ut:telemetry:snr:1",
+        "@id": "urn:inmarsat:idp:ut:telemetry:wakeupPeriodChangeSource:1",
         "@type": [
           "Telemetry"
         ],
-        "displayName": "SNR",
-        "name": "snr",
-        "displayUnit": "dB(Hz)",
-        "schema": "double"
+        "displayName": "Wakeup Period Change Source",
+        "name": "wakeupPeriodChangeSource",
+        "schema": "string"
       },
       {
         "@id": "urn:inmarsat:idp:ut:telemetry:latitude:1",

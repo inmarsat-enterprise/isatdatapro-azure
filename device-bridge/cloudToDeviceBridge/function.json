@@ -1,0 +1,17 @@
+{
+  "bindings": [
+    {
+      "name": "timerDeviceBridgeConnectionProxy",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "*/10 * * * * *"
+    },
+    {
+      "type": "eventGrid",
+      "name": "outputEvent",
+      "topicEndpointUri": "EVENTGRID_TOPIC_ENDPOINT",
+      "topicKeySetting": "EVENTGRID_TOPIC_KEY",
+      "direction": "out"      
+    }
+  ]
+}

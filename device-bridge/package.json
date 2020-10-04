@@ -8,15 +8,13 @@
   },
   "dependencies": {
     "azure-iot-device": "1.17.1",
+    "azure-iot-device-amqp": "1.13.2",
     "azure-iot-device-mqtt": "1.15.1",
     "azure-iot-provisioning-device": "1.8.5",
+    "azure-iot-provisioning-device-amqp": "1.8.6",
     "azure-iot-provisioning-device-mqtt": "1.7.5",
     "azure-iot-security-symmetric-key": "1.7.5",
     "lodash": "4.17.20"
   },
-  "devDependencies": {
-    "azure-iot-device-http": "1.13.1",
-    "request": "2.88.2",
-    "request-promise-native": "1.0.9"
-  }
+  "devDependencies": {}
 }

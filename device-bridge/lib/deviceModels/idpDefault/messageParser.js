@@ -1,12 +1,20 @@
-const commonMessageFormat = require('./commonMessageFormat');
+const commonMessageFormat = require('../../codecCommonMessageFormat');
 const { round } = require('../../utilities');
+
+const writableProperties = [
+  'wakeupPeriod',
+  'userTxMute',
+  'reset',
+  'getLocation',
+  'getBroadcastIds',
+];
 
 function writeProperty(propName, propValue) {
   //wakeupPeriod, powerMode, broadcastIds, userTxState
-  const commandDetails = {};
+  const otaMessage = {};
   switch (propName) {
     case 'wakeupPeriod':
-      commandDetails.command = {
+      otaMessage.command = {
         payloadJson: {
           codecServiceId: 0,
           codecMessageId: 70,
@@ -22,7 +30,7 @@ function writeProperty(propName, propValue) {
     case 'broadcastIds':
       break;
     case 'userTxState':
-      commandDetails.command = {
+      otaMessage.command = {
         payloadJson: {
           codecServiceId: 0,
           codecMessageId: 71,
@@ -38,7 +46,7 @@ function writeProperty(propName, propValue) {
     default:
       return null;
   }
-  return commandDetails;
+  return otaMessage;
 }
 
 function command(command, params) {
@@ -92,23 +100,41 @@ function parseGenericIdp(message) {
           if (codecMessageId !== 97) {
             reportedProperties.lastRegistrationTime = telemetry.receiveTimeUtc;
           }
-          telemetry = {};
+          telemetry = undefined;
           break;
         case 70:
           reportedProperties.wakeupPeriod =
               telemetry.wakeupPeriod.toLowerCase();
-          //TODO: capture source of change?
-          telemetry = {};
+          telemetry = {
+            wakeupPeriodChangeSource:
+                (telemetry.mobileInitiated === true) ? 'device' : 'cloud',
+          };
           break;
         case 72:
+          telemetry.latitude = round(telemetry.latitude / 60000, 6);
+          telemetry.longitude = round(telemetry.longitude / 60000, 6);
           reportedProperties.location = {
-            lat: round(telemetry.latitude / 60000, 6),
-            lon: round(telemetry.longitude / 60000, 6),
+            lat: telemetry.latitude,
+            lon: telemetry.longitude,
             alt: telemetry.altitude
           }
+          telemetry.heading = telemetry.heading * 2;
+          const { dayOfMonth, minuteOfDay } = telemetry;
+          delete telemetry.dayOfMonth;
+          delete telemetry.minuteOfDay;
+          const utcHour = minuteOfDay / 1440;
+          const utcMinute = minuteOfDay % 1440;
+          const gnssFixDate = new Date(message.receiveTimeUtc);
+          gnssFixDate.setUTCDate(dayOfMonth);
+          gnssFixDate.setUTCHours(utcHour);
+          gnssFixDate.setUTCMinutes(utcMinute);
+          gnssFixDate.setUTCSeconds(0);
+          telemetry.gnssFixTime = gnssFixDate.toISOString();
           break;
         case 115:
-          console.log(`${JSON.stringify(telemetry)}`);
+          //console.log(`${JSON.stringify(telemetry)}`);
+          reportedProperties.broadcastIds = telemetry.broadcastIds;
+          telemetry = undefined;
           break;
       }
     }
@@ -118,7 +144,8 @@ function parseGenericIdp(message) {
 
 module.exports = {
   parseGenericIdp,
-  writeProperty, 
+  writeProperty,
+  writableProperties,
 };
 
 const testMessage = {

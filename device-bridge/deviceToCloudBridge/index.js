@@ -1,6 +1,6 @@
 // Triggers on NewReturnMessage eventgrid event
-const handleMessage = require('../lib/engine');
-const { getDevices } = require('../lib/iotcApi');
+const handleMessage = require('../lib/idpDeviceInterfaceBridge');
+const { getDevices } = require('../lib/iotcDcmApi');
 //const getKeyVaultSecret = require('../lib/keyvault');
 const deviceModels = require('../lib/deviceModels');
 const { templates } = require('../lib/deviceTemplates');
@@ -25,6 +25,9 @@ function isEventGridCompatible(event) {
 
 module.exports = async function (context, eventGridEvent) {
   context.log.verbose(`IOTC bridge received ${JSON.stringify(eventGridEvent)}`);
+  if (eventGridEvent.eventType === 'NewReturnMessage') {
+    //
+  }
   const returnMessage = eventGridEvent.data;
   if (!(returnMessage.codecServiceId in supportedCodecServiceIds)) return;
   let mobileId = returnMessage.mobileId;

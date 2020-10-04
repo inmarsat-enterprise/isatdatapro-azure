@@ -1,4 +1,4 @@
-// Token management: check/notify expiry; generate new builder
+// IoT Central REST API calls for Device Templates
 
 // Get templates, compare against this lib; upload new from lib
 const https = require('https')
