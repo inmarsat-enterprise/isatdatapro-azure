@@ -38,20 +38,23 @@ module.exports = async function (context, timer) {
     }
     context.log(`${thisFunction.name} timer triggered at ${callTime}`);
     const provisionedDevices = await getDevices();
-    provisionedDevices.forEach(provisionedDevice => {
+    for (let d=0; d < provisionedDevices.length; d++) {
       const device = {};
       for (let template in templates) {
-        if (templates[template].id === provisionedDevice.instanceOf) {
-          device.id = provisionedDevice.id;
+        if (templates[template].id === provisionedDevices[d].instanceOf) {
+          device.id = provisionedDevices[d].id;
           device.model = template;
           device.mobileId = extractMobileId(device.id);
           break;
         }
       }
-      await checkDesiredPropertiesCommands(context, device);
-    });
+      if (device.id) {
+        await checkDesiredPropertiesCommands(context, device);
+      } else {
+        context.log.verbose(`Device ${provisionedDevices[d].id} not templated`);
+      }
+    }
   } catch (err) {
     context.log(err.message, err.stack);
-  } finally {
   }
 };

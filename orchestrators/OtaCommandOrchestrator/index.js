@@ -44,14 +44,14 @@ module.exports = df.orchestrator(function* (context) {
     });
     if (delivered.success) {
       outputs.push({ commandReceiveTime: delivered.deliveryTime });
-      if (input.data.response) {
+      if (input.data.completion) {
         // Wait for event NewReturnMessage with expectedResponse identifier(s)
         // TODO: may need an explicit timeout for this?
         context.df.setCustomStatus({
-          state: 'awaitingResponse',
+          state: 'awaitingCompletion',
           mobileId: mobileId,
-          codecServiceId: input.data.response.codecServiceId,
-          codecMessageId: input.data.response.codecMessageId,
+          codecServiceId: input.data.completion.codecServiceId,
+          codecMessageId: input.data.completion.codecMessageId,
         });
         // NewReturnMessage captured/filtered by OtaResponseReceived
         const response =
@@ -61,7 +61,7 @@ module.exports = df.orchestrator(function* (context) {
           subject: `Command response to ${commandMeta}`,
           dataVersion: '2.0',
           eventType: 'OtaCommandResponse',
-          data: response,
+          data: Object.assign(response, { completion: input.data.completion }),
           eventTime: response.receiveTimeUtc
         };
         context.bindings.outputEvent = responseEvent;

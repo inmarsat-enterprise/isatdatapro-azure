@@ -3,15 +3,22 @@ const { round } = require('../../utilities');
 
 const writableProperties = [
   'wakeupPeriod',
-  'userTxMute',
-  'reset',
-  'getLocation',
-  'getBroadcastIds',
+  'commandPingModem',
+  'commandGetLocation',
+  'commandReset',
+  'txMute',
+  'commandGetBroadcastIds',
+  'commandGetConfiguration',
 ];
 
+/**
+ * Returns the parameters for a CommandRequest event grid event
+ * @param {string} propName The writable property / proxy command name
+ * @param {*} [propValue] The value to write
+ * @returns {{ command: Object, response: Object }} CommandRequest event parameters
+ */
 function writeProperty(propName, propValue) {
-  //wakeupPeriod, powerMode, broadcastIds, userTxState
-  const otaMessage = {};
+  let otaMessage = {};
   switch (propName) {
     case 'wakeupPeriod':
       otaMessage.command = {
@@ -27,9 +34,7 @@ function writeProperty(propName, propValue) {
         }
       };
       break;
-    case 'broadcastIds':
-      break;
-    case 'userTxState':
+    case 'txMute':
       otaMessage.command = {
         payloadJson: {
           codecServiceId: 0,
@@ -37,25 +42,89 @@ function writeProperty(propName, propValue) {
           fields: [
             {
               name: 'txMute',
-              stringValue: propValue === true ? 'True' : 'False'
+              stringValue: (propValue === true) ? 'True' : 'False'
             }
           ]
         }
       };
       break;
+    case 'commandReset':
+      otaMessage.command = {
+        modemCommand: {
+          command: 'reset',
+          params: `${propValue}`
+        }
+      };
+      otaMessage.completion = {
+        codecServiceId: 0,
+        codecMessageId: 0,
+        property: propName,
+        resetValue: 'none'
+      };
+      break;
+    case 'commandPingModem':
+      otaMessage.command = {
+        modemCommand: {
+          command: 'ping'
+        }
+      };
+      otaMessage.completion = {
+        codecServiceId: 0,
+        codecMessageId: 112,
+        property: propName,
+        resetValue: false
+      };
+      break;
+    case 'commandGetLocation':
+      otaMessage.command = {
+        modemCommand: {
+          command: 'getLocation'
+        }
+      };
+      otaMessage.completion = {
+        codecServiceId: 0,
+        codecMessageId: 72,
+        property: propName,
+        resetValue: false
+      };
+      break;
+    case 'commandGetBroadcastIds':
+      otaMessage.command = {
+        modemCommand: {
+          command: 'getBroadcastIds'
+        }
+      };
+      otaMessage.completion = {
+        codecServiceId: 0,
+        codecMessageId: 115,
+        property: propName,
+        resetValue: false
+      };
+      break;
+    case 'commandGetConfiguration':
+      otaMessage.command = {
+        modemCommand: {
+          command: 'getConfiguration'
+        }
+      };
+      otaMessage.completion = {
+        codecServiceId: 0,
+        codecMessageId: 97,
+        property: propName,
+        resetValue: false
+      };
+      break;
     default:
-      return null;
+      otaMessage = null;
   }
   return otaMessage;
 }
 
-function command(command, params) {
-  let commandDetails = {};
-  switch (command) {
-    //
-  }
-}
-
+/**
+ * Returns reportedProperties based on message envelope
+ * @param {Object} message A return message
+ * @returns {Object} reportedProperties
+ */
 function parseMetadata(message) {
   const reportedProperties = {};
   reportedProperties.mobileId = message.mobileId;
@@ -66,10 +135,21 @@ function parseMetadata(message) {
   }
   reportedProperties.satelliteRegion = message.satelliteRegion;
   reportedProperties.lastRxMsgTime = message.receiveTimeUtc;
+  if (message.completion) {
+    reportedProperties[message.completion.property] =
+        message.completion.resetValue;
+  }
   return reportedProperties;
 }
 
-function parseGenericIdp(message) {
+/**
+ * Returns a set of telemetry for codec-defined messages
+ * If using codecServiceId=0 returns reportedProperties for the modem
+ * Returns a datetime based on the satellite receive time of the message
+ * @param {Object} message A return message
+ * @returns {{ telemetry: Object, reportedProperties: Object, timestamp: string }}
+ */
+function parseGenericIdp(context, message) {
   const timestamp = message.receiveTimeUtc;
   let telemetry;
   let reportedProperties = parseMetadata(message);
@@ -78,7 +158,7 @@ function parseGenericIdp(message) {
   } else {
     telemetry = commonMessageFormat.parse(message).data;
     if (message.codecServiceId === 0) {
-      switch (codecMessageId) {
+      switch (message.codecMessageId) {
         case 97:
         case 1:
         case 0:
@@ -122,7 +202,7 @@ function parseGenericIdp(message) {
           const { dayOfMonth, minuteOfDay } = telemetry;
           delete telemetry.dayOfMonth;
           delete telemetry.minuteOfDay;
-          const utcHour = minuteOfDay / 1440;
+          const utcHour = Math.trunc(minuteOfDay / 1440);
           const utcMinute = minuteOfDay % 1440;
           const gnssFixDate = new Date(message.receiveTimeUtc);
           gnssFixDate.setUTCDate(dayOfMonth);
@@ -130,6 +210,9 @@ function parseGenericIdp(message) {
           gnssFixDate.setUTCMinutes(utcMinute);
           gnssFixDate.setUTCSeconds(0);
           telemetry.gnssFixTime = gnssFixDate.toISOString();
+          break;
+        case 112:
+          reportedProperties.lastPingResponse = message.receiveTimeUtc;
           break;
         case 115:
           //console.log(`${JSON.stringify(telemetry)}`);
@@ -143,49 +226,8 @@ function parseGenericIdp(message) {
 }
 
 module.exports = {
-  parseGenericIdp,
+  parse: parseGenericIdp,
+  //parseGenericIdp,
   writeProperty,
   writableProperties,
 };
-
-const testMessage = {
-  "category": "message_return",
-  "messageId": 47821250,
-  "mobileId": "01459438SKYFEE3",
-  "mailboxId": "590",
-  "codecServiceId": 0,
-  "codecMessageId": 112,
-  "payloadRaw": [
-    0,
-    112,
-    44,
-    98,
-    44,
-    94
-  ],
-  "payloadJson": {
-    "name": "mobilePing",
-    "codecServiceId": 0,
-    "codecMessageId": 112,
-    "fields": [
-      {
-        "name": "requestTime",
-        "stringValue": "11362",
-        "dataType": "unsignedint"
-      },
-      {
-        "name": "responseTime",
-        "stringValue": "11358",
-        "dataType": "unsignedint"
-      }
-    ]
-  },
-  "mailboxTimeUtc": "2020-09-19T21:21:47Z",
-  "size": 6,
-  "ttl": 7776000,
-  "subcategory": "return",
-  "receiveTimeUtc": "2020-09-19T21:21:47Z",
-  "satelliteRegion": "AMERRB16"
-};
-
-//console.log(parseGenericIdp(console, testMessage));

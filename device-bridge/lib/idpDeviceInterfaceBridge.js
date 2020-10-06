@@ -103,9 +103,10 @@ async function setupCommandHandlers(context, device) {
 async function handleTwin(context, properties, device) {
   try {
     const twin = await hubClient.getTwin();
-    const patch = {};
+    let patch;
     //: Not using twin.on('properties.desired') since it won't trigger immediate
     if (twin.properties.desired) {
+      patch = {};
       const writableProperties = [];
       const delta = Object.assign({}, twin.properties.desired);
       context.log(`Desired property changes: ${JSON.stringify(delta)}`);
@@ -122,31 +123,42 @@ async function handleTwin(context, properties, device) {
               ac: 200,
               av: delta.$version,
             };
-          } else {
-            //: If writable in the device model get the OTA command setup
-            const deviceModel = require('./deviceModels')[device.model];
-            const writable = deviceModel.writeProperty(propName, delta[propName]);
-            if (writable) {
-              patch[propName] = {
-                value: delta[propName],
-                ad: 'pending',
-                ac: 202,
-                av: delta.$version,
-              };
-              writable.property = propName;
-              writable.newValue = delta[propName];
-              writableProperties.push(writable);
-            } else {
-              patch[propName] = {
-                value: delta[propName],
-                ad: 'not writable',
-                ac: 400,
-                av: delta.$version,
-              };
-              context.log.warning(`${propName} not writable`
-                  + ` in model ${device.model}`);
-            }
           }
+        }
+      }
+      for (const propName in delta) {
+        //: If writable in the device model get the OTA command setup
+        if (propName === '$version') continue;
+        const deviceModel = require('./deviceModels')[device.model];
+        const writable = deviceModel.writeProperty(propName, delta[propName]);
+        if (writable) {
+          patch[propName] = {
+            value: delta[propName],
+            ad: 'pending',
+            ac: 202,
+            av: delta.$version,
+          };
+          //: If this is a command proxy response accept and overwrite
+          if (properties &&
+              writable.completion &&
+              properties[propName] === writable.completion.resetValue) {
+            patch[propName].value = properties[propName];
+            patch[propName].ad = 'commandComplete';
+            patch[propName].ac = 200;
+          } else {
+            writable.property = propName;
+            writable.newValue = delta[propName];
+            writableProperties.push(writable);
+          }
+        } else {
+          patch[propName] = {
+            value: delta[propName],
+            ad: 'not writable',
+            ac: 400,
+            av: delta.$version,
+          };
+          context.log.warning(`${propName} not writable`
+              + ` in model ${device.model}`);
         }
       }
       if (writableProperties.length > 0) {
@@ -167,17 +179,15 @@ async function handleTwin(context, properties, device) {
             },
             eventTime: new Date().toISOString()
           };
-          console.log(`Publishing ${JSON.stringify(event)}`);
+          context.log.verbose(`Publishing ${JSON.stringify(event)}`);
           context.bindings.outputEvent.push(event);
         });
       }
     };
-    if (properties) {
-      const update = Object.assign({}, properties);
+    if (properties || patch) {
+      const update = Object.assign({}, properties, patch);
       for (const prop in update) {
-        if (prop in patch) {
-          update[prop] = patch[prop];
-        } else if (prop in twin.properties.reported &&
+        if (prop in twin.properties.reported &&
             _.isEqual(update[prop], twin.properties.reported[prop])) {
           delete update[prop];
         }

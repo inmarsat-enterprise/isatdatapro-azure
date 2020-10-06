@@ -11,7 +11,7 @@
     "@type": [
       "Interface"
     ],
-    "displayName": "Satellite Modem Information",
+    "displayName": "Satellite Modem",
     "@context": "http://azureiot.com/v1/contexts/IoTModel.json",
     "contents": [
       {
@@ -91,7 +91,7 @@
           "@type": [
             "Enum"
           ],
-          "displayName": "Enum",
+          "displayName": "Wakeup periods",
           "valueSchema": "integer",
           "enumValues": [
             {
@@ -338,7 +338,8 @@
         ],
         "displayName": "Broadcast Groups",
         "name": "broadcastIds",
-        "writable": true,
+        "comment": "Should be writable but is a restricted operation",
+        "writable": false,
         "schema": {
           "@id": "urn:inmarsat:idp:ut:properties:broadcastIds:object:1",
           "@type": [
@@ -494,12 +495,12 @@
         }
       },
       {
-        "@id": "urn:inmarsat:idp:ut:properties:userTxState:1",
+        "@id": "urn:inmarsat:idp:ut:properties:txMute:1",
         "@type": [
           "Property"
         ],
-        "displayName": "User Mute State",
-        "name": "userTxState",
+        "displayName": "Transmitter mute",
+        "name": "txMute",
         "writable": true,
         "schema": "boolean"
       },
@@ -510,7 +511,6 @@
         ],
         "displayName": "Operator Access Level",
         "name": "operatorAccessLevel",
-        "writable": false,
         "schema": "integer"
       },
       {
@@ -520,6 +520,15 @@
         ],
         "displayName": "Last Message Received",
         "name": "lastRxMsgTime",
+        "schema": "dateTime"
+      },
+      {
+        "@id": "urn:inmarsat:idp:ut:properties:lastPingResponse:1",
+        "@type": [
+          "Property"
+        ],
+        "displayName": "Last Ping Response",
+        "name": "lastPingResponse",
         "schema": "dateTime"
       },
       {
@@ -545,7 +554,7 @@
         "@type": [
           "Telemetry"
         ],
-        "displayName": "Wakeup Period Change Source",
+        "displayName": "Wakeup period change source",
         "name": "wakeupPeriodChangeSource",
         "schema": "string"
       },
@@ -618,143 +627,115 @@
         "schema": "dateTime"
       },
       {
+        "comment": "Command proxy using writable property",
         "@id": "urn:inmarsat:idp:ut:commands:reset:1",
         "@type": [
-          "Command"
+          "Property"
         ],
-        "commandType": "asynchronous",
-        "durable": false,
-        "request": {
+        "name": "commandReset",
+        "displayName": "Reset (command)",
+        "writable": true,
+        "schema": {
           "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:1",
           "@type": [
-            "SchemaField"
+            "Enum"
           ],
           "displayName": "Reset Type",
           "name": "resetType",
-          "schema": {
-            "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:1",
-            "@type": [
-              "Enum"
-            ],
-            "displayName": "Enum",
-            "valueSchema": "integer",
-            "enumValues": [
-              {
-                "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:modemPreserve:1",
-                "@type": [
-                  "EnumValue"
-                ],
-                "displayName": "Modem Preserve",
-                "enumValue": 0,
-                "name": "modemPreserve"
-              },
-              {
-                "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:modemFlush:1",
-                "@type": [
-                  "EnumValue"
-                ],
-                "displayName": "Modem Flush",
-                "enumValue": 1,
-                "name": "modemFlush"
-              },
-              {
-                "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:terminalModemPreserve:1",
-                "@type": [
-                  "EnumValue"
-                ],
-                "displayName": "Terminal Modem Preserve",
-                "enumValue": 2,
-                "name": "terminalModemPreserve"
-              },
-              {
-                "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:terminalModemFlush:1",
-                "@type": [
-                  "EnumValue"
-                ],
-                "displayName": "Terminal Modem Flush",
-                "enumValue": 3,
-                "name": "terminalModemFlush"
-              }
-            ]
-          }
-        },
-        "displayName": "Reset",
-        "name": "reset"
+          "valueSchema": "integer",
+          "enumValues": [
+            {
+              "comment": "Command proxy reset value",
+              "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:none:1",
+              "@type": [
+                "EnumValue"
+              ],
+              "displayName": "None",
+              "enumValue": -1,
+              "name": "none"
+            },
+            {
+              "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:modemPreserve:1",
+              "@type": [
+                "EnumValue"
+              ],
+              "displayName": "Modem Preserve",
+              "enumValue": 0,
+              "name": "modemPreserve"
+            },
+            {
+              "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:modemFlush:1",
+              "@type": [
+                "EnumValue"
+              ],
+              "displayName": "Modem Flush",
+              "enumValue": 1,
+              "name": "modemFlush"
+            },
+            {
+              "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:terminalModemPreserve:1",
+              "@type": [
+                "EnumValue"
+              ],
+              "displayName": "Terminal Modem Preserve",
+              "enumValue": 2,
+              "name": "terminalModemPreserve"
+            },
+            {
+              "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:terminalModemFlush:1",
+              "@type": [
+                "EnumValue"
+              ],
+              "displayName": "Terminal Modem Flush",
+              "enumValue": 3,
+              "name": "terminalModemFlush"
+            }
+          ]
+        }
       },
       {
+        "comment": "Command proxy using writable property",
         "@id": "urn:inmarsat:idp:ut:commands:pingModem:1",
         "@type": [
-          "Command"
+          "Property"
         ],
-        "commandType": "asynchronous",
-        "durable": false,
-        "response": {
-          "@id": "urn:inmarsat:idp:ut:commands:pingModem:response:pingReply:1",
-          "@type": [
-            "SchemaField"
-          ],
-          "displayName": "Ping Reply",
-          "name": "pingReply",
-          "schema": {
-            "@id": "urn:inmarsat:idp:ut:commands:pingModem:response:pingReply:object:1",
-            "@type": [
-              "Object"
-            ],
-            "displayName": "Object",
-            "fields": [
-              {
-                "@id": "urn:inmarsat:idp:ut:commands:pingModem:response:pingReply:object:requestTime:1",
-                "@type": [
-                  "SchemaField"
-                ],
-                "displayName": "Request Time",
-                "name": "requestTime",
-                "schema": "dateTime"
-              },
-              {
-                "@id": "urn:inmarsat:idp:ut:commands:pingModem:response:pingReply:object:responseTime:1",
-                "@type": [
-                  "SchemaField"
-                ],
-                "displayName": "Response Time",
-                "name": "responseTime",
-                "schema": "dateTime"
-              }
-            ]
-          }
-        },
-        "displayName": "Ping Modem",
-        "name": "pingModem"
+        "writable": true,
+        "displayName": "Ping Modem (command)",
+        "name": "commandPingModem",
+        "schema": "boolean"
       },
       {
+        "comment": "Command proxy using writable property",
         "@id": "urn:inmarsat:idp:ut:commands:getLocation:1",
         "@type": [
-          "Command"
+          "Property"
         ],
-        "commandType": "asynchronous",
-        "durable": false,
-        "displayName": "Get Location",
-        "name": "getLocation"
+        "writable": true,
+        "displayName": "Get Location (command)",
+        "name": "commandGetLocation",
+        "schema": "boolean"
       },
       {
+        "comment": "Command proxy using writable property",
         "@id": "urn:inmarsat:idp:ut:commands:getBroadcastIds:1",
         "@type": [
-          "Command"
+          "Property"
         ],
-        "commandType": "asynchronous",
-        "durable": false,
-        "displayName": "List Broadcast Groups",
-        "name": "getBroadcastIds"
+        "writable": true,
+        "displayName": "List Broadcast Groups (command)",
+        "name": "commandGetBroadcastIds",
+        "schema": "boolean"
       },
       {
+        "comment": "Command proxy using writable property",
         "@id": "urn:inmarsat:idp:ut:commands:getConfiguration:1",
         "@type": [
-          "Command"
+          "Property"
         ],
-        "commandType": "asynchronous",
-        "durable": false,
-        "displayName": "Get Configuration",
-        "name": "getConfiguration"
+        "writable": true,
+        "displayName": "Get Configuration (command)",
+        "name": "commandGetConfiguration",
+        "schema": "boolean"
       }
     ]
   }

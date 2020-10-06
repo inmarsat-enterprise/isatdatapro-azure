@@ -8,29 +8,7 @@ const { templates } = require('../lib/deviceTemplates');
 const defaultDeviceIdFormat =
     process.env.IOTC_DFLT_DEVICE_ID_FORMAT || 'idp-${mobileId}';
 
-const supportedCodecServiceIds = {
-  0: "other",
-  255: "telemetry",
-  101: "reportedProperties",
-  102: "commands",
-};
-
-function isEventGridCompatible(event) {
-  if (event.id && event.subject && event.dataVersion &&
-      event.eventType && event.data && event.eventTime) {
-    return true;
-  }
-  return false;
-}
-
-module.exports = async function (context, eventGridEvent) {
-  context.log.verbose(`IOTC bridge received ${JSON.stringify(eventGridEvent)}`);
-  if (eventGridEvent.eventType === 'NewReturnMessage') {
-    //
-  }
-  const returnMessage = eventGridEvent.data;
-  if (!(returnMessage.codecServiceId in supportedCodecServiceIds)) return;
-  let mobileId = returnMessage.mobileId;
+async function getDeviceMeta(mobileId) {
   const provisionedDevices = await getDevices();
   const device = {};
   for (let d=0; d < provisionedDevices.length; d++) {
@@ -46,17 +24,29 @@ module.exports = async function (context, eventGridEvent) {
     }
     if (device.model) break;
   }
-  let parsed;
   if (!device.model) device.model = 'idpDefault';
   if (!device.id) {
     device.id = defaultDeviceIdFormat.replace('${mobileId}', mobileId);
   }
   if (!device.mobileId) device.mobileId = mobileId;
+  return device;
+}
+
+module.exports = async function (context, eventGridEvent) {
+  context.log.verbose(`Device-to-cloud bridge triggered`
+      + ` by ${JSON.stringify(eventGridEvent)}`);
+  let parsed;
+  let device;
+  //if (eventGridEvent.eventType === 'NewReturnMessage') {
+  const message = eventGridEvent.data;
+  let mobileId = message.mobileId;
+  device = await getDeviceMeta(mobileId);
   if (device.model in deviceModels) {
-    parsed = deviceModels[device.model].parse(context, returnMessage);
+    parsed = deviceModels[device.model].parse(context, message);
   } else {
     throw new Error(`Could not find model: ${device.model}`);
   }
+  //}
   try {
     //TODO: move parsing to engine
     await handleMessage(context, device,

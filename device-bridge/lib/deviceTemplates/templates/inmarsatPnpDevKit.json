@@ -15,7 +15,7 @@
     ],
     "cloudProperties": [
       {
-        "@id": "urn:example:userModel:customer",
+        "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:customer:1",
         "@type": [
           "CloudProperty"
         ],
@@ -23,29 +23,41 @@
         "name": "customer",
         "schema": "string",
         "valueDetail": {
-          "@id": "urn:example:userModel:customer:valueDetail",
+          "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:customer:valueDetail:1",
           "@type": [
             "ValueDetail/StringValueDetail"
           ]
         }
       },
       {
-        "@id": "urn:inmarsat:idp:ut:properties:manufacturerModel:1",
+        "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:manufacturerModel:1",
         "@type": [
-          "Property"
+          "CloudProperty"
         ],
         "displayName": "Manufacturer Model",
         "name": "manufacturerModel",
-        "schema": "string"
+        "schema": "string",
+        "valueDetail": {
+          "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:manufacturerModel:valueDetail:1",
+          "@type": [
+            "ValueDetail/StringValueDetail"
+          ]
+        }
       },
       {
-        "@id": "urn:inmarsat:idp:ut:properties:manufacturerPartNumber:1",
+        "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:manufacturerPartNumber:1",
         "@type": [
-          "Property"
+          "CloudProperty"
         ],
         "displayName": "Manufacturer Part Number",
         "name": "manufacturerPartNumber",
-        "schema": "string"
+        "schema": "string",
+        "valueDetail": {
+          "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:manufacturerPartNumber:valueDetail:1",
+          "@type": [
+            "ValueDetail/StringValueDetail"
+          ]
+        }
       }
     ],
     "initialValues": [],

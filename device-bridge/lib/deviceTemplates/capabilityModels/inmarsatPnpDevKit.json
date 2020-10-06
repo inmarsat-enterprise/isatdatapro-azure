@@ -132,7 +132,7 @@
         "@type": [
           "Interface"
         ],
-        "displayName": "Satellite Modem Information",
+        "displayName": "Satellite Modem extra",
         "@context": "http://azureiot.com/v1/contexts/IoTModel.json",
         "contents": [
           {
@@ -222,5 +222,19 @@
       }
     }
   ],
-  "contents": []
+  "contents": [
+    {
+        "@id": "urn:enterpriseIotPoc:ExampleGateway_1qv:gnss:1",
+        "@type": [
+            "Relationship",
+            "SemanticType/GatewayDevice"
+        ],
+        "comment": "",
+        "displayName": "GNSS",
+        "name": "gnss",
+        "target": [
+            "*"
+        ]
+    }
+  ]
 }
