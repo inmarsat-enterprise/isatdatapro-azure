@@ -6,15 +6,14 @@
  */
 const checkDesiredPropertiesCommands = require('../lib/idpDeviceInterfaceBridge');
 const { getDevices } = require('../lib/iotcDcmApi');
-//const getKeyVaultSecret = require('../lib/keyvault');
 const { templates } = require('../lib/deviceTemplates');
 
 const manufacturerCodes = ['SKY', 'HON'];
 
 /**
- * Returns the Mobile ID from a device ID
+ * Returns the Mobile ID from a provisioned device ID
  * @private
- * @param {string} deviceId Unique device ID containing Mobile ID
+ * @param {string} deviceId Unique provisioned device ID containing Mobile ID
  * @returns {string} mobileId
  */
 function extractMobileId(deviceId) {

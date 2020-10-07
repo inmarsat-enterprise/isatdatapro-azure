@@ -1,38 +1,35 @@
 # Device Bridge for IsatData Pro
 
-* Allows for creation of Device Capability Models using device template 
-(DTDL v1) creation and upload to IoT Central
+* Uses Device Capability Models based on the Azure Digital Twin Definition 
+Language (DTDL v1) created and uploaded to IoT Central
 
-* Allows for Virtual Device Models to define data translation i.e. message 
-parsing and command translation
+* Allows for virtual Device Model code to define data translation i.e. message 
+parsing and command proxy/translation
 
-* **DeviceBridge** picks up event `NewReturnMessage` and assesses against device 
-templates based on `codecServiceId` (SIN) and `codecMessageId` (MIN)
-  * If match is found, parse appropriately as modem properties (SIN 0), 
-  telemetry (SIN 100), device properties (SIN 101), command response (SIN 102) 
-  or edge/Crosser logic (SIN 99)
+* **DeviceToCloudBridge** picks up event `NewReturnMessage` or 
+`OtaCommandResponse` and processes data using a device model stored in 
+the library of **deviceModels** based on looking up its **deviceTemplate**.
+  * The device model parses incoming data as telemetry or reported properties.
   * Checks for pending *desired properties* and if the device supports, 
   publishes a `CommandRequest` to EventGrid indicating the expected completion.
 
-* **CommandHandler** maintains a connection to each IDP twin in IoT Central (/Hub) 
-for commands or desired property changes based on the device template to publish 
-a `CommandRequest` to EventGrid indicating the expected completion.
+* **CloudToDeviceBridge** runs periodically against each provisioned device with 
+an IDP Mobile ID to check for new *desired properties* in between return 
+messages and publishes a `CommandRequest` to EventGrid indicating the expected 
+completion.
 
-**`CommandRequest`** event is formatted as:
-```
-{
-  mobileId: {string},
-  command: {Object},
-  completion: {[Object]},
-  retries: {[number]}
-}
-```
+* *writable properties* are implemented by defining an over-the-air message 
+in a device model.
+
+* *commands* are implemented as writable properties with optional completion 
+metadata for expected responses.  This is because the satellite messaging 
+modems do not maintain a connection to the IoT Hub/Central.
 
 A separate orchestrator function processes the `CommandRequest` as follows:
 1. If the same forwardMessage is already in progress, ignore the new request.
 2. Else submit command (`MessageForward`) and monitor for the completion.
-3. If forward message fails, retry up to `retries` count.
-4. After retries failure, publish `CommandFailure`.
+3. If completion is specified, publish `OtaCommandResponse` to be picked up 
+by the **deviceToCloudBridge**
 
 >: **Note**: IoT Central device IDs must contain the IDP *mobileId*.  If no 
 default ID format is provided as an environment variable 
@@ -45,19 +42,27 @@ and/or devices to the project directories:
 ```
   + lib
   |
-  +-+ deviceCapabilityModels
+  +-+ deviceTemplates
+  | |
+  | +-+ templates
+  | | |
+  | | +-+ {deviceName}.json
+  | |
+  | +-+ capabilityModels
+  | | |
+  | | +-+ {deviceName}.json
   | |
   | +-+ interfaces
-  | | |
-  | | +-+ {interfaceName}.json
-  | |
-  | +-+ devices
   |   |
-  |   +-+ {deviceName}.json
+  |   +-+ idpmodem.json
+  |   |
+  |   +-+ {interfaceName}.json
   |
   +-+ deviceModels
     |
-    +-+ {deviceName}.js
+    +-+ {deviceName}
+      |
+      +-+ messageParser.json
 ```
 
 Device Models are effectively proxy operations that define message parsing and 
@@ -76,6 +81,49 @@ The Inmarsat *Plug-N-Play* developer kit for IsatData Pro consists of a
 Raspberry Pi Zero Wireless connected to an ORBCOMM ST2100 packaged modem (aka 
 *smart antenna*).
 
-### inmarsatPnpDevKit Device Model
+### Custom device models
 
-...
+A **messageParser.js** file defines a function **`parse(message)`** to convert 
+message data to telemetry and/or reported properties, and defines a 
+**`writeProperty(propName, propValue)`** function structured as follows:
+
+```
+{
+  "command": {
+    "payloadJson": {
+      "codecServiceId": <number>,
+      "codecMessageId": <number>,
+      "fields": [
+        {
+          "name": "<myFieldName>",
+          "stringValue": "<myValueAsString>",
+          "dataType": "<myDataType>"
+        }
+      ]
+    }
+  },
+  completion: {
+    "codecServiceId": <number>,
+    "codedMessageId": <number>,
+    "property": "<myProxyCommandProperty>",
+    "resetValue": <myProxyCommandResetValue>
+  },
+}
+```
+
+**`command`** could use either a `payloadJson` format as above, or a decimal-
+coded binary payload such as:
+```
+"payloadRaw": [<codecServiceId>,<codecMessageId>,<dataByte>]
+```
+
+**`completion`** is intended for use with writable properties for the 
+orchestrator to validate an over-the-air message command/response workflow.
+  * *`codecServiceId`* is the first byte of the return message
+  * *`codecMessageId`* is the second byte of the return message
+  * *`property`* is the "proxy" property name in the device template / IOTC
+  * *`resetValue`* is the value the proxy property should be set to upon 
+  completion
+
+>: **Note** the completion value (`resetValue`) is not quite working as 
+desired due to the way IoT Central maintains state/versions.

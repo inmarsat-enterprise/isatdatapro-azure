@@ -1,13 +1,21 @@
-// Triggers on NewReturnMessage eventgrid event
+/* Triggers on NewReturnMessage or OtaCommandResponse eventgrid events
+ * Parses the event data based on a device model definition which maps 
+ * data into telemetry and reported properties
+ */
 const handleMessage = require('../lib/idpDeviceInterfaceBridge');
 const { getDevices } = require('../lib/iotcDcmApi');
-//const getKeyVaultSecret = require('../lib/keyvault');
 const deviceModels = require('../lib/deviceModels');
 const { templates } = require('../lib/deviceTemplates');
 
 const defaultDeviceIdFormat =
     process.env.IOTC_DFLT_DEVICE_ID_FORMAT || 'idp-${mobileId}';
 
+/**
+ * Looks up the provisioned device template for a device based on the 
+ * IDP mobile ID to map to a device model
+ * @param {string} mobileId Unique satellite modem ID
+ * @returns {{ id: string, model: string, mobileId: string }}
+ */
 async function getDeviceMeta(mobileId) {
   const provisionedDevices = await getDevices();
   const device = {};
