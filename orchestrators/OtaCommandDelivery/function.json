@@ -2,7 +2,7 @@
   "bindings": [
     {
       "type": "eventGridTrigger",
-      "name": "eventGridEvent",
+      "name": "eventGridEventForwardMessageStateChange",
       "direction": "in"
     },
     {

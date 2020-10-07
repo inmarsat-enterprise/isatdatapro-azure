@@ -1,3 +1,6 @@
+/*
+ * Triggered by NewForwardSubmission event
+ */
 const idp = require('isatdatapro-microservices');
 const submitForwardMessage = idp.submitForwardMessages;
 const eventHandler = idp.eventHandler.emitter;
