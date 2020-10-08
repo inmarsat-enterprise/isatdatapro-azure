@@ -16,12 +16,8 @@ function buildSubmission(data) {
   const submission = {
     mobileId: mobileId,
   };
-  if (command.payloadJson) {
-    submission.payloadJson = command.payloadJson;
-  } else if (command.payloadRaw) {
-    submission.payloadRaw = command.payloadRaw;
-  } else if (command.modemCommand) {
-    submission.modemCommand = command.modemCommand;
+  if (command.payloadJson || command.payloadRaw || command.modemCommand) {
+    submission.message = command;
   } else {
     throw new Error(`Invalid message content ${JSON.stringify(command)}`);
   }
@@ -30,16 +26,16 @@ function buildSubmission(data) {
 
 module.exports = async function (context, data) {
   //context.log(`${JSON.stringify(data)}`);
-  const submitUuid = testMode ? 1 : uuid();
+  const submissionId = uuid();
   const event = {
     id: uuid(),
-    subject: `Submit forward message ${submitUuid} to ${data.mobileId}`,
+    subject: `Submit forward message ${submissionId} to ${data.mobileId}`,
     dataVersion: '2.0',
     eventType: 'NewForwardSubmission',
-    data: Object.assign({ submitUuid: submitUuid }, buildSubmission(data)),
+    data: Object.assign({ submissionId: submissionId }, buildSubmission(data)),
     eventTime: new Date().toISOString()
   };
   context.log(`Publishing ${JSON.stringify(event)}`);
   context.bindings.outputEvent = event;
-  return submitUuid;
+  return submissionId;
 };

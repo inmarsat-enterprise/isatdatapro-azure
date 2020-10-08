@@ -19,12 +19,12 @@ module.exports = df.orchestrator(function* (context) {
       mobileId: mobileId,
     });
     // Submit command as OTA message
-    const submitUuid =
+    const submissionId =
         yield context.df.callActivity("OtaCommandSubmit", input.data);
     context.df.setCustomStatus({
       state: 'submitted',
       mobileId: mobileId,
-      submitUuid: submitUuid,
+      submissionId: submissionId,
     });
     const { messageId } =
         yield context.df.waitForExternalEvent('CommandSending');

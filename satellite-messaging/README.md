@@ -41,7 +41,7 @@ given direction:
 * A ***Satellite Gateway*** is effectively an API server URL associated with a 
 network operator, and is modeled to include the API/server state
 
-## GetReturnMessages
+## MessageReturnGet
 *Timer Trigger*
 
 Periodically polls all Mailboxes stored in the database, with a default interval 
@@ -54,10 +54,10 @@ Publishes the following EventGrid Events:
 * ``ApiOutage``
 * ``ApiRecovery``
 
-## SubmitForwardMessages (Not Implemented)
+## MessageForwardSubmit
 *EventGrid Trigger*
 
-When a *NewForwardMessage* is published to the EventGrid, the invoked library 
+When a *NewForwardSubmission* is published to the EventGrid, the invoked library 
 submits the message to transmit over the satellite network, and if successful 
 stores its content and initial status in the database.
 
@@ -70,7 +70,7 @@ Publishes the following EventGrid Events:
 > TODO: IoT Hub and/or front-end web GUI to create/send a Forward Message into 
 this service, and handle failed message submissions
 
-## GetForwardStatuses
+## MessageForwardStatusGet
 *Timer Trigger*
 
 Periodically polls all Mailboxes stored in the database, with a default interval 
@@ -85,7 +85,7 @@ Publishes the following EventGrid Events:
 * ``ApiOutage``
 * ``ApiRecovery``
 
-## GetForwardMessages
+## MessageForwardGet
 *EventGrid Trigger*
 
 When an *OtherClientForwardSubmission* is published to the EventGrid, the 
@@ -97,7 +97,7 @@ Publishes the following EventGrid Events:
 * ``ApiOutage``
 * ``ApiRecovery``
 
-## GetMobiles
+## MobileGet
 *EventGrid Trigger*
 
 When a NewMobile is published to the EventGrid, the invoked library retrieves 
@@ -108,7 +108,7 @@ Publishes the following EventGrid Events:
 * ``ApiOutage``
 * ``ApiRecovery``
 
-## UpdateMailbox (Not implemented)
+## MailboxUpdate (Not tested)
 *EventGrid Trigger*
 
 When a ??? is published to the EventGrid, the invoked library stores the Mailbox 
@@ -116,7 +116,7 @@ metadata in the database (encrypting the password at rest).
 
 > TODO: Front-end GUI to administer Mailboxes which publishes TBD
 
-## UpdateSatelliteGateway (Not implemented)
+## SatelliteGatewayUpdated (Not tested)
 *EventGrid Trigger*
 
 When a ??? is published to the EventGrid, the invoked library stores the 
