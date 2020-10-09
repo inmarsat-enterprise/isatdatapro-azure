@@ -2,7 +2,7 @@
 
 In this document:
 
-- [Serverless Microservices reference architecture](#serverless-microservices-reference-architecture)
+- [Serverless Microservices reference architecture](#satellite-iot-serverless-reference-architecture)
   - [Resources](#resources)
   - [Provision](#provision)
     - [Manual via the Portal](#manual-via-the-portal)
@@ -72,15 +72,15 @@ The following is a summary of all Azure resources required to deploy the solutio
 
 | Prod Resource Name | Dev Resource Name | Type | Provision Mode |
 |---|---|---|:---:|
-| serverless-microservices | serverless-microservices-dev | Resource Group | Auto | 
+| satellite-iot-serverless | satellite-iot-serverless-dev | Resource Group | Auto | 
 | iotstoragewarm | iotstoragewarm-dev | Cosmos DB Account | Auto |
 | IsatDataPro | IsatDataProDev | Cosmos DB Container | Auto |
 | idpfunctionstore | idpfunctionstore-dev | Storage Account | Auto |
 | *Location*Plan | *Location*Plan | App Service (Consumption) Plan | Auto |
-| idpMessagingFunctionApp | idpMessagingFunctionAppDev | Function App | Auto |
-| idpOrchestratorsFunctionApp | idpOrchestratorsFunctionAppDev | Function App | Auto |
-| idpDeviceBridgeFunctionApp | idpDeviceBridgeFunctionAppDev | Function App | Auto |
-| IdpExternalizations | IdpExternalizationsDev | Event Grid Topic | Manual |
+| satelliteMessaging | satelliteMessagingDev | Function App | Auto |
+| satelliteMessagingOrchestrators | satelliteMessagingOrchestratorsDev | Function App | Auto |
+| satelliteMessagingDeviceBridge | satelliteMessagingDeviceBridgeDev | Function App | Auto |
+| SatelliteMessagingExternalizations | SatelliteMessagingExternalizationsDev | Event Grid Topic | Manual |
 | IdpApiNotifications | IdpApiNotificationsDev | Logic App | Manual |
 | IdpAdminAppServicePlan | IdpAdminAppServicePlanDev | Web App Service Plan | Auto |
 | IdpAdmin | IdpAdminDev | Web App Service | Auto |
@@ -108,7 +108,7 @@ page, then select **Resource Groups**  section.
 3.  Complete the resource group creation form with the following:
 
     1. **Name**: Enter a unique value for the **resource group** 
-    e.g. `serverless-microservices`.
+    e.g. `satellite-iot-serverless`.
     2. **Subscription**: Select your Azure subscription.
     3. **Location**: Select a region closest to you. Make sure you select the 
     same region for the rest of your resources.
@@ -124,16 +124,17 @@ then select **Azure Cosmos DB**  section.
 
 3.  Complete the resource group creation form with the following:
 
-    3. **Subscription**: Select your Azure subscription.
-    4. **Resource Group**: Select the Resource Group you created above, 
-    such as `serverless-microservices`.
-    5. **Account Name**: Enter a unique ID for the **Cosmos DB Account**, 
+    1. **Subscription**: Select your Azure subscription.
+    2. **Resource Group**: Select the Resource Group you created above, 
+    such as `satellite-iot-serverless`.
+    3. **Account Name**: Enter a unique ID for the **Cosmos DB Account**, 
     such as `iotstoragewarm`.
-    6. **API**: Select `Core (SQL)`.
-    7. **Location**: Select a region closest to you. Make sure you select the 
+    4. **API**: Select `Core (SQL)`.
+    5. **Location**: Select a region closest to you. Make sure you select the 
     same region for the rest of your resources.
-    8. **Geo-Redundancy**: Disable.
-    9. **Multi-region Writes**: Disable.
+    6. **Capacity mode** Select `Provisioned throughput`
+    7. **Geo-Redundancy**: Disable.
+    8. **Multi-region Writes**: Disable.
 
     ![Screenshot of the Cosmos DB form](media/comos-creation.png)
 
@@ -152,8 +153,6 @@ form that appears, enter the following:
     2. **Container Id**: Enter `Main`.
     3. **Partition key**: Enter `/category`.
     4. **Throughput**: Select `400`.
-
-    ![Screenshot of the Cosmos DB container](media/comos-creation1.png)
 
 7.  (Optional) Repeat step 6 for a new container called `IsatDataProDev`
 
@@ -178,7 +177,7 @@ then select **Storage accounts**  section.
     same region for the rest of your resources.
     5. **Subscription**: Select your Azure subscription.
     6. **Resource Group**: Select the resource group to which you have added 
-    your other services, such as `serverless-microservices`.
+    your other services, such as `satellite-iot-serverless`.
     7. **Replication**: Select `RA-GRS`
 
     ![Screenshot of the storage creation](media/storage-creation.png)
@@ -208,15 +207,13 @@ well as independent release schedules, administration, and scaling.
 2.  Type **Function App** into the Search box at the top of the page, then 
 select **Function App** within the Marketplace section.
 
-    ![Type Function App into the Search box](media/function-app-search-box.png 'Function App search')
-
 3.  Complete the function app creation form with the following:
 
     1. **Subscription**: Select your Azure subscription.
     2. **Resource Group**: Select the resource group to which you have added 
-    your other services, such as `serverless-microservices`.
+    your other services, such as `satellite-iot-serverless`.
     3. **Function App name**: Enter a unique value for the 
-    **`idpMessagingFunctionApp`** function app.
+    **`satelliteMessaging`** function app.
     4. **Publish**: Select `Code`.
     5. **Runtime stack**: Select `Node.js`.
     6. **Version**: Select `10 LTS`.
@@ -234,8 +231,8 @@ select **Function App** within the Marketplace section.
 
     ![Screenshot of the Function App creation form](media/new-function-app-form.png 'Create Function App form')
 
-4.  Repeat the steps above to create the **idpOrchestratorsFunctionApp** and 
-**idpDeviceBridgeFunctionApp** function apps.
+4.  Repeat the steps above to create the **satelliteMessagingOrchestrators** and 
+**satelliteMessagingDeviceBridge** function apps.
 
     - Enter a unique value for the App name, ensuring it has the word **tbd** 
     within the name so you can easily identify it.
@@ -244,18 +241,16 @@ select **Function App** within the Marketplace section.
 
 #### Create the Event Grid Topic
 
-1.  Type **Event Grid** into the Search box at the top of the `All Services` 
-page, then select **Event Grid Topics**  section.
+1.  Type **Event Grid Topic** into the Search box at the top of the 
+`All Services` page, then select **Event Grid Topic**  in Marketplace.
 
-2.  Click the **Add** button to create a new Event Grid Topic.
-
-3.  Complete the event grid topic creation form with the following:
+2.  Complete the event grid topic creation form with the following:
 
     1. **Subscription**: Select your Azure subscription.
     2. **Resource Group**: Select the resource group to which you have added 
-    your other services, such as `serverless-microservices`.
+    your other services, such as `satellite-iot-serverless`.
     3. **Name**: Enter a unique value for the Event Grid **Topic** 
-    i.e. `IdpExternalizations`.
+    i.e. `SatelliteMessagingExternalizations`.
     4. **Location**: Select a region closest to you. Make sure you select the 
     same region as the rest of your resources.
     5. Click the **Review + create** button.
@@ -264,13 +259,13 @@ page, then select **Event Grid Topics**  section.
 
     ![Screenshot of the Event Grid Topic form](media/event-grid-topic-creation.png)
 
-4. Take note of the newly-created topic endpoint URL:
+3. Take note of the newly-created topic endpoint URL:
 
     ![Screenshot of the Event Grid Topic endpoint](media/event-grid-topic-creation2.png)
 
 5. Take note of the newly-created topic key from Settings > Access Keys:
 
-    ![Screenshot of the Event Grid Topic key](media/event-grid-topic-creation1.png)
+    ![Screenshot of the Event Grid Topic key](media/event-grid-topic-creation3.png)
 
 #### Create the IoT Central Application
 
@@ -285,7 +280,7 @@ page, then select **IoT Central Application**  section.
     `satellite-iot`.  The Application URL should complete automatically.
     2. **Subscription**: Select your Azure subscription.
     3. **Resource Group**: Select the resource group to which you have added 
-    your other services, such as `serverless-microservices`.
+    your other services, such as `satellite-iot-serverless`.
     4. **Pricing Plan**: Select `Standard 1`.
     5. **Template**: Select `Custom application`.
     6. **Location**: Select a location closest to you.
@@ -306,97 +301,66 @@ page, then select **IoT Central Application**  section.
 
 > :warning: **WARNING: WORK IN PROGRESS BELOW - DO NOT USE**
 
-#### Create the Web App Service Plan
-
-1.  Type **App Service** into the Search box at the top of the `All Services` 
-page, then select **App Service Plans**  section.
-
-2.  Click the **Add** button to create a new app service plan.
-
-3.  Complete the app service plan creation form with the following:
-
-    1. **App Service Plan**: Enter a unique value for the **App Service Plan** 
-    i.e. `RideShareAppServicePlan`.
-    2. **Subscription**: Select your Azure subscription.
-    3. **Resource Group**: Select the resource group to which you have added 
-    your other services, such as `serverless-microservices`.
-    3. **Operating system**: Select `Windows`
-    4. **Location**: Select a region closest to you. Make sure you select the 
-    same region for the rest of your resources.
-    5. **Pricing Tier**: Select `Free`.
-
-    ![Screenshot of the app service plan](media/app-service-plan-creation.png)
-
 #### Create the Web App
 
-1.  Type **App Service** into the Search box at the top of the `All Services` page, then select **App Services**  section.
+1.  Type **Web App** into the Search box at the top of the `All Services` page, 
+then select **Web App** from the Marketplace.
 
-2.  Click the **Add** button to create a new app service and select `Web App` from the marketplace. Click `Create`.
+2.  Complete the app service creation form with the following:
 
-3.  Complete the app service creation form with the following:
-
-    1. **App Name**: Enter a unique value for the **App Name** i.e. `RelecloudRideShare`.
-    2. **Subscription**: Select your Azure subscription.
-    3. **Resource Group**: Select the resource group to which you have added your other services, such as `serverless-microservices`.
-    3. **Operating system**: Select `Windows`
-    4. **App Service PLan**: Select the pan you created in the previous step.
-    5. **Application Insights**: Select `Off`.
+    1. **Subscription**: Select your Azure subscription.
+    2. **Resource Group**: Select the resource group to which you have added your other services, such as `satellite-iot-serverless`.
+    3. **Name**: Enter a unique value for the i.e. `SatelliteMessagingAdmin`.
+    4. **Runtime stack**: Choose a preferred Node version e.g. `Node 10 LTS`
+    5. **Operating system**: Select preference i.e. Windows or `Linux`
+    6. **App Service Plan**: Select existing or create a new Free Tier.
+    7. **Application Insights**: Select `Off`.
 
     ![Screenshot of the app service](media/app-service-creation.png)
 
-#### Create the Azure SQL Database assets
+3. Click the **Review + Create** button, then **Create**
 
-1.  Type **SQL** into the Search box at the top of the `All Services` page, then select **SQL Database**  section.
+#### Create a Log Analytics Workspace resource
 
-2.  Click the **Add** button to create a new SQL Database.
+1.  Type **Log Analytics** into the Search box at the top of the 
+`All Services` page, then select **Application Insights**  from the Marketplace.
 
-3.  Complete the SQL Database creation form with the following:
+2.  Complete the Log Analytics workspace creation form with the following:
 
-    1. **Name**: Enter a unique value for the **Database** i.e. `RideShare`.
-    2. **Subscription**: Select your Azure subscription.
-    3. **Resource Group**: Select the resource group to which you have added your other services, such as `serverless-microservices`.
-    4. **Source**: Select `Blank Database`.
-    5. **Server**: Select and Create a new server.
-    6. **Elastic Pool**: Select `Not Now`.
-    7. **Pricing Tier**: Will be filled in automaticlaly once you complete the server creation i.e `10 DTUs, 250 GB` 
-    8. **Collation**: Select `SQL_Latin_1_General_CP1_CI_AS`.
+    1. **Subscription**: Select your Azure subscription.
+    2. **Resource Group**: Select the resource group to which you have added 
+    your other services, such as `satellite-iot-serverless`.
+    3. **Name**: Enter a unique value e.g. `SatelliteIotMessaging`.
+    4. **Region**: Select the same region as your other resources.
 
-    ![Screenshot of the SQL Database form](media/sql-database-creation.png)
+    ![Screenshot of the log analytics form](media/log-analytics-workspace-creation.png)
 
-4. Complete the SQL Database Server creation form with the following:
-
-    1. **Name**: Enter a unique value for the SQL Database **Server** i.e. `rideshare-db`.
-    2. **Server admin login**: Select your login.
-    3. **Password**: select your password.
-    4. **Confirm password**: Re-type your password.
-    5. **Location**: Select a region closest to you. Make sure you select the same region for the rest of your resources.
-    6. **Allow Azure services to access server**: Select `Checked`.
-
-    ![Screenshot of the SQL Database Server form](media/sql-database-server-creation.png)
-
-5. Take note of the newly-created database connection string:
-
-    ![Screenshot of the SQL Database connection string](media/sql-database-creation1.png)
+3. Click the **Review + Create** button, then **Create**
 
 #### Create the Application Insights resource
 
-1.  Type **Application Insights** into the Search box at the top of the `All Services` page, then select **Application Insights**  section.
+1.  Type **Application Insights** into the Search box at the top of the 
+`All Services` page, then select **Application Insights**  from the Marketplace.
 
-2.  Click the **Add** button to create a new Application Insights resource.
+2.  Complete the application insights creation form with the following:
 
-3.  Complete the application insights creation form with the following:
-
-    1. **Name**: Enter a unique value for the application Insights i.e. `rideshare`.
-    2. **Application Type**: Select `General`. This is required by Function Apps.
-    3. **Subscription**: Select your Azure subscription.
-    4. **Resource Group**: Select the resource group to which you have added your other services, such as `serverless-microservices`.
-    5. **Location**: Select a region closest to you. Make sure you select the same region for the rest of your resources.
+    1. **Subscription**: Select your Azure subscription.
+    2. **Resource Group**: Select the resource group to which you have added 
+    your other services, such as `satellite-iot-serverless`.
+    3. **Name**: Enter a unique value e.g. `SatelliteMessagingMonitor`.
+    4. **Resource mode**: Use the default `Workspace-based`.
+    5. **Log analytics workspace**: Select the workspace created in the prior 
+    steps.
 
     ![Screenshot of the Application Insights form](media/application-insights-creation.png)
 
+3. Click the **Review + Create** button, then **Create**
+
 4. Take note of the newly-created resource instrumentation key:
 
-    ![Screenshot of the Application Insights instrumentation key](media/application-insights-creation1.png)
+    ![Screenshot of the Application Insights instrumentation key](media/application-insights-creation2.png)
+
+
 
 #### Create the API Management Service
 
@@ -408,7 +372,7 @@ page, then select **App Service Plans**  section.
 
     1. **Name**: Enter a unique value for the APIM Service i.e. `rideshare`.
     2. **Subscription**: Select your Azure subscription.
-    3. **Resource Group**: Select the resource group to which you have added your other services, such as `serverless-microservices`.
+    3. **Resource Group**: Select the resource group to which you have added your other services, such as `satellite-iot-serverless`.
     3. **Location**: Select a region closest to you. Make sure you select the same region for the rest of your resources.
     5. **Organization name**: Type in your organization name.
     6. **Administrator email**: Type in an admin email.
@@ -426,7 +390,7 @@ page, then select **App Service Plans**  section.
 
     1. **Resource Name**: Enter a unique value for the SignalR Service i.e. `rideshare`.
     2. **Subscription**: Select your Azure subscription.
-    3. **Resource Group**: Select the resource group to which you have added your other services, such as `serverless-microservices`.
+    3. **Resource Group**: Select the resource group to which you have added your other services, such as `satellite-iot-serverless`.
     4. **Location**: Select a region closest to you. Make sure you select the same region for the rest of your resources.
     5. **Pricing tier**: Select `Free`.
     6. **ServiceMode**: Select `Serverless`.
@@ -449,7 +413,7 @@ Azure Key Vault is used to securely store all secrets, such as database connecti
 
     1. **Resource Name**: Enter a unique value for Key Vault, such as `RideshareVault`.
     2. **Subscription**: Select your Azure subscription.
-    3. **Resource Group**: Select the resource group to which you have added your other services, such as `serverless-microservices`.
+    3. **Resource Group**: Select the resource group to which you have added your other services, such as `satellite-iot-serverless`.
     4. **Location**: Select a region closest to you. Make sure you select the same region for the rest of your resources.
     5. **Pricing tier**: Select `Standard`.
     6. **Access policies**: Leave as default.

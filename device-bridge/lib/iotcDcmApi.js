@@ -2,11 +2,10 @@
 
 // Get templates, compare against this lib; upload new from lib
 const https = require('https')
-const proxyEnv = require('../local.settings.json').Values;
 const { capabilityModels, interfaces } = require('./deviceTemplates');
 
-const apiHost = process.env.IOTC_APPLICATION_URL || proxyEnv.IOTC_APPLICATION_URL;
-const apiKey = process.env.IOTC_BUILDER_TOKEN || proxyEnv.IOTC_BUILDER_TOKEN;
+const apiHost = process.env.IOTC_APPLICATION_URL;
+const apiKey = process.env.IOTC_BUILDER_TOKEN;
 const deviceApiPath = '/api/preview/devices';
 const deviceTemplateApiPath = '/api/preview/deviceTemplates';
 

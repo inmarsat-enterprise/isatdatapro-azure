@@ -40,7 +40,7 @@ function parsePnpDevkit(context, message) {
         telemetry.latitude = round(telemetry.latitude/60000, 6);
         telemetry.longitude = round(telemetry.longitude/60000, 6);
         telemetry.snr = round(telemetry.snr / 10, 1);
-        telemetry.location = {
+        reportedProperties.location = {
           "lat": telemetry.latitude,
           "lon": telemetry.longitude,
           "alt": telemetry.altitude

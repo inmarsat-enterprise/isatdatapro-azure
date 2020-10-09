@@ -241,7 +241,7 @@ async function bridge(context, device, telemetry, properties, timestamp, wait) {
   const deviceSasKey = await getDeviceKey(registrationId);
   const provisioningSecurityClient =
       new SymmetricKeySecurityClient(registrationId, deviceSasKey);
-  const provisioningClient = ProvisioningDeviceClient.create(
+  const provisioningClient = await ProvisioningDeviceClient.create(
       provisioningHost,
       idScope,
       new singleProvisioningTransport(),

@@ -21,12 +21,11 @@
 			"path": "satellite-messaging"
 		},
 		{
-			"name": "web",
-			"path": "web"
-		},
-		{
 			"name": "docs",
 			"path": "docs"
+		},
+		{
+			"path": "web"
 		}
 	],
 	"settings": {
