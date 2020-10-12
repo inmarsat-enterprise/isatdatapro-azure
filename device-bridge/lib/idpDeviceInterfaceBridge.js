@@ -213,8 +213,9 @@ async function updateDevice(context, device, twin, properties) {
         context.log(`${device.id} property ${propName} still pending`);
         continue;
       }
+      let writable;
       try {
-        const writable = deviceModel.writeProperty(propName, delta[propName]);
+        writable = deviceModel.writeProperty(propName, delta[propName]);
       } catch (e) {
         patch[propName] = {
           value: delta[propName],
@@ -224,6 +225,11 @@ async function updateDevice(context, device, twin, properties) {
         };
       }
       if (writable) {
+        if (twin.properties.desired[propName] ===
+            twin.properties.reported[propName].value) {
+          context.log(`${device.id} ${propName} desired===reported`);
+          continue;
+        }
         patch[propName] = {
           value: delta[propName],
           ad: 'pending',
