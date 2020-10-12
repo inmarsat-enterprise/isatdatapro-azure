@@ -1,3 +1,4 @@
+const { initial } = require('lodash');
 const commonMessageFormat = require('../../codecCommonMessageFormat');
 const { round } = require('../../utilities');
 
@@ -10,6 +11,59 @@ const writableProperties = [
   'commandGetBroadcastIds',
   'commandGetConfiguration',
 ];
+
+function initialize(mobileId) {
+  const initialReport = {
+    mobileId: mobileId,
+    manufacturer: getManufacturer(mobileId),
+    //hardwareVersion: '',
+    //softwareVersion: '',
+    //productId: 0,
+    //broadcastIdCount: 0,
+    //location: null,
+    operatorAccessLevel: 0,
+    //lastRxMsgTime: '',
+    //lastRegistrationTime: '',
+    //satelliteRegion: '',
+    lastResetReason: 0,
+    wakeupPeriod: {
+      value: 0,
+    },
+    broadcastIds: {
+      value: {},
+    },
+    txMute: {
+      value: false,
+    },
+    commandReset: {
+      value: -1,
+    },
+    commandPingModem: {
+      value: false,
+    },
+    commandGetLocation: {
+      value: false,
+    },
+    commandGetBroadcastIds: {
+      value: false,
+    },
+    commandGetConfiguration: {
+      value: false,
+    },
+  };
+  for (const writable in initialReport) {
+    if (writable === 'broadcastIds') {
+      for (let i=0; i < 16; i++) {
+        initialReport[writable].value[i] = 0;
+      }
+    }
+    if (writableProperties.includes(writable)) {
+      initialReport[writable].ac = 200;
+      initialReport[writable].av = 1;
+    }
+  }
+  return initialReport;
+}
 
 /**
  * Returns the parameters for a CommandRequest event grid event
@@ -120,6 +174,12 @@ function writeProperty(propName, propValue) {
   return otaMessage;
 }
 
+function getManufacturer(mobileId) {
+  if (mobileId.includes('SKY')) return 'ORBCOMM';
+  if (mobileId.includes('HON')) return 'Honeywell';
+  return 'unknown';
+}
+
 /**
  * Returns reportedProperties based on message envelope
  * @param {Object} message A return message
@@ -128,11 +188,7 @@ function writeProperty(propName, propValue) {
 function parseMetadata(message) {
   const reportedProperties = {};
   reportedProperties.mobileId = message.mobileId;
-  if (message.mobileId.includes('SKY')) {
-    reportedProperties.manufacturer = 'ORBCOMM';
-  } else if (message.mobileId.includes('HON')) {
-    reportedProperties.manufacturer = 'Honeywell';
-  }
+  reportedProperties.manufacturer = getManufacturer(message.mobileId);
   reportedProperties.satelliteRegion = message.satelliteRegion;
   reportedProperties.lastRxMsgTime = message.receiveTimeUtc;
   if (message.completion) {
@@ -230,4 +286,5 @@ module.exports = {
   //parseGenericIdp,
   writeProperty,
   writableProperties,
+  initialize,
 };

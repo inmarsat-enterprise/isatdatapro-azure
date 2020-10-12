@@ -209,6 +209,16 @@
             }
           },
           {
+            "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:locationInterval:1",
+            "@type": [
+              "Property"
+            ],
+            "displayName": "Location Interval",
+            "name": "locationInterval",
+            "writable": true,
+            "schema": "integer"
+          },
+          {
             "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:telemetry:snr:1",
             "@type": [
               "Telemetry"

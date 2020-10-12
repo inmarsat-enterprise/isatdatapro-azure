@@ -4,8 +4,18 @@
 const https = require('https')
 const { capabilityModels, interfaces } = require('./deviceTemplates');
 
-const apiHost = process.env.IOTC_APPLICATION_URL;
-const apiKey = process.env.IOTC_BUILDER_TOKEN;
+let tempEnv;
+if (!process.env.IOTC_APPLICATION_URL) {
+  const { IOTC_APPLICATION_URL, IOTC_BUILDER_TOKEN } =
+      require('../local.settings.json').Values;
+  tempEnv = {
+    IOTC_APPLICATION_URL: IOTC_APPLICATION_URL,
+    IOTC_BUILDER_TOKEN: IOTC_BUILDER_TOKEN,
+  };
+}
+
+const apiHost = process.env.IOTC_APPLICATION_URL || tempEnv.IOTC_APPLICATION_URL;
+const apiKey = process.env.IOTC_BUILDER_TOKEN || tempEnv.IOTC_BUILDER_TOKEN;
 const deviceApiPath = '/api/preview/devices';
 const deviceTemplateApiPath = '/api/preview/deviceTemplates';
 
@@ -170,9 +180,11 @@ module.exports = {
 
 /* Comment this line to test
 (async () => {
-  const temp = require('./deviceTemplates/templates/inmarsatPnpDevKit.json');
+  const templates = require('./deviceTemplates/templates');
   try {
-    console.log(await setDeviceTemplate(temp));
+    for (let template in templates) {
+      console.log(await setDeviceTemplate(templates[template]));
+    }
     console.log(await listDeviceTemplates());
   } catch (e) {
     console.log(e.stack);

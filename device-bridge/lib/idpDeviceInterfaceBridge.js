@@ -94,6 +94,196 @@ async function setupCommandHandlers(context, device) {
 }
 // */
 
+async function updateSatelliteGateway(context, device, twin, properties) {
+  let patch;
+  if (twin.properties.desired) {
+    if (twin.properties.desired['$version'] === 1) {
+      if (twin.properties.reported.$version > 1) {
+        context.log(`${device.id} $version=${twin.properties.reported.$version}`
+            + ` but requesting $version=1`);
+        //patch = Object.assign({}, twin.properties.reported);
+        //delete patch.update;
+        return;
+      } else {
+        if (twin.properties.desired.name || twin.properties.desired.url) {
+          context.bindings.outputEvent = {
+            id: uuid(),
+            subject: `Satellite Gateway update for ${device}`,
+            dataVersion: '2.0',
+            eventType: 'SatelliteGatewayUpdate',
+            data: {
+              name: twin.properties.desired.name,
+              url: twin.properties.desired.url,
+            },
+            eventTime: new Date().toISOString()
+          };
+        }
+        const deviceModel = require('./deviceModels')[device.model];
+        patch = deviceModel.initialize(twin.properties.desired.name,
+            twin.properties.desired.url);
+      }
+    }
+    const err = await twin.properties.reported.update(patch);
+  }
+}
+
+async function updateMailbox(context, device, twin, properties) {
+  let patch;
+  if (twin.properties.desired) {
+    if (twin.properties.desired['$version'] === 1) {
+      if (twin.properties.reported.$version > 1) {
+        context.log(`${device.id} $version=${twin.properties.reported.$version}`
+            + ` but requesting $version=1`);
+        return;
+      } else {
+        const deviceModel = require('./deviceModels')[device.model];
+        const { name, mailboxId, accessId, password } = twin.properties.desired;
+        patch = deviceModel.initialize(name, mailboxId, accessId, password);
+      }
+    }
+    if (twin.properties.desired.accessId || twin.properties.desired.password) {
+      context.bindings.outputEvent = {
+        id: uuid(),
+        subject: `Mailbox update for ${twin.properties.desired.mailboxId}`,
+        dataVersion: '2.0',
+        eventType: 'MailboxUpdate',
+        data: {
+          mailboxId: twin.properties.desired.mailboxId,
+          accessId: twin.properties.desired.accessId,
+          password: twin.properties.desired.password,
+        },
+        eventTime: new Date().toISOString()
+      };
+    }
+    const err = await twin.properties.reported.update(patch);
+  }
+}
+
+/**
+ * Updates a device with reported properties.
+ * Checks for desired properties (including proxy commands) and triggers 
+ * `CommandRequest` events if applicable
+ * @param {Object} context The app function context (logging)
+ * @param {Object} device The device metadata
+ * @param {Object} twin The digital twin of the device
+ * @param {Object} [properties] The set of properties to update
+ */
+async function updateDevice(context, device, twin, properties) {
+  let patch;
+  //: Not using twin.on('properties.desired') since it won't trigger immediate
+  if (twin.properties.desired) {
+    patch = {};
+    const writableProperties = [];
+    const delta = Object.assign({}, twin.properties.desired);
+    context.log(`${device.id} desired property changes:`
+        + ` ${JSON.stringify(delta)}`);
+    const deviceModel = require('./deviceModels')[device.model];
+    if (delta['$version'] === 1) {
+      if (twin.properties.reported.$version > 1) {
+        context.log(`${device.id} $version=${twin.properties.reported.$version}`
+            + ` but requesting $version=1`);
+        //patch = Object.assign({}, twin.properties.reported);
+        //delete patch.update;
+        if (!properties) return;
+      } else {
+        patch = deviceModel.initialize(device.mobileId);
+      }
+    }
+    //: Reported properties if writable are completed
+    if (properties) {
+      for (const propName in properties) {
+        if (propName in delta) {
+          patch[propName] = {
+            value: properties[propName],
+            ad: 'completed',
+            ac: 200,
+            av: delta.$version,
+          };
+          delete properties[propName];
+          delete delta[propName];
+        }
+      }
+    }
+    for (const propName in delta) {
+      //: If writable in the device model get the OTA command setup
+      if (propName === '$version') continue;
+      //const deviceModel = require('./deviceModels')[device.model];
+      if (propName in twin.properties.reported &&
+          twin.properties.reported[propName].ac === 202) {
+        context.log(`${device.id} property ${propName} still pending`);
+        continue;
+      }
+      try {
+        const writable = deviceModel.writeProperty(propName, delta[propName]);
+      } catch (e) {
+        patch[propName] = {
+          value: delta[propName],
+          ac: 500,
+          ad: e.message,
+          av: delta.$version
+        };
+      }
+      if (writable) {
+        patch[propName] = {
+          value: delta[propName],
+          ad: 'pending',
+          ac: 202,
+          av: delta.$version,
+        };
+        writable.property = propName;
+        writable.newValue = delta[propName];
+        writableProperties.push(writable);
+      } else {
+        patch[propName] = {
+          value: delta[propName],
+          ad: 'not writable',
+          ac: 400,
+          //av: delta.$version,
+        };
+        context.log.warning(`${propName} not writable`
+            + ` in model ${device.model}`);
+      }
+    }
+    if (writableProperties.length > 0) {
+      context.bindings.outputEvent = [];
+      writableProperties.forEach(prop => {
+        //: publish event to EventGrid for orchestrator
+        const event = {
+          id: uuid(),
+          subject: `IOTC Desired property ${prop.property}=${prop.newValue}`
+              + ` for ${device.mobileId}`,
+          dataVersion: '2.0',
+          eventType: 'CommandRequest',
+          data: {
+            mobileId: device.mobileId,
+            command: prop.command,
+            completion: prop.completion,
+            retries: prop.retries
+          },
+          eventTime: new Date().toISOString()
+        };
+        context.log.verbose(`Publishing ${JSON.stringify(event)}`);
+        context.bindings.outputEvent.push(event);
+      });
+    }
+  };
+  if (properties || patch) {
+    const update = Object.assign({}, properties, patch);
+    for (const prop in update) {
+      if (update[prop] === null) delete update[prop];
+      if (prop in twin.properties.reported &&
+          _.isEqual(update[prop], twin.properties.reported[prop])) {
+        //delete update[prop];
+      }
+    }
+    if (!_.isEmpty(update)) {
+      const err = await twin.properties.reported.update(update);
+      context.log(`Sent ${device.id} properties: ${JSON.stringify(update)}`
+          + (err ? `; error: ${err.toString()}` : ` status: success`));
+    }
+  }
+}
+
 /**
  * 
  * @param {Object} context 
@@ -103,6 +293,17 @@ async function setupCommandHandlers(context, device) {
 async function handleTwin(context, properties, device) {
   try {
     const twin = await hubClient.getTwin();
+    if (device.model.includes('satelliteGateway')) {
+      updateSatelliteGateway(context, device, twin, properties);
+      //: Checking for new or configuration change of API
+    } else if (device.model.includes('mailbox')) {
+      updateMailbox(context, device, twin, properties);
+      //: Checking for new or configuration change credentials
+    } else {
+      //: Actual device
+      await updateDevice(context, device, twin, properties);
+    }
+    /*
     let patch;
     //: Not using twin.on('properties.desired') since it won't trigger immediate
     if (twin.properties.desired) {
@@ -110,6 +311,7 @@ async function handleTwin(context, properties, device) {
       const writableProperties = [];
       const delta = Object.assign({}, twin.properties.desired);
       context.log(`Desired property changes: ${JSON.stringify(delta)}`);
+      //: Reported properties passed in from return message
       if (properties) {
         for (const propName in delta) {
           if (propName === '$version') continue;
@@ -198,6 +400,7 @@ async function handleTwin(context, properties, device) {
             + (err ? `; error: ${err.toString()}` : ` status: success`));
       }
     }
+    */
   } catch (e) {
     context.log.error(e.stack);
   }

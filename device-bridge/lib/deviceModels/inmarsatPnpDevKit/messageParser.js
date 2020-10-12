@@ -3,6 +3,31 @@
 const idpDefault = require('../idpDefault/messageParser');
 const { round } = require('../../utilities');
 
+function initialize(mobileId) {
+  const patch = {
+    manufacturer: 'Inmarsat',
+    model: 'PNP Developer Kit',
+    //swVersion: '',
+    osName: 'Raspberry Pi OS',
+    processorArchitecture: 'ARMv6',
+    processorManufacturer: 'Broadcom',
+    totalStorage: 16,
+    totalMemory: 512,
+    //snr: 0,
+    powerMode: {
+      value: 0,
+      ac: 200,
+      av: 1
+    },
+    locationInterval: {
+      value: 15,
+      ac: 200,
+      av: 1
+    }
+  };
+  return Object.assign({}, patch, idpDefault.initialize(mobileId));
+}
+
 function writeProperty(propName, propValue) {
   if (idpDefault.writableProperties.includes(propName)) {
     return idpDefault.writeProperty(propName, propValue);
@@ -54,4 +79,5 @@ function parsePnpDevkit(context, message) {
 module.exports = {
   parse: parsePnpDevkit,
   writeProperty,
+  initialize,
 };

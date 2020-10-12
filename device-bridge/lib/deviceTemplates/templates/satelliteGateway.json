@@ -1,0 +1,83 @@
+{
+  "displayName": "Satellite Messaging Gateway",
+  "id": "urn:inmarsat:idp:template:satelliteGateway:1",
+  "types": [
+    "DeviceModel"
+  ],
+  "capabilityModel": {
+    "@id": "urn:inmarsat:idp:capabilityModel:satelliteGateway:1",
+    "@type": [
+      "CapabilityModel"
+    ],
+    "displayName": "Satellite Gateway",
+    "@context": [
+      "http://azureiot.com/v1/contexts/IoTModel.json"
+    ],
+    "implements": [
+      {
+        "@id": "urn:inmarsat:idp:capabilityModel:satelliteGateway:model:1",
+        "@type": [
+          "InterfaceInstance"
+        ],
+        "name": "satelliteGateway",
+        "displayName": "Satellite Gateway",
+        "schema": {
+          "@id": "urn:enterpriseIotPoc:satelliteGateway:model:api:1",
+          "@type": [
+            "Interface"
+          ],
+          "displayName": "API",
+          "contents": [
+            {
+              "@id": "urn:enterpriseIotPoc:satelliteGateway:model:api:name:1",
+              "@type": [
+                "Property"
+              ],
+              "displayName": "Name",
+              "name": "name",
+              "writable": true,
+              "schema": "string"
+            },
+            {
+              "@id": "urn:enterpriseIotPoc:satelliteGateway:model:api:url:1",
+              "@type": [
+                "Property"
+              ],
+              "displayName": "URL",
+              "name": "url",
+              "writable": true,
+              "schema": "string"
+            },
+            {
+              "@id": "urn:enterpriseIotPoc:satelliteGateway:model:api:alive:1",
+              "@type": [
+                "Property"
+              ],
+              "displayName": "Alive",
+              "name": "alive",
+              "schema": "boolean"
+            },
+            {
+              "@id": "urn:enterpriseIotPoc:satelliteGateway:model:api:aliveStateChangeTime:1",
+              "@type": [
+                "Property"
+              ],
+              "displayName": "Alive State Time",
+              "name": "aliveStateChangeTime",
+              "schema": "dateTime"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "solutionModel": {
+    "@id": "urn:inmarsat:idp:solutionModel:satelliteGateway:1",
+    "@type": [
+      "SolutionModel"
+    ],
+    "cloudProperties": [],
+    "initialValues": [],
+    "overrides": []
+  }
+}

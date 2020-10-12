@@ -45,7 +45,6 @@ module.exports = async function (context, eventGridEvent) {
       + ` by ${JSON.stringify(eventGridEvent)}`);
   let parsed;
   let device;
-  //if (eventGridEvent.eventType === 'NewReturnMessage') {
   const message = eventGridEvent.data;
   let mobileId = message.mobileId;
   device = await getDeviceMeta(mobileId);
@@ -54,7 +53,6 @@ module.exports = async function (context, eventGridEvent) {
   } else {
     throw new Error(`Could not find model: ${device.model}`);
   }
-  //}
   try {
     //TODO: move parsing to engine
     await handleMessage(context, device,

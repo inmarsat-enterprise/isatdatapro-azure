@@ -22,22 +22,31 @@
 
     1. **Subscription**: Select your Azure subscription.
     2. **Resource Type**: Select `Microsoft.EventGrid.Topics`.
-    3. **Resource Name**: Select the Event Grid Topic you provisioned i.e. `IdpExternalizations`.
+    3. **Resource Name**: Select the Event Grid Topic you provisioned i.e. 
+    `SatelliteMessagingExternalizations`.
     4. **Event Type Item - 1**: Enter `ApiOutage` and use it as a custom value.
     5. **Event Type Item - 2**: Enter `ApiRecovery` and use it as a custom value.
 
     ![Screenshot of the Logic App form](media/logic-app-creation2.png)
 
-6. Then click on the `New Step` and type in the `Choose an action` search box `SendGrid` and click the SendGrid icon:
+6. Then click on the `New Step` and type in the `Choose an action` search box 
+`SendGrid` and click the SendGrid icon:
 
     1. Select `Send Email (v4)`.
-    2. You may need to setup a [SendGrid account](https://sendgrid.com/) if you have not done so already. Alternatively you can choose Office 365 Email email sender or Gmail sender or whatever Logic App supports.
+    2. You may need to setup a [SendGrid account](https://sendgrid.com/) if you 
+    have not done so already. Create a `Full Access` API key and store it in a 
+    secure location.
+    3. **Connection Name**: a unique name i.e. `IdpApiNotificationSendGrid`
+    4. **
 
 7. Fill out the Send email (V4) form:
     1. **From**: The email address you wish this notification be sent from
     2. **To**: The email address(es) you wish this notification be sent to
-    3. **Subject**: Enter a subject e.g. `IsatData Pro: `. You can include the event type by adding Dynamic Content i.e. `Event Type`
-    4. **Body**: If you select this field, you can type whatever static content you want and/or pick from one the dynamic fields shown. Search for `data` in Dynamic content and select `Data object`.
+    3. **Subject**: Enter a subject e.g. `IsatData Pro: `. You can include the 
+    event type by adding Dynamic Content i.e. `Event Type`
+    4. **Body**: If you select this field, you can type whatever static content 
+    you want and/or pick from one the dynamic fields shown. Search for `data` 
+    in Dynamic content and select `Data object`.
 
     ![Screenshot of the Logic App sender](media/logic-app-creation3.png)
 
