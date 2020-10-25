@@ -253,6 +253,7 @@ async function updateDevice(context, device, twin, properties) {
         };
         writable.property = propName;
         writable.newValue = delta[propName];
+        writable.version = delta.$version;
         writableProperties.push(writable);
       } else {
         patch[propName] = {
@@ -279,7 +280,8 @@ async function updateDevice(context, device, twin, properties) {
             mobileId: device.mobileId,
             command: prop.command,
             completion: prop.completion,
-            retries: prop.retries
+            retries: prop.retries,
+            commandVersion: prop.version,
           },
           eventTime: new Date().toISOString()
         };

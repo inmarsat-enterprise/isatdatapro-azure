@@ -34,24 +34,30 @@ module.exports = async function (context, eventGridEvent) {
     const client = df.getClient(context);
     const data = eventGridEvent.data;
     const { codecServiceId, codecMessageId } = getCodecIds(data);
+    // TODO: add commandVersion, avoid repeating same version even if terminated
     instanceId = `otaCommand-${data.mobileId}` 
         + `-${codecServiceId}-${codecMessageId}`;
+    if (data.commandVersion) instanceId += `-${data.commandVersion}`;
     //: work around terminated instances bug by flushing history
     let instances = await clientGetStatusAll(context, client);
     let running = false;
+    let completed = false;
     for (let i=0; i < instances.length; i++) {
       if (instances[i].instanceId === instanceId) {
-        if (instances[i].runtimeStatus === 'Running') {
+        if (instances[i].runtimeStatus === 'Running' ||
+            instances[i].runtimeStatus === 'Pending') {
           if (testMode) {
             client.terminate(instances[i].instanceId);
           } else {
             running = true;
           }
+        } else if (instances[i].runtimeStatus === 'Completed') {
+          completed = true;
         }
         break;
       }
     }
-    if (!running) {
+    if (!running && !completed) {
       await client.startNew('OtaCommandOrchestrator',
           instanceId, eventGridEvent);
       context.log(`Started orchestration with ID=${instanceId}`);
