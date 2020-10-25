@@ -169,6 +169,23 @@ async function listDeviceTemplates() {
   return res.value;
 }
 
+async function updateDeviceTemplates(context) {
+  const templatesInRepo = require('./deviceTemplates/templates');
+  const templatesInCentral = await listDeviceTemplates();
+  for (const templateName in templatesInRepo) {
+    for (let i=0; i < templatesInCentral.length; i++) {
+      if (templatesInRepo[templateName].id === templatesInCentral[i].id) {
+        delete templatesInRepo[templateName];
+        break;
+      }
+    }
+  }
+  for (const templateName in templatesInRepo) {
+    await setDeviceTemplate(templatesInRepo[templateName]);
+    context.log(`Updated device template ${templateName}`);
+  }
+}
+
 module.exports = {
   getDevices,
   getDeviceProperties,
@@ -176,6 +193,7 @@ module.exports = {
   setDeviceTemplate,
   removeDeviceTemplate,
   buildTemplate,
+  updateDeviceTemplates,
 };
 
 /* Comment this line to test

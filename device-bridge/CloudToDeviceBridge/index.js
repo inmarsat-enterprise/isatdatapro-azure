@@ -5,7 +5,7 @@
  * few minutes
  */
 const checkDesiredPropertiesCommands = require('../lib/idpDeviceInterfaceBridge');
-const { getDevices } = require('../lib/iotcDcmApi');
+const { getDevices, updateDeviceTemplates } = require('../lib/iotcDcmApi');
 const { templates } = require('../lib/deviceTemplates');
 
 const manufacturerCodes = ['SKY', 'HON'];
@@ -36,6 +36,8 @@ module.exports = async function (context, timer) {
       context.log(`${thisFunction.name} timer past due!`);
     }
     context.log(`${thisFunction.name} timer triggered at ${callTime}`);
+    // TODO: check templates in library and push any new ones/versions
+    await updateDeviceTemplates(context);
     const provisionedDevices = await getDevices();
     for (let d=0; d < provisionedDevices.length; d++) {
       const device = {};
