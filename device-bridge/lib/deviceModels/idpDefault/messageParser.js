@@ -1,4 +1,3 @@
-const { initial } = require('lodash');
 const commonMessageFormat = require('../../codecCommonMessageFormat');
 const { round } = require('../../utilities');
 
@@ -199,6 +198,39 @@ function parseMetadata(message) {
 }
 
 /**
+ * Returns the converted pingTime field value from timestamp
+ * @param {string} timestamp datestamp
+ * @returns {number}
+ */
+function secondOfDay(timestamp) {
+  let d;
+  if (typeof (timestamp) === 'undefined') {
+    d = new Date();
+  } else {
+    d = new Date(timestamp);
+  }
+  const secondOfDay = (
+      d.getUTCHours() * 3600
+      + d.getUTCMinutes() * 60
+      + d.getUTCSeconds());
+  return secondOfDay;
+}
+
+/**
+ * Converts seconds to a UTC/ISO datetime
+ * @param {number} secondOfDay 
+ * @returns {string} ISO formatted string
+ */
+function parsePingTime(secondOfDay) {
+  let d = new Date();
+  utcHour = Math.floor(secondOfDay / 3600);
+  utcMinute = Math.floor((secondOfDay % 3600) / 60);
+  utcSecond = ((secondOfDay % 3600) % 60);
+  d.setUTCHours(utcHour, utcMinute, utcSecond);
+  return d.toISOString();
+}
+
+/**
  * Returns a set of telemetry for codec-defined messages
  * If using codecServiceId=0 returns reportedProperties for the modem
  * Returns a datetime based on the satellite receive time of the message
@@ -268,7 +300,14 @@ function parseGenericIdp(context, message) {
           telemetry.gnssFixTime = gnssFixDate.toISOString();
           break;
         case 112:
-          reportedProperties.lastPingResponse = message.receiveTimeUtc;
+          const receivedSecond = secondOfDay(message.receiveTimeUtc);
+          let { requestTime, responseTime } = telemetry;
+          if (receivedSecond > 65535) {
+            requestTime += 65535;
+            responseTime += 65535;
+          }
+          telemetry.requestTime = parsePingTime(requestTime);
+          telemetry.responseTime = parsePingTime(responseTime);
           break;
         case 115:
           //console.log(`${JSON.stringify(telemetry)}`);

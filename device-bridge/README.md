@@ -83,10 +83,20 @@ Raspberry Pi Zero Wireless connected to an ORBCOMM ST2100 packaged modem (aka
 
 ### Custom device models
 
-A **messageParser.js** file defines a function **`parse(message)`** to convert 
-message data to telemetry and/or reported properties, and defines a 
-**`writeProperty(propName, propValue)`** function structured as follows:
+The **index.js** file must export the following functions:
 
+* **`initialize`***`()`* is called the first time the device reports or is 
+provisioned manually in IoT Central, and should return the default set of 
+*telemetry* and *reportedProperties*, where writable properties should be 
+objects with a `value` property, an `ac: 200` property and `av: 1` property.
+
+* **`parse`***`(context, message)`* defines data parsing for (return) messages 
+into *telemetry* and *reportedProperties* with optional *timestamp*, where 
+writable properties should be objects with a `value` property.
+
+* *(optional)* **`writableProperties`** an array of writable property names
+
+* **`writeProperty`***`(propName, propValue)`* function structured as follows:
 ```
 {
   "command": {
@@ -110,8 +120,7 @@ message data to telemetry and/or reported properties, and defines a
   },
 }
 ```
-
-**`command`** could use either a `payloadJson` format as above, or a decimal-
+Where **`command`** could use either a `payloadJson` format as above, or a decimal-
 coded binary payload such as:
 ```
 "payloadRaw": [<codecServiceId>,<codecMessageId>,<dataByte>]

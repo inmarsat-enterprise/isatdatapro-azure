@@ -26,6 +26,9 @@
 		},
 		{
 			"path": "web"
+		},
+		{
+			"path": "arm"
 		}
 	],
 	"settings": {

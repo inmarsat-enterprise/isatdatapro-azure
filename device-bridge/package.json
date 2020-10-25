@@ -7,13 +7,13 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
-    "azure-iot-device": "1.17.1",
+    "azure-iot-device": "1.17.2",
     "azure-iot-device-amqp": "1.13.2",
-    "azure-iot-device-mqtt": "1.15.1",
-    "azure-iot-provisioning-device": "1.8.5",
+    "azure-iot-device-mqtt": "1.15.2",
+    "azure-iot-provisioning-device": "1.8.6",
     "azure-iot-provisioning-device-amqp": "1.8.6",
-    "azure-iot-provisioning-device-mqtt": "1.7.5",
-    "azure-iot-security-symmetric-key": "1.7.5",
+    "azure-iot-provisioning-device-mqtt": "1.7.6",
+    "azure-iot-security-symmetric-key": "1.7.6",
     "lodash": "4.17.20"
   },
   "devDependencies": {}

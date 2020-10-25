@@ -523,15 +523,6 @@
         "schema": "dateTime"
       },
       {
-        "@id": "urn:inmarsat:idp:ut:properties:lastPingResponse:1",
-        "@type": [
-          "Property"
-        ],
-        "displayName": "Last Ping Response",
-        "name": "lastPingResponse",
-        "schema": "dateTime"
-      },
-      {
         "@id": "urn:inmarsat:idp:ut:properties:lastRegistrationTime:1",
         "@type": [
           "Property"
