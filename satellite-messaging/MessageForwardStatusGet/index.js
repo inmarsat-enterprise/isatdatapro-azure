@@ -70,7 +70,6 @@ module.exports = async function (context, timer) {
     if (timer.IsPastDue) {
       context.log.warn(`${funcName} timer past due!`);
     }
-    context.log(`${funcName} timer triggered at ${callTime}`);
     await getForwardStatuses();
   } catch (e) {
     context.log.error(e.stack);

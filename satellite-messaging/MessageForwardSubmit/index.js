@@ -43,7 +43,7 @@ module.exports = async function (context, eventGridEvent) {
       const data = Object.assign({ submissionId: submissionId }, message);
       const eventTime = message.mailboxTimeUtc;
       const event = new eventGrid.Event(eventType, subject, data, eventTime);
-      context.log(`${funcName} publishing NewForwardMessage`
+      context.log.verbose(`${funcName} publishing NewForwardMessage`
           + ` ${JSON.stringify(event)}`);
       context.bindings.outputEvent.push(event);
     }

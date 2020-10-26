@@ -60,7 +60,6 @@ try {
     if (timer.IsPastDue) {
       context.log.warn(`${funcName} timer past due!`);
     }
-    context.log.verbose(`${funcName} timer triggered at ${callTime}`);
     await getReturnMessages();
   } catch (e) {
     context.log.error(e.stack);
