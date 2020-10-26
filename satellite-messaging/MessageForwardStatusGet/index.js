@@ -7,7 +7,7 @@
 const idp = require('isatdatapro-microservices');
 const getForwardStatuses = idp.getForwardStatuses;
 const eventHandler = idp.eventHandler.emitter;
-const { eventGrid } = require('../SharedCode');
+const { eventGrid, getFunctionName } = require('../SharedCode');
 
 /**
  * Periodically retrieves statuses from the satellite network API
@@ -15,7 +15,7 @@ const { eventGrid } = require('../SharedCode');
  * @param {Object} timer The function app timer
  */
 module.exports = async function (context, timer) {
-  const thisFunction = { name: __filename };
+  const funcName = getFunctionName(__filename);
   const callTime = new Date().toISOString();
   context.bindings.outputEvent = [];
 
@@ -32,7 +32,7 @@ module.exports = async function (context, timer) {
     };
     const eventTime = stateTimeUtc ? stateTimeUtc : (new Date()).toISOString();
     const event = new eventGrid.Event(eventType, subject, data, eventTime);
-    context.log(`Publishing ${JSON.stringify(event)}`);
+    context.log.verbose(`${funcName} publishing ${JSON.stringify(event)}`);
     context.bindings.outputEvent.push(event);
   }
 
@@ -45,13 +45,13 @@ module.exports = async function (context, timer) {
       mailboxId: mailboxId,
     };
     const event = new eventGrid.Event(eventType, subject, data);
-    context.log(`Publishing ${JSON.stringify(event)}`);
+    context.log.verbose(`${funcName} publishing ${JSON.stringify(event)}`);
     context.bindings.outputEvent.push(event);
   }
 
   function onApiOutage(satelliteGateway, timestamp) {
     const event = eventGrid.ApiOutageEvent(satelliteGateway, timestamp);
-    context.log.warning(`Satellite API outage detected`);
+    context.log.warn(`Satellite API outage detected`);
     context.bindings.outputEvent.push(event);
   }
 
@@ -68,12 +68,12 @@ module.exports = async function (context, timer) {
     eventHandler.on('ApiOutage', onApiOutage);
     eventHandler.on('ApiRecovery', onApiRecovery);
     if (timer.IsPastDue) {
-      context.log(`${thisFunction.name} timer past due!`);
+      context.log.warn(`${funcName} timer past due!`);
     }
-    context.log(`${thisFunction.name} timer triggered at ${callTime}`);
+    context.log(`${funcName} timer triggered at ${callTime}`);
     await getForwardStatuses();
   } catch (e) {
-    context.log(e.stack);
+    context.log.error(e.stack);
   } finally {
     eventHandler.off('ForwardMessageStateChange', onForwardMessageStateChange);
     eventHandler.off('OtherClientForwardSubmission',

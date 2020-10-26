@@ -28,14 +28,19 @@ function extractMobileId(deviceId) {
   return mobileId;
 }
 
+function logTime() {
+  return new Date().toISOString();
+}
+
 module.exports = async function (context, timer) {
   const thisFunction = { name: __filename };
-  const callTime = new Date().toISOString();
+  const callTime = logTime();
   try {
     if (timer.IsPastDue) {
-      context.log(`${thisFunction.name} timer past due!`);
+      context.log.warn(`${thisFunction.name} timer past due!`);
     }
-    context.log(`${thisFunction.name} timer triggered at ${callTime}`);
+    context.log.verbose(`${thisFunction.name} >>>> entry`
+        + ` (timer) at ${callTime}`);
     // TODO: check templates in library and push any new ones/versions
     await updateDeviceTemplates(context);
     const provisionedDevices = await getDevices();
@@ -52,10 +57,13 @@ module.exports = async function (context, timer) {
       if (device.id) {
         await checkDesiredPropertiesCommands(context, device);
       } else {
-        context.log.verbose(`Device ${provisionedDevices[d].id} not templated`);
+        context.log.warn(`Device ${provisionedDevices[d].id} not templated`);
       }
     }
   } catch (err) {
-    context.log(err.message, err.stack);
+    context.log.error(err.message, err.stack);
+  } finally {
+    const runTime = new Date() - new Date(callTime);
+    context.log.verbose(`${__filename} <<<< exit (runtime: ${runTime})`);
   }
 };

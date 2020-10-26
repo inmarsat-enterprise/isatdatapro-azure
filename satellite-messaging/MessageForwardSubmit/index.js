@@ -7,7 +7,7 @@
 const idp = require('isatdatapro-microservices');
 const submitForwardMessage = idp.submitForwardMessages;
 const eventHandler = idp.eventHandler.emitter;
-const { eventGrid } = require('../SharedCode');
+const { eventGrid, getFunctionName } = require('../SharedCode');
 
 /**
  * A new forward message submission
@@ -28,45 +28,54 @@ const { eventGrid } = require('../SharedCode');
  * @param {NewForwardSubmission} eventGridEvent 
  */
 module.exports = async function (context, eventGridEvent) {
-  context.log(`Function triggered by ${JSON.stringify(eventGridEvent)}`);
-  context.bindings.outputEvent = [];
-  let { mobileId, message, submissionId } = eventGridEvent.data;
-  if (!submissionId) submissionId = null;
+  if (eventGridEvent.eventType === 'NewForwardSubmission') {
+    const funcName = getFunctionName(__filename);
+    context.log.verbose(`${funcName} triggered with`
+        + ` ${JSON.stringify(eventGridEvent.data)}`);
+    context.bindings.outputEvent = [];
+    let { mobileId, message, submissionId } = eventGridEvent.data;
+    if (!submissionId) submissionId = null;
   
-  function onNewForwardMessage(message) {
-    const eventType = 'NewForwardMessage';
-    const subject = `New forward message ${message.messageId}`
-        + ` to ${message.mobileId}`;
-    const data = Object.assign({ submissionId: submissionId }, message);
-    const eventTime = message.mailboxTimeUtc;
-    const event = new eventGrid.Event(eventType, subject, data, eventTime);
-    context.log(`Publishing ${JSON.stringify(event)}`);
-    context.bindings.outputEvent.push(event);
-  }
-
-  function onApiOutage(satelliteGateway, timestamp) {
-    const event = eventGrid.ApiOutageEvent(satelliteGateway, timestamp);
-    context.log.warning(`Satellite API outage detected`);
-    context.bindings.outputEvent.push(event);
-  }
-
-  function onApiRecovery(satelliteGateway, timestamp) {
-    const event = eventGrid.ApiRecoveryEvent(satelliteGateway, timestamp);
-    context.log(`Satellite API recovery detected`);
-    context.bindings.outputEvent.push(event);
-  }
-
-try {
-    eventHandler.on('NewForwardMessage', onNewForwardMessage);
-    eventHandler.on('ApiOutage', onApiOutage);
-    eventHandler.on('ApiRecovery', onApiRecovery);
-    const messageId = await submitForwardMessage(mobileId, message);
-    context.log(messageId ? `Send messageId ${messageId}` : `Failed to send`);
-  } catch (e) {
-    context.log.error(e.stack);
-  } finally {
-    eventHandler.off('NewForwardMessage', onNewForwardMessage);
-    eventHandler.off('ApiOutage', onApiOutage);
-    eventHandler.off('ApiRecovery', onApiRecovery);
+    function onNewForwardMessage(message) {
+      const eventType = 'NewForwardMessage';
+      const subject = `New forward message ${message.messageId}`
+          + ` to ${message.mobileId}`;
+      const data = Object.assign({ submissionId: submissionId }, message);
+      const eventTime = message.mailboxTimeUtc;
+      const event = new eventGrid.Event(eventType, subject, data, eventTime);
+      context.log(`${funcName} publishing NewForwardMessage`
+          + ` ${JSON.stringify(event)}`);
+      context.bindings.outputEvent.push(event);
+    }
+  
+    function onApiOutage(satelliteGateway, timestamp) {
+      const event = eventGrid.ApiOutageEvent(satelliteGateway, timestamp);
+      context.log.warning(`Satellite API outage detected`);
+      context.bindings.outputEvent.push(event);
+    }
+  
+    function onApiRecovery(satelliteGateway, timestamp) {
+      const event = eventGrid.ApiRecoveryEvent(satelliteGateway, timestamp);
+      context.log(`Satellite API recovery detected`);
+      context.bindings.outputEvent.push(event);
+    }
+  
+    try {
+      eventHandler.on('NewForwardMessage', onNewForwardMessage);
+      eventHandler.on('ApiOutage', onApiOutage);
+      eventHandler.on('ApiRecovery', onApiRecovery);
+      const messageId = await submitForwardMessage(mobileId, message);
+      if (messageId) {
+        context.log(`Submitted messageId ${messageId}`);
+      } else {
+        context.log.error(`Failed to submit message`);
+      }
+    } catch (e) {
+      context.log.error(e.stack);
+    } finally {
+      eventHandler.off('NewForwardMessage', onNewForwardMessage);
+      eventHandler.off('ApiOutage', onApiOutage);
+      eventHandler.off('ApiRecovery', onApiRecovery);
+    }
   }
 };

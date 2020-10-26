@@ -6,6 +6,15 @@
         "isEnabled": true,
         "excludedTypes": "Request"
       }
+    },
+    "logLevel": {
+      "Function.OtaCommandStart": "Trace",
+      "Function.OtaCommandOrchestrator": "Trace",
+      "Function.OtaCommandSubmit": "Trace",
+      "Function.OtaCommandSending": "Trace",
+      "Function.OtaCommandDelivery": "Trace",
+      "Function.OtaCommandResponse": "Trace",
+      "default": "Information"
     }
   },
   "extensionBundle": {

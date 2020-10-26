@@ -1,9 +1,11 @@
 const idp = require('isatdatapro-microservices');
-const { eventGrid } = require('../SharedCode');
+const { eventGrid, getFunctionName } = require('../SharedCode');
 const secret = process.env.MAILBOX_SECRET;
 
 module.exports = async function (context, eventGridEvent) {
-  context.log(`${__filename} called with ${JSON.stringify(eventGridEvent)}`);
+  const funcName = getFunctionName(__filename);
+  context.log.verbose(`${funcName} called`
+      + ` with ${JSON.stringify(eventGridEvent)}`);
   if (eventGridEvent.eventType !== 'MailboxUpdate') {
     throw new Error(`Triggered by incorrect event ${eventGridEvent.eventType}`);
   }
@@ -47,9 +49,9 @@ module.exports = async function (context, eventGridEvent) {
     const data = mailbox;
     const eventTime = (new Date()).toISOString();
     const event = new eventGrid.Event(eventType, subject, data, eventTime);
-    context.log(`Publishing ${JSON.stringify(event)}`);
+    context.log(`${funcName} publishing ${JSON.stringify(event)}`);
     context.bindings.outputEvent = event;
   } catch (e) {
-    context.log(e.stack);
+    context.log.error(e.stack);
   }
 };

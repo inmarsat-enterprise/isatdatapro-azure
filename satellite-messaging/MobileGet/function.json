@@ -1,7 +1,7 @@
 {
   "bindings": [
     {
-      "name": "eventGridEvent",
+      "name": "eventGridEventMobileGet",
       "type": "eventGridTrigger",
       "direction": "in"
     },

@@ -105,7 +105,9 @@ function writeProperty(propName, propValue) {
       otaMessage.command = {
         modemCommand: {
           command: 'reset',
-          params: `${propValue}`
+          params: `${propValue}`,
+          codecServiceId: 0,
+          codecMessageId: 68,
         }
       };
       otaMessage.completion = {
@@ -118,7 +120,9 @@ function writeProperty(propName, propValue) {
     case 'commandPingModem':
       otaMessage.command = {
         modemCommand: {
-          command: 'ping'
+          command: 'ping',
+          codecServiceId: 0,
+          codecMessageId: 112,
         }
       };
       otaMessage.completion = {
@@ -131,7 +135,9 @@ function writeProperty(propName, propValue) {
     case 'commandGetLocation':
       otaMessage.command = {
         modemCommand: {
-          command: 'getLocation'
+          command: 'getLocation',
+          codecServiceId: 0,
+          codecMessageId: 72,
         }
       };
       otaMessage.completion = {
@@ -144,7 +150,9 @@ function writeProperty(propName, propValue) {
     case 'commandGetBroadcastIds':
       otaMessage.command = {
         modemCommand: {
-          command: 'getBroadcastIds'
+          command: 'getBroadcastIds',
+          codecServiceId: 0,
+          codecMessageId: 115,
         }
       };
       otaMessage.completion = {
@@ -157,7 +165,9 @@ function writeProperty(propName, propValue) {
     case 'commandGetConfiguration':
       otaMessage.command = {
         modemCommand: {
-          command: 'getConfiguration'
+          command: 'getConfiguration',
+          codecServiceId: 0,
+          codecMessageId: 97,
         }
       };
       otaMessage.completion = {

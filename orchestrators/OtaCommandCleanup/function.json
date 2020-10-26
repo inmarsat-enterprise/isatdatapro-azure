@@ -1,0 +1,16 @@
+{
+  "bindings": [
+    {
+      "schedule": "0 0 12 * * *",
+      "name": "otaCleanupTimer",
+      "type": "timerTrigger",
+      "direction": "in"
+    },
+    {
+      "name": "otaCommandCleanup",
+      "type": "orchestrationClient",
+      "direction": "in"
+    }
+  ],
+  "disabled": false
+}

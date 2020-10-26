@@ -1,6 +1,6 @@
 ﻿// Orchestrator Client
 const df = require('durable-functions');
-const { clientGetStatusAll } = require('../SharedCode');
+const { clientGetStatusAll, getFunctionName } = require('../SharedCode');
 
 const successStates = [
   'DELIVERED',
@@ -12,11 +12,13 @@ const failedStates = [
 const completedStates = successStates.concat(failedStates);
 
 module.exports = async function (context, eventGridEvent) {
-  //context.log(`Received event: ${JSON.stringify(eventGridEvent)}`);
+  const funcName = getFunctionName(__filename);
   if (eventGridEvent.eventType === 'ForwardMessageStateChange') {
-    const client = df.getClient(context);
     const { messageId, newState } = eventGridEvent.data;
     if (completedStates.includes(newState)) {
+      context.log.verbose(`${funcName} received forward message ${messageId}`
+          + ` with state ${newState}`);
+      const client = df.getClient(context);
       //: work around terminated instances bug by flushing history
       let instances = await clientGetStatusAll(context, client);
       for (let i=0; i < instances.length; i++) {
@@ -26,6 +28,8 @@ module.exports = async function (context, eventGridEvent) {
             success: successStates.includes(newState) ? true : false,
             deliveryTime: eventGridEvent.data.stateTimeUtc,
           };
+          context.log.verbose(`${funcName} raising event CommandDelivered with`
+              + ` ${JSON.stringify(eventData)}`);
           await client.raiseEvent(instances[i].instanceId, 'CommandDelivered',
               eventData);
           break;

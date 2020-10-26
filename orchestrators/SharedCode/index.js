@@ -19,6 +19,12 @@ async function clientGetStatusAll(context, client) {
   return instances;
 }
 
+function getFunctionName(path) {
+  const fNameParts = path.split('/');
+  return fNameParts[fNameParts.length - 2];
+}
+
 module.exports = {
   clientGetStatusAll,
+  getFunctionName,
 };

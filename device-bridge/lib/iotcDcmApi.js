@@ -2,7 +2,7 @@
 
 // Get templates, compare against this lib; upload new from lib
 const https = require('https')
-const { capabilityModels, interfaces } = require('./deviceTemplates');
+const { capabilityModels, interfaces, templates } = require('./deviceTemplates');
 
 let tempEnv;
 if (!process.env.IOTC_APPLICATION_URL) {
@@ -170,7 +170,7 @@ async function listDeviceTemplates() {
 }
 
 async function updateDeviceTemplates(context) {
-  const templatesInRepo = require('./deviceTemplates/templates');
+  const templatesInRepo = Object.assign({}, templates);
   const templatesInCentral = await listDeviceTemplates();
   for (const templateName in templatesInRepo) {
     for (let i=0; i < templatesInCentral.length; i++) {
@@ -198,11 +198,8 @@ module.exports = {
 
 /* Comment this line to test
 (async () => {
-  const templates = require('./deviceTemplates/templates');
   try {
-    for (let template in templates) {
-      console.log(await setDeviceTemplate(templates[template]));
-    }
+    await updateDeviceTemplates();
     console.log(await listDeviceTemplates());
   } catch (e) {
     console.log(e.stack);

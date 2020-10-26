@@ -7,7 +7,7 @@
 const idp = require('isatdatapro-microservices');
 const getForwardMessages = idp.getForwardMessages;
 const eventHandler = idp.eventHandler.emitter;
-const { eventGrid } = require('../SharedCode');
+const { eventGrid, getFunctionName } = require('../SharedCode');
 
 /**
  * A forward message submission summary from another API client
@@ -24,7 +24,7 @@ const { eventGrid } = require('../SharedCode');
  * @param {OtherClientForwardSubmission} eventGridEvent 
  */
 module.exports = async function (context, eventGridEvent) {
-  const thisFunction = { name: __filename };
+  const funcName = getFunctionName(__filename);
   const callTime = new Date().toISOString();
   context.bindings.outputEvent = [];
   
@@ -34,13 +34,13 @@ module.exports = async function (context, eventGridEvent) {
     const data = mobile;
     const eventTime = (new Date()).toISOString();
     const event = new eventGrid.Event(eventType, subject, data, eventTime);
-    context.log(`Publishing ${JSON.stringify(event)}`);
+    context.log.verbose(`${funcName} publishing ${JSON.stringify(event)}`);
     context.bindings.outputEvent.push(event);
   }
 
   function onApiOutage(satelliteGateway, timestamp) {
     const event = eventGrid.ApiOutageEvent(satelliteGateway, timestamp);
-    context.log.warning(`Satellite API outage detected`);
+    context.log.warn(`Satellite API outage detected`);
     context.bindings.outputEvent.push(event);
   }
 
@@ -54,11 +54,11 @@ module.exports = async function (context, eventGridEvent) {
     eventHandler.on('NewMobile', onNewMobile);
     eventHandler.on('ApiOutage', onApiOutage);
     eventHandler.on('ApiRecovery', onApiRecovery);
-    const messageId = eventGridEvent.data.messageId;
-    const mailboxId = eventGridEvent.data.mailboxId;
+    context.log(`${funcName} called with ${JSON.stringify(eventGridEvent.data)}`);
+    const { messageId, mailboxId } = eventGridEvent.data;
     await getForwardMessages(mailboxId, messageId);
   } catch (e) {
-    context.log(e.stack);
+    context.log.error(e.stack);
   } finally {
     eventHandler.off('NewMobile', onNewMobile);
     eventHandler.off('ApiOutage', onApiOutage);

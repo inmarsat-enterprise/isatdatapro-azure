@@ -1,20 +1,22 @@
 ﻿// Orchestrator Client
 const df = require('durable-functions');
-const { clientGetStatusAll } = require('../SharedCode');
+const { clientGetStatusAll, getFunctionName } = require('../SharedCode');
 
 module.exports = async function (context, eventGridEvent) {
-  context.log(`Received event: ${JSON.stringify(eventGridEvent)}`);
+  const funcName = getFunctionName(__filename);
   if (eventGridEvent.eventType === 'NewReturnMessage') {
     const client = df.getClient(context);
     const message = eventGridEvent.data;
     let instances = await clientGetStatusAll(context, client);
     for (let i=0; i < instances.length; i++) {
-      //context.log(`${new Date().toISOString()}: ${JSON.stringify(instances[i])}`);
-      if (instances[i].customStatus.state === 'awaitingResponse' &&
+      if ((instances[i].customStatus.state === 'awaitingResponse' ||
+          instances[i].customStatus.state === 'awaitingCompletion') &&
           instances[i].customStatus.mobileId === message.mobileId &&
           instances[i].customStatus.codecServiceId === message.codecServiceId &&
           instances[i].customStatus.codecMessageId === message.codecMessageId) {
         const eventData = message;
+        context.log.verbose(`${funcName} raising event ResponseReceived with`
+            + ` ${eventData}`);
         await client.raiseEvent(instances[i].instanceId, 'ResponseReceived',
             eventData);
         break;

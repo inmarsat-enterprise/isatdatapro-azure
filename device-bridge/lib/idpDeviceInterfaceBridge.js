@@ -113,12 +113,13 @@ async function updateSatelliteGateway(context, device, twin, properties) {
   if (twin.properties.desired) {
     if (twin.properties.desired['$version'] === 1) {
       if (twin.properties.reported.$version > 1) {
-        context.log(`${device.id} $version=${twin.properties.reported.$version}`
+        context.log.warn(`${device.id}`
+            + ` $version=${twin.properties.reported.$version}`
             + ` but requesting $version=1`);
         return;
       } else {
         if (twin.properties.desired.name || twin.properties.desired.url) {
-          context.bindings.outputEvent = {
+          const event = {
             id: uuid(),
             subject: `Satellite Gateway update for ${device}`,
             dataVersion: '2.0',
@@ -129,28 +130,31 @@ async function updateSatelliteGateway(context, device, twin, properties) {
             },
             eventTime: new Date().toISOString()
           };
+          context.log.verbose(`Publishing ${JSON.stringify(event)}`);
+          context.bindings.outputEvent = event;
         }
       }
     }
   }
   if (properties) {
-    version = twin.properties.reported.$version;
+    const version = twin.properties.reported.$version;
     const err = await twin.properties.reported.update(
         updateWritableProperties(properties, version));
+    if (err) context.log.error(err);
   }
 }
 
 async function updateMailbox(context, device, twin, properties) {
-  let version;
   if (twin.properties.desired) {
     if (twin.properties.desired['$version'] === 1) {
       if (twin.properties.reported.$version > 1) {
-        context.log(`${device.id} $version=${twin.properties.reported.$version}`
+        context.log.warn(`${device.id}`
+            + ` $version=${twin.properties.reported.$version}`
             + ` but requesting $version=1`);
         return;
       } else {
         if (twin.properties.desired.length > 1) {
-          context.bindings.outputEvent = {
+          const event = {
             id: uuid(),
             subject: `Mailbox data for ${twin.properties.desired.mailboxId}`,
             dataVersion: '2.0',
@@ -164,14 +168,17 @@ async function updateMailbox(context, device, twin, properties) {
             },
             eventTime: new Date().toISOString()
           };
+          context.log.verbose(`Publishing ${JSON.stringify(event)}`);
+          context.bindings.outputEvent = event;
         }
       }
     }
   }
   if (properties) {
-    version = twin.properties.reported.$version;
+    const version = twin.properties.reported.$version;
     const err = await twin.properties.reported.update(
         updateWritableProperties(properties, version));
+    if (err) context.log.error(err);
   }
 }
 
@@ -191,12 +198,13 @@ async function updateDevice(context, device, twin, properties) {
     patch = {};
     const writableProperties = [];
     const delta = Object.assign({}, twin.properties.desired);
-    context.log(`${device.id} desired property changes:`
+    context.log.verbose(`${device.id} desired property changes:`
         + ` ${JSON.stringify(delta)}`);
     const deviceModel = require('./deviceModels')[device.model];
     if (delta['$version'] === 1) {
       if (twin.properties.reported.$version > 1) {
-        context.log(`${device.id} $version=${twin.properties.reported.$version}`
+        context.log.warn(`${device.id}`
+            + ` $version=${twin.properties.reported.$version}`
             + ` but requesting $version=1`);
         if (!properties) return;
       } else {
@@ -225,7 +233,7 @@ async function updateDevice(context, device, twin, properties) {
       if (propName in twin.properties.reported &&
           twin.properties.reported[propName].value === delta[propName] &&
           twin.properties.reported[propName].av >= delta.$version) {
-        context.log.warn(`${device.id} ${propName} already triggered`);
+        context.log.verbose(`${device.id} ${propName} pending`);
         continue;
       }
       let writable;
@@ -242,7 +250,7 @@ async function updateDevice(context, device, twin, properties) {
       if (writable) {
         if (twin.properties.desired[propName] ===
             twin.properties.reported[propName].value) {
-          context.log(`${device.id} ${propName} desired===reported`);
+          context.log.verbose(`${device.id} ${propName} desired===reported`);
           continue;
         }
         patch[propName] = {
@@ -262,7 +270,7 @@ async function updateDevice(context, device, twin, properties) {
           ac: 400,
           //av: delta.$version,
         };
-        context.log.warning(`${propName} not writable`
+        context.log.warn(`${propName} not writable`
             + ` in model ${device.model}`);
       }
     }

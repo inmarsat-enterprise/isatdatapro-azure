@@ -1,5 +1,6 @@
 ﻿//Triggered by OtaCommandOrchestrator
 const uuid = require('uuid').v4;
+const { getFunctionName } = require('../SharedCode');
 
 const testMode = process.env.testMode;
 
@@ -25,8 +26,8 @@ function buildSubmission(data) {
 }
 
 module.exports = async function (context, data) {
-  //context.log(`${JSON.stringify(data)}`);
-  const submissionId = uuid();
+  const funcName = getFunctionName(__filename);
+  const submissionId = testMode ? 1 : uuid();
   const event = {
     id: uuid(),
     subject: `Submit forward message ${submissionId} to ${data.mobileId}`,
@@ -35,7 +36,7 @@ module.exports = async function (context, data) {
     data: Object.assign({ submissionId: submissionId }, buildSubmission(data)),
     eventTime: new Date().toISOString()
   };
-  context.log(`Publishing ${JSON.stringify(event)}`);
+  context.log.verbose(`${funcName} publishing ${JSON.stringify(event)}`);
   context.bindings.outputEvent = event;
   return submissionId;
 };
