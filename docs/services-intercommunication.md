@@ -1,6 +1,8 @@
 # Services Intercommunication
 
-![Service intercommunication diagram](media/services-intercommunication.png)
+## Overview
+
+![Service intercommunication diagram](media/idp-azure-dataflow.png)
 
 **EventGrid** is the primary mechanism used in the design for inter-service 
 communication.
@@ -33,3 +35,7 @@ generate an email for escalation.
 `SatelliteGatewayUpdate` and `MailboxUpdate` events may be published by the 
 **CloudToDeviceBridge** if an IoT Central user has configured/added any, to be 
 picked up by the corresponding function app within **satellite-messaging**.
+
+## Next Steps
+
+Read more about [data storage](data-storage.md)

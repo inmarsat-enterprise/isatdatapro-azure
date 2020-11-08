@@ -23,7 +23,7 @@ into your Azure application."
 
 ## The reference architecture
 
-![IsatData Pro Macro Architecture](docs/media/macro-architecture.png)
+![IsatData Pro Macro Architecture](docs/media/isatdatapro-azure-macro-architecture.png)
 
 This reference architecture walks you through the decision-making process 
 involved in designing, developing, and delivering a back-end infrastructure for 
@@ -37,6 +37,7 @@ serverless-based microservices architecture. We hope this will accelerate
 your solutions offerings to include satellite connectivity for managing 
 remote assets, enhancing business value and delivering digital transformation.
 
+<!--
 ## Customer scenario
 
 AgriGrow is an established provider of irrigation systems. Many of AgriGrow's 
@@ -108,7 +109,8 @@ or take the shortcut and deploy with a few clicks [using our templates](tbd).
 
 Each section of the lab will briefly explain what you are trying to accomplish 
 and why. It will also link you to the relevant portion of the 
-[architecture](documentation/introduction.md).
+[architecture](documentation/architecture-overview.md).
+-->
 
 ## Detailed documentation
 
@@ -116,8 +118,6 @@ Use the table of contents below for detailed documentation of each component of
 the reference architecture.
 
 - [Introduction to serverless microservices](docs/introduction.md)
-  - [What are microservices?](docs/introduction.md#what-are-microservices)
-  - [What is serverless?](docs/introduction.md#what-is-serverless)
 - [Architecture overview](docs/architecture-overview.md)
   - [Macro architecture](docs/architecture-overview.md#macro-architecture)
   - [Data flow](docs/architecture-overview.md#data-flow)

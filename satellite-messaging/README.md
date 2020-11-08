@@ -100,7 +100,7 @@ Publishes the following EventGrid Events:
 ## MobileGet
 *EventGrid Trigger*
 
-When a NewMobile is published to the EventGrid, the invoked library retrieves 
+When a `NewMobile` is published to the EventGrid, the invoked library retrieves 
 the Mobile metadata from the Inmarsat API and updates the database.
 
 Publishes the following EventGrid Events:
@@ -108,25 +108,25 @@ Publishes the following EventGrid Events:
 * ``ApiOutage``
 * ``ApiRecovery``
 
-## MailboxUpdate (Not tested)
+## MailboxUpdate
 *EventGrid Trigger*
 
-When a ??? is published to the EventGrid, the invoked library stores the Mailbox 
-metadata in the database (encrypting the password at rest).
+When a `MailboxUpdate` is published to the EventGrid, the invoked library stores 
+the Mailbox metadata in the database (encrypting the password at rest).
 
-> TODO: Front-end GUI to administer Mailboxes which publishes TBD
+> TODO: Front-end GUI to administer Mailboxes
 
-## SatelliteGatewayUpdated (Not tested)
+## SatelliteGatewayUpdate
 *EventGrid Trigger*
 
-When a ??? is published to the EventGrid, the invoked library stores the 
-Satellite Gateway metadata in the database.
+When a `SatelliteGatewayUpdate` is published to the EventGrid, the invoked 
+library stores the Satellite Gateway metadata in the database.
 
 > TODO: Front-end GUI to administer Satellite Gateways which publishes TBD
 
 ## SharedCode
 
-### eventGrid
+### eventGrid (deprecated)
 The invoked API library provides an eventHandler emitter that has the 
 following events which this module publishes to EventGrid:
   * **NewMobile**: mobileId, mailboxId, source
