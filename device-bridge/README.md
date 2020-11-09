@@ -65,15 +65,26 @@ and/or devices to the project directories:
       +-+ messageParser.json
 ```
 
+### Device Capability Model Templates
+
+Device Capability Models follow the Azure Device Twin Definition Language v1 
+where a *template* contains a *capabilityModel* which in turn contains 
+*interfaces*.  These elements can be merged together into a device template 
+based on the examples provided in `/lib/deviceTemplates`.
+
+### Device Models
+
 Device Models are effectively proxy operations that define message parsing and 
 remote operations bridging between an IoT Hub/Central Device Twin and a 
-satellite messaging (non-IP) connected device.
+satellite messaging (non-IP) connected device.  They are Javascript modules 
+named to match a corresponding *template*, and stored in the 
+`/lib/deviceModels` directory stored as part of the Function App code.
 
 ### idpmodem Interface
 
 The **idpmodem** interface defines the standard set of properties and 
 operations for an IDP satellite modem, communicated using codecServiceId 0 
-(aka SIN 0 [core modem messages]()).
+(aka SIN 0 **core modem messages**).
 
 ### inmarsatPnpDevKit Device
 
