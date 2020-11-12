@@ -2,62 +2,43 @@
 
 In this document:
 
-- [Serverless Microservices reference architecture](#satellite-iot-serverless-microservices-reference-architecture)
-  - [Resources](#resources)
-  - [Provision](#provision)
+- [Resources](#resources)
+- [Provision](#provision)
     - [Manual via the Portal](#manual-via-the-portal)
-      - [Create the Resource Group](#create-the-resource-group)
-      - [Create the Azure Cosmos DB assets](#create-the-azure-cosmos-db-assets)
-      - [Create the Storage account](#create-the-storage-account)
-      - [Create the Azure Function Apps](#create-the-azure-function-apps)
-      - [Create the Event Grid Topic](#create-the-event-grid-topic)
-      - **WORK IN PROGRESS BELOW THIS LINE**
-      - [Create the Web App Service Plan](#create-the-web-app-service-plan)
-      - [Create the Web App](#create-the-web-app)
-      - [Create the Application Insights resource](#create-the-application-insights-resource)
-      - [Create the API Management Service](#create-the-api-management-service)
-      - [Create Azure Key Vault](#create-azure-key-vault)
-      - [Create a sign-up or sign-in policy](#create-a-sign-up-or-sign-in-policy)
+        - [Create the Resource Group](#create-the-resource-group)
+        - [Create the Azure Cosmos DB assets](#create-the-azure-cosmos-db-assets)
+        - [Create the Storage account](#create-the-storage-account)
+        - [Create the Azure Function Apps](#create-the-azure-function-apps)
+        - [Create the Event Grid Topic](#create-the-event-grid-topic)
+        - [Create and Configure the Notifications Logic App](#create-and-configure-the-notifications-logic-app)
+        - [Create the IoT Central Application](#create-the-iot-central-application)
+        <!--
+        - [Create the Application Insights resource](#create-the-application-insights-resource)
+        - [Create Azure Key Vault](#create-azure-key-vault)
+        -->
     - [Deploy from ARM template](#deploy-from-arm-template)
-  - [Setup](#setup)
-    - [Add APIM Products and APIs](#add-apim-products-and-apis)
-      - [Satellite Gateway API](#satellite-gateway-api)
-      - [Mailbox API](#mailbox-api)
-      - [Data Retrieval API](#data-retrieval-api)
-    - [Publish the APIM product](#publish-the-rideshare-apim-product)
-    - [Retrieve the APIM API key](#retrieve-the-apim-api-key)
-    - [Connect Event Grid to Function Apps](#connect-event-grid-to-function-apps)
-    - [Connect Event Grid to Logic App](#connect-event-grid-to-logic-app)
-  - [Add secrets to Key Vault](#add-secrets-to-key-vault)
-    - [Retrieving a secret's URI](#retrieving-a-secrets-uri)
-  - [Function App Application Settings](#function-app-application-settings)
+- [Setup](#setup)
+    - [Set up the local development environment](#set-up-the-local-development-environment)
+        - [Prerequisites](#prerequisites)
+        - [Clone the repository](#clone-the-repository)
+        - [Configure the development environment](#configure-the-development-environment)
+        - [Deploy Function Apps to Azure from VS Code](#deploy-function-apps-to-azure-from-vs-code)
+    - [Configure Event Grid Subscriptions for Function Apps](#configure-event-grid-subscriptions-for-function-apps)
+    <!--
+    - [Function App Application Settings](#function-app-application-settings)
     - [Satellite Messaging Function App](#satellite-messaging-function-app)
     - [Device Bridge Function App](#device-bridge-function-app)
     - [Orchestrators Function App](#orchestrators-function-app)
-    - [Data Archiver Function App](#data-archiver-function-app)
-  - [Configure your Function Apps to connect to Key Vault](#configure-your-function-apps-to-connect-to-key-vault)
-    - [Create a system-assigned managed identity](#create-a-system-assigned-managed-identity)
-    - [Add Function Apps to Key Vault access policy](#add-function-apps-to-key-vault-access-policy)
-  - [Build the solution](#build-the-solution)
-    - [Node.js](#nodejs)
-    - [Web](#web)
-      - [Create and populate settings.js](#create-and-populate-settingsjs)
-      - [Compile and minify for production](#compile-and-minify-for-production)
-      - [Create settings.js in Azure](#create-settingsjs-in-azure)
-  - [Deployment](#deployment)
-    - [Azure DevOps](#azure-devops)
-      - [Prerequisites](#prerequisites)
-      - [Create build pipelines](#create-build-pipelines)
-      - [Create release pipeline](#create-release-pipeline)
-      - [Import remaining two release pipelines](#import-remaining-two-release-pipelines)
-    - [Cake Deployment](#cake-deployment)
-  - [Seeding](#seeding)
-  - [Containers](#containers)
-    - [Docker Files](#docker-files)
-    - [Docker Images](#docker-images)
-    - [Running Locally](#running-locally)
-    - [Running in ACI](#running-in-aci)
-    - [Running in AKS](#running-in-aks)
+    -->
+<!--
+- [Deployment](#deployment)
+- [Azure DevOps](#azure-devops)
+    - [Prerequisites](#prerequisites)
+    - [Create build pipelines](#create-build-pipelines)
+    - [Create release pipeline](#create-release-pipeline)
+- [Seeding](#seeding)
+- [Containers](#containers)
+-->
 
 ## Resources
 
@@ -75,15 +56,19 @@ The following is a summary of all Azure resources required to deploy the solutio
 | satelliteMessagingDeviceBridge | satelliteMessagingDeviceBridgeDev | Function App | Auto |
 | SatelliteMessagingExternalizations | SatelliteMessagingExternalizationsDev | Event Grid Topic | Manual |
 | IdpApiNotifications | IdpApiNotificationsDev | Logic App | Manual |
+| isatdatapro | isatdatapro-dev | Application Insights | Manual |
+<!--
+| IdpVault | IdpVaultDev | Azure Key Vault | Manual |
 | IdpAdminAppServicePlan | IdpAdminAppServicePlanDev | Web App Service Plan | Auto |
 | IdpAdmin | IdpAdminDev | Web App Service | Auto |
-| isatdatapro | isatdatapro-dev | Application Insights | Manual |
 | idpadmin | N/A | API Management Service | Manual |
-| IdpVault | IdpVaultDev | Azure Key Vault | Manual |
+-->
 
 > :exclamation: **Please note** that, in some cases, the resource names 
 must be unique globally. We suggest you append an identifier to the above 
 resource names so they become unique i.e. `isatdatapro-xyzw`, etc.
+
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
 
 ## Provision
 
@@ -107,6 +92,8 @@ page, then select **Resource Groups**  section.
     same region for the rest of your resources.
 
     ![Screenshot of the resource group form](media/resource-group-creation.png)
+
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
 
 #### Create the Azure Cosmos DB assets
 
@@ -149,9 +136,11 @@ form that appears, enter the following:
 
 7.  (Optional) Repeat step 6 for a new container called `IsatDataProDev`
 
-8.  Take note of the DB Account keys:
+8.  Open **Keys** and take note of the DB **URI** and **Primary Key**:
 
     ![Screenshot of the cosmos DB account](media/comos-creation2.png)
+
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
 
 #### Create the Storage account
 
@@ -178,6 +167,8 @@ then select **Storage accounts**  section.
 4.  Take note of the DB Account keys:
 
     ![Screenshot of the storage account](media/storage-creation2.png)
+
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
 
 #### Create the Azure Function Apps
 
@@ -232,6 +223,8 @@ select **Function App** within the Marketplace section.
     - Make sure you enter the same remaining settings and select the storage 
     account you created in the previous step.
 
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
+
 #### Create the Event Grid Topic
 
 1.  Type **Event Grid Topic** into the Search box at the top of the 
@@ -260,6 +253,67 @@ select **Function App** within the Marketplace section.
 
     ![Screenshot of the Event Grid Topic key](media/event-grid-topic-creation3.png)
 
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
+
+#### Create and Configure the Notifications Logic App
+
+1.  In the Azure portal, type **Logic Apps** into the Search box at the top of 
+the `All Services` page, then select **Logic Apps**  section.
+
+2.  Click the **Add** button to create a new Logic App.
+
+3.  Complete the logic app creation form with the following:
+
+    1. **Subscription**: Select your Azure subscription.
+    2. **Resource group**: Select your existing Resource Group.
+    3. **Logic App name**: Enter a unique value for the logic app i.e. 
+    `IdpApiNotifications`.
+    4. **Location**: Select a region closest to you. Make sure you select the 
+    same region for the rest of your resources.
+    5. **Log Analytics**: (Optional) Turn on Log Analytics and reference your 
+    existing workspace/project.
+
+    ![Screenshot of the Logic App form](media/logic-app-creation1.png)
+
+4. Once the resource is created, navigate to it and select `Blank Logic App`. 
+In the `Search connectors and triggers`, type `Event Grid` and select the 
+`Azure Event Grid` trigger, then `When a resource event occurs`.
+
+5. In the dialog for `When a resource event occurs` complete the form:
+
+    1. **Subscription**: Select your Azure subscription.
+    2. **Resource Type**: Select `Microsoft.EventGrid.Topics`.
+    3. **Resource Name**: Select the Event Grid Topic you provisioned i.e. 
+    `SatelliteMessagingExternalizations`.
+    4. **Event Type Item - 1**: Enter `ApiOutage` and use it as a custom value.
+    5. **Event Type Item - 2**: Enter `ApiRecovery` and use it as a custom value.
+
+    ![Screenshot of the Logic App form](media/logic-app-creation2.png)
+
+6. Then click on the `New Step` and type in the `Choose an action` search box 
+`SendGrid` and click the SendGrid icon:
+
+    1. Select `Send Email (v4)`.
+    2. You may need to setup a [SendGrid account](https://sendgrid.com/) if you 
+    have not done so already. Create a `Full Access` API key and store it in a 
+    secure location.
+    3. **Connection Name**: a unique name i.e. `IdpApiNotificationSendGrid`
+
+7. Fill out the Send email (V4) form:
+    1. **From**: The email address you wish this notification be sent from
+    2. **To**: The email address(es) you wish this notification be sent to
+    3. **Subject**: Enter a subject e.g. `IsatData Pro: `. You can include the 
+    event type by adding Dynamic Content i.e. `Event Type`
+    4. **Body**: If you select this field, you can type whatever static content 
+    you want and/or pick from one the dynamic fields shown. Search for `data` 
+    in Dynamic content and select `Data object`.
+
+    ![Screenshot of the Logic App sender](media/logic-app-creation3.png)
+
+8. Click `Save`.
+
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
+
 #### Create the IoT Central Application
 
 1.  Type **IoT Central** into the Search box at the top of the `All Services` 
@@ -276,7 +330,8 @@ page, then select **IoT Central Application**  section.
     your other services, such as `satellite-iot-serverless`.
     4. **Pricing Plan**: Select `Standard 1`.
     5. **Template**: Select `Custom application`.
-    6. **Location**: Select a location closest to you.
+    6. **Location**: Select a location closest to you, ideally the same as your 
+    resource group.
 
 4. Click the **Create** button.
 
@@ -286,14 +341,151 @@ page, then select **IoT Central Application**  section.
 6. From the IoT Central Application, click **Administration**, then click 
 **API tokens**, then click **Generate token** and complete the form:
 
-    1. **Token name**: Enter a unique value e.g. `initial-token`.
-    2. **Role**: Select `Administrator`.
+    1. **Token name**: Enter a unique value i.e. `device-templates`.
+    2. **Role**: Select `Builder`.
     3. Click **Generate** then copy the token and save it in a secure location.
 
-7. TBD create enrollment group and SAS key for device enrollment.
+7. From the IoT Central **Administration** menu, click **Device connection** 
+and then:
 
-> :warning: **WARNING: WORK IN PROGRESS BELOW - DO NOT USE**
+    1. Make note of the **ID Scope**
+    2. Enable **Auto-approve new devices** (On)
+    3. If no enrollment group exists, click **Create enrollment group** and 
+    complete the form using **Group type** `IoT Devices` and 
+    **Attestation type** `Shared access signature (SAS)`
+    4. Once the enrollment group has been created, open it and take note of 
+    the **Primary key**
 
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
+
+### Deploy from ARM template
+
+> :TODO
+
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
+
+## Setup
+
+### Set up the local development environment
+
+#### Prerequisites
+
+You should have [**VS Code**](https://code.visualstudio.com/) installed on your 
+local machine, along with the following Extensions:
+  * **Azure Account**
+  * [**Azure Functions**](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions)
+  * **ESLint**
+  * **DTDL**
+  * **Azure Databases**
+  * [**Deploy to Azure**](https://marketplace.visualstudio.com/items?itemName=ms-vscode-deploy-azure.azure-deploy)
+  * **Azure Resource Manager (ARM) Tools**
+
+You should have a Long-Term Support (LTS) version of 
+[**Node.js**](https://nodejs.org) version 10 or 12 installed locally.
+
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
+
+#### Clone the repository
+
+1. In a console or Powershell enter
+`git clone https://github.com/Inmarsat/isatdatapro-azure.git`
+
+2. Install the npm packages in each folder using `npm install`.
+
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
+
+#### Configure the development environment
+
+1. Launch the VS code workspace by opening `isatdatapro-azure.code-workspace`.
+
+2. Open the **Command Palette (F1)** enter 
+**Azure Functions: Install or Update Azure Functions Core Tools**, and press 
+**Enter** to run the command.
+
+3. Configure the `local.settings.json` file for **satellite-messaging** Values:
+    ```
+    "DB_TYPE": "azureCosmos",
+    "COSMOS_DB_HOST": "<yourCosmosDbUri>",
+    "COSMOS_DB_PASS": "<yourCosmosDbPrimaryKey>",
+    "COSMOS_DB_NAME": "IsatDataPro",
+    "COSMOS_DB_CONTAINER": "Main",
+    "COSMOS_DB_PARTITION": "category",
+    "COSMOS_DB_THROUGHPUT": "400",
+    "MAILBOX_SECRET": "<yourPrivateEncryptionKey>",
+    "EVENTGRID_TOPIC_KEY": "<yourEventGridTopicKey>",
+    "EVENTGRID_TOPIC_ENDPOINT": "<yourEventGridTopicEndpoint>",
+    ```
+
+4. Configure the `local.settings.json` file for **device-bridge** Values:
+    ```
+    "IOTC_APPLICATION_URL": "<yourIotCentralUrl",
+    "IOTC_ID_SCOPE": "<yourIdScope>",
+    "IOTC_GROUP_ENROLL_SAS_KEY": "<yourPrimarySasKey>",
+    "IOTC_BUILDER_TOKEN": "<yourBuilderToken>",
+    "EVENTGRID_TOPIC_KEY": "<yourEventGridTopicKey>",
+    "EVENTGRID_TOPIC_ENDPOINT": "<yourEventGridTopicEndpoint>",
+    ```
+
+5. Configure the `local.settings.json` file for **orchestrators** Values:
+    ```
+    "EVENTGRID_TOPIC_KEY": "<yourEventGridTopicKey>",
+    "EVENTGRID_TOPIC_ENDPOINT": "<yourEventGridTopicEndpoint>",
+    "INSTANCE_MAX_AGE_SECONDS": "3600",
+    ```
+
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
+
+#### Deploy Function Apps to Azure from VS Code
+
+1. In VS Code, select the Azure logo to open the **Azure Explorer**, then under 
+**FUNCTIONS**, select the blue "up" arrow to deploy each app:
+
+    1. **satellite-messaging** folder should be deployed to your 
+    **satelliteMessaging** app created previously in Azure portal.
+    2. **device-bridge** folder should be deployed to your 
+    **satelliteMessagingDeviceBridge** app created previously in Azure portal.
+    3. **orchestrators** folder should be deployed to your 
+    **satelliteMessagingOrchestrators** app created previously in Azure portal.
+
+2. After each app is deployed, expand it in Azure Explorer to find and 
+right-click **Application Settings** then **Upload Local Settings**.
+
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
+
+### Configure Event Grid Subscriptions for Function Apps
+
+1. In the Azure portal, select the **Event Grid Topic** resource you created 
+earlier.
+
+2. Click **+ Event Subscription** and complete the form:
+
+    1. **Name**: The unique subscription name i.e. `DeviceToCloudBridge`
+    2. Under **Event Types** click **Add Event Type** and enter 
+    `NewReturnMessage`, `OtaCommandResponse`
+    3. **Endpoint Type**: select `Azure Function` then click 
+    **Select an endpoint**:
+        a. **Function app**: select `satelliteMessagingDeviceBridge`
+        b. **Function**: select `DeviceToCloudBridge`
+        c. Click **Confirm selection**
+    4. Click **Create**
+
+3. Repeat step #2 using the following configurations for each subscription:
+
+    | Subscription Name | Event Types | Function app | Function |
+    |---|---|---|---|
+    |`OrchestratorCommandRequest`|`CommandRequest`|`satelliteMessagingOrchestrators`|`OtaCommandStart`|
+    |`NewForwardSubmission`|`NewForwardSubmission`|`satelliteMessaging`|`MessageForwardSubmit`|
+    |`OrchestratorCommandSending`|`NewForwardMessage`|`satelliteMessagingOrchestrators`|`OtaCommandSending`|
+    |`OrchestratorForwardMessageStateChange`|`ForwardMessageStateChange`|`satelliteMessagingOrchestrators`|`OtaCommandDelivery`|
+    |`OrchestratorCommandResponse`|`NewReturnMessage`|`satelliteMessagingOrchestrators`|`OtaCommandResponse`|
+    |`MailboxUpdate`|`MailboxUpdate`|`satelliteMessaging`|`MailboxUpdate`|
+    |`SatelliteGatewayUpdate`|`SatelliteGatewayUpdate`|`satelliteMessaging`|`SatelliteGatewayUpdate`|
+    |`OtherClientForwardSubmission`|`OtherClientForwardSubmission`|`satelliteMessaging`|`ForwardMessageGet`|
+    |`NewMobileFetch`|`NewMobile`|`satelliteMessaging`|`MobileGet`|
+
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
+
+<!--
 #### Create the Web App
 
 1.  Type **Web App** into the Search box at the top of the `All Services` page, 
@@ -354,7 +546,6 @@ then select **Web App** from the Marketplace.
     ![Screenshot of the Application Insights instrumentation key](media/application-insights-creation2.png)
 
 
-
 #### Create the API Management Service
 
 1.  Type **API Management** into the Search box at the top of the `All Services` page, then select **API Management**  section.
@@ -372,27 +563,6 @@ then select **Web App** from the Marketplace.
     7. **Pricing tier**: Select `Developer (No SLA)`.
 
     ![Screenshot of the API Management form](media/apim-creation.png)
-
-#### Create the SignalR Service
-
-1.  Click **Create a resource** and type **SignalR** into the Search box, then select **SignalR Service**  section.
-
-2.  Click the **Create** button to create a new SignalR service.
-
-3.  Complete the SignalR service creation form with the following:
-
-    1. **Resource Name**: Enter a unique value for the SignalR Service i.e. `rideshare`.
-    2. **Subscription**: Select your Azure subscription.
-    3. **Resource Group**: Select the resource group to which you have added your other services, such as `satellite-iot-serverless`.
-    4. **Location**: Select a region closest to you. Make sure you select the same region for the rest of your resources.
-    5. **Pricing tier**: Select `Free`.
-    6. **ServiceMode**: Select `Serverless`.
-
-    ![Screenshot of the SignalR form](media/signalr-creation.png)
-
-4. Take note of the newly-created resource connection string:
-
-    ![Screenshot of the SignalR service connection string](media/signalr-creation1.png)
 
 #### Create Azure Key Vault
 
@@ -413,3 +583,4 @@ Azure Key Vault is used to securely store all secrets, such as database connecti
     7. **Virtual Network Access**: Leave as default (all networks can access).
 
     ![Screenshot of the Key Vault form](media/key-vault-creation.png)
+-->

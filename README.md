@@ -17,9 +17,19 @@ integrating Inmarsat's IsatData Pro (**IDP**) satellite IoT connectivity
 into your Azure application."
 ---
 
-# Satellite IoT Serverless Microservices Reference Architecture
+# Satellite IoT Messaging Serverless Microservices Reference Architecture
 
 > :warning: UNDER CONSTRUCTION
+
+Inmarsat's **IsatData Pro** ("IDP") satellite IoT messaging behaves differently 
+than conventional IP-connected devices/gateways in two important ways:
+
+1. Asynchronous store-and-forward messaging means that no active connection is 
+maintained between the remote modem and the cloud application.
+
+2. The gateway is virtual, represented by a *Mailbox* concept which provides 
+distinct HTTPS API endpoints for retrieving and submitting messages over the 
+network, so it cannot implement the Azure IoT Hub SDK.
 
 ## The reference architecture
 
