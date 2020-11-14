@@ -106,7 +106,7 @@ then select **Azure Cosmos DB**  section.
 
     1. **Subscription**: Select your Azure subscription.
     2. **Resource Group**: Select the Resource Group you created above, 
-    such as `satellite-iot-serverless`.
+    such as `satellite-messaging`.
     3. **Account Name**: Enter a unique ID for the **Cosmos DB Account**, 
     such as `iotstoragewarm`.
     4. **API**: Select `Core (SQL)`.
