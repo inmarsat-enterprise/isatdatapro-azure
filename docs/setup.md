@@ -30,12 +30,9 @@ In this document:
     - [Device Bridge Function App](#device-bridge-function-app)
     - [Orchestrators Function App](#orchestrators-function-app)
     -->
-<!--
 - [Deployment](#deployment)
-- [Azure DevOps](#azure-devops)
-    - [Prerequisites](#prerequisites)
-    - [Create build pipelines](#create-build-pipelines)
-    - [Create release pipeline](#create-release-pipeline)
+    - [CI using Azure DevOps](#ci-using-azure-devops)
+<!--
 - [Seeding](#seeding)
 - [Containers](#containers)
 -->
@@ -482,6 +479,14 @@ earlier.
     |`SatelliteGatewayUpdate`|`SatelliteGatewayUpdate`|`satelliteMessaging`|`SatelliteGatewayUpdate`|
     |`OtherClientForwardSubmission`|`OtherClientForwardSubmission`|`satelliteMessaging`|`ForwardMessageGet`|
     |`NewMobileFetch`|`NewMobile`|`satelliteMessaging`|`MobileGet`|
+
+[Top](#satellite-iot-serverless-microservices-reference-architecture)
+
+## Deployment
+
+### CI using Azure DevOps
+
+[Azure DevOps](azure-devops.md)
 
 [Top](#satellite-iot-serverless-microservices-reference-architecture)
 
