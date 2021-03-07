@@ -209,14 +209,44 @@
             }
           },
           {
-            "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:locationInterval:1",
+            "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:reportInterval:1",
             "@type": [
               "Property"
             ],
-            "displayName": "Location Interval",
-            "name": "locationInterval",
+            "displayName": "Reporting Interval",
+            "name": "reportInterval",
             "writable": true,
             "schema": "integer"
+          },
+          {
+            "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:qosInterval:1",
+            "@type": [
+              "Property"
+            ],
+            "displayName": "QoS Measurement Interval",
+            "name": "qosInterval",
+            "writable": true,
+            "schema": "integer"
+          },
+          {
+            "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:textMobileOriginated:1",
+            "@type": [
+              "Property"
+            ],
+            "displayName": "Last Mobile-Originated Text",
+            "name": "textMobileOriginated",
+            "writable": false,
+            "schema": "string"
+          },
+          {
+            "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:textMobileTerminated:1",
+            "@type": [
+              "Property"
+            ],
+            "displayName": "Last Mobile-Terminated Text",
+            "name": "textMobileTerminated",
+            "writable": true,
+            "schema": "string"
           },
           {
             "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:telemetry:snr:1",
