@@ -61,9 +61,10 @@ The following is a summary of all Azure resources required to deploy the solutio
 | idpadmin | N/A | API Management Service | Manual |
 -->
 
-> :exclamation: **Please note** that, in some cases, the resource names 
-must be unique globally. We suggest you append an identifier to the above 
-resource names so they become unique i.e. `isatdatapro-xyzw`, etc.
+> :exclamation: **Please note** that, in several cases, the resource names 
+must be unique globally for example they associate to a URL such as
+`xyz.azurewebsites.net`. We suggest you append a unique identifier to the above 
+resource names so they become unique e.g `myCompany-satelliteMessaging`, etc.
 
 [Top](#satellite-iot-serverless-microservices-reference-architecture)
 
