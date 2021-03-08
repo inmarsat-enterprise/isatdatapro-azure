@@ -7,6 +7,7 @@ const handleMessage = require('../lib/idpDeviceInterfaceBridge');
 const { getDevices } = require('../lib/iotcDcmApi');
 const deviceModels = require('../lib/deviceModels');
 const { templates } = require('../lib/deviceTemplates');
+const util = require('../lib/utilities');
 
 const defaultDeviceIdFormat =
     process.env.IOTC_DFLT_DEVICE_ID_FORMAT || 'idp-${mobileId}';
@@ -37,7 +38,9 @@ async function getDeviceMeta(identifier) {
 }
 
 module.exports = async function (context, eventGridEvent) {
-  context.log.verbose(`Device-to-cloud bridge triggered`
+  const thisFunction = { name: __filename };
+  const callTime = new Date().toISOString();
+  context.log.verbose(`${thisFunction.name} >>>> entry triggered`
       + ` by ${JSON.stringify(eventGridEvent)}`);
   let parsed;
   let device;
@@ -50,6 +53,7 @@ module.exports = async function (context, eventGridEvent) {
       if (!device.model) device.model = 'idpDefault';
       if (!device.id) {
         device.id = defaultDeviceIdFormat.replace('${mobileId}', mobileId);
+        context.log.warning(`Assigned device.id ${device.id}`);
       }
       if (!device.mobileId) device.mobileId = data.mobileId;
       break;
@@ -73,6 +77,7 @@ module.exports = async function (context, eventGridEvent) {
   }
   if (device.model in deviceModels) {
     parsed = deviceModels[device.model].parse(context, data);
+    context.log.verbose(`Parsed: ${JSON.stringify(parsed)}`);
   } else {
     throw new Error(`Could not find model: ${device.model}`);
   }
@@ -82,5 +87,8 @@ module.exports = async function (context, eventGridEvent) {
         parsed.telemetry, parsed.reportedProperties, parsed.timestamp);
   } catch (e) {
     context.log.error(e.stack);
+  } finally {
+    const runTime = new Date() - new Date(callTime);
+    context.log.verbose(`${__filename} <<<< exit (runtime: ${runTime})`);
   }
 };

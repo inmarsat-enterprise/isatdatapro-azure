@@ -28,13 +28,9 @@ function extractMobileId(deviceId) {
   return mobileId;
 }
 
-function logTime() {
-  return new Date().toISOString();
-}
-
 module.exports = async function (context, timer) {
   const thisFunction = { name: __filename };
-  const callTime = logTime();
+  const callTime = new Date().toISOString();
   try {
     if (timer.IsPastDue) {
       context.log.warn(`${thisFunction.name} timer past due!`);
