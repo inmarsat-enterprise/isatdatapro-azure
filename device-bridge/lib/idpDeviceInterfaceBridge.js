@@ -39,60 +39,35 @@ async function getDeviceKey(deviceId) {
 }
 
 /**
- * 
+ * Sends device telemetry data to the IoT Hub
  * @param {Object} context Function app context (for logging)
- * @param {Object} telemetry Telemetry/measurement data
- * @param {string} [timestamp] Optional timestamp of telemetry
+ * @param {Object} device Device metadata
+ * @param {Object} device.telemetry Telemetry/measurement data
+ * @param {string} [device.timestamp] Optional timestamp of telemetry
  * @param {*} schema 
  */
-async function sendTelemetry(context, telemetry, timestamp, schema) {
-  if (!telemetry) throw new Error(`No telemetry data supplied to send`);
-  let message = new Message(JSON.stringify(telemetry));
-  if (timestamp) {
-    if (isNaN(Date.parse(timestamp))) {
+async function sendTelemetry(context, device, schema) {
+  if (!device || !device.telemetry) {
+    throw new Error(`No telemetry data supplied to send`);
+  }
+  let message = new Message(JSON.stringify(device.telemetry));
+  if (device.timestamp) {
+    if (isNaN(Date.parse(device.timestamp))) {
       throw new Error(`Invalid format: if present, timestamp must be ` +
           ` ISO format (e.g., YYYY-MM-DDTHH:mm:ss.sssZ)`);
     } else {
-      message.properties.add('iothub-creation-time-utc', timestamp);
+      message.properties.add('iothub-creation-time-utc', device.timestamp);
     }
   }
   if (schema) message.properties.add('iothub-message-schema', schema);
   try {
     const res = await hubClient.sendEvent(message)
-    context.log(`Sent telemetry: ${message.getData()}`
+    context.log(`Sent ${device.id} telemetry: ${message.getData()}`
         + (res ? `; status: ${res.constructor.name}` : ``));
   } catch (e) {
     context.log.error(`Failed to send telemetry: ${e.stack}`);
   }
 }
-
-/* TODO: concept below would monitor for Commands
-async function processCommandResult(context, commandResult, twin) {
-  const properties = {};
-  properties[commandResult.command] = {
-    value: commandResult.result
-  };
-  const err = await twin.properties.reported.update(update);
-  context.log(`Sent device properties: ${JSON.stringify(update)}`
-      + (err ? `; error: ${err.toString()}` : ` status: success`));
-}
-
-async function setupCommandHandlers(context, device) {
-  // Template: all functions over satellite link will be asynchronous
-  const directMethods = {};
-  //: Generically map each supported model's direct methods
-  const deviceModel = require('./deviceModels')[device.model];
-  for (const commandName in deviceModel.commands) {
-    directMethods[commandName] = async (req, res) => {
-      const err = await res.send(202);
-      const dm = require('./deviceModels')[device.model];
-      //TODO: this probably won't work...needs some thought
-      dm.commands[commandName](req);
-    };
-    hubClient.onDeviceMethod(commandName, directMethods[commandName]);
-  }
-}
-// */
 
 /**
  * Updates writable properties with version
@@ -109,7 +84,18 @@ function updateWritableProperties(properties, version) {
   return patch;
 }
 
-async function updateSatelliteGateway(context, device, twin, properties) {
+/**
+ * Updates a SatelliteGateway
+ * @param {Object} context The Azure Function context for logging
+ * @param {Object} device The Satellite Gateway modeled as a device 
+ * @param {Object} [device.properties] Optional properties to update
+ * @param {string} [device.properties.name]
+ * @param {string} [device.properties.url]
+ * @param {Object} twin The satelliteGateway twin obtained from the IoT Hub
+ */
+async function updateSatelliteGateway(context, device, twin) {
+  context.log.warn(`Satellite Gateway update not yet supported...`);
+  return;
   if (twin.properties.desired) {
     if (twin.properties.desired['$version'] === 1) {
       if (twin.properties.reported.$version > 1) {
@@ -136,15 +122,29 @@ async function updateSatelliteGateway(context, device, twin, properties) {
       }
     }
   }
-  if (properties) {
+  if (device.properties) {
     const version = twin.properties.reported.$version;
     const err = await twin.properties.reported.update(
-        updateWritableProperties(properties, version));
+        updateWritableProperties(device.properties, version));
     if (err) context.log.error(err);
   }
 }
 
-async function updateMailbox(context, device, twin, properties) {
+/**
+ * Updates a Mailbox 
+ * @param {Object} context The Azure Function context for logging
+ * @param {Object} device The Mailbox modeled as a device
+ * @param {Object} [device.properties] Optional mailbox properties to update
+ * @param {string} [device.properties.name] Mailbox name
+ * @param {string} [device.properties.satelliteGatewayName] 
+ * @param {string} [device.properties.mailboxId] Mailbox name
+ * @param {string} [device.properties.accessId] Mailbox name
+ * @param {string} [device.properties.password] Mailbox name
+ * @param {Object} twin The mailbox twin obtained from the IoT Hub
+ */
+async function updateMailbox(context, device, twin) {
+  context.log.warn(`Mailbox updates not yet supported...`);
+  return;
   if (twin.properties.desired) {
     if (twin.properties.desired['$version'] === 1) {
       if (twin.properties.reported.$version > 1) {
@@ -174,10 +174,10 @@ async function updateMailbox(context, device, twin, properties) {
       }
     }
   }
-  if (properties) {
+  if (device.properties) {
     const version = twin.properties.reported.$version;
     const err = await twin.properties.reported.update(
-        updateWritableProperties(properties, version));
+        updateWritableProperties(device.properties, version));
     if (err) context.log.error(err);
   }
 }
@@ -188,10 +188,10 @@ async function updateMailbox(context, device, twin, properties) {
  * `CommandRequest` events if applicable
  * @param {Object} context The app function context (logging)
  * @param {Object} device The device metadata
+ * @param {Object} [device.reportedProperties] The set of properties to update
  * @param {Object} twin The digital twin of the device
- * @param {Object} [properties] The set of properties to update
  */
-async function updateDevice(context, device, twin, properties) {
+async function updateDevice(context, device, twin) {
   let patch;
   //: Not using twin.on('properties.desired') since it won't trigger immediate
   if (twin.properties.desired) {
@@ -206,22 +206,27 @@ async function updateDevice(context, device, twin, properties) {
         context.log.warn(`${device.id}`
             + ` $version=${twin.properties.reported.$version}`
             + ` but requesting $version=1`);
-        if (!properties) return;
-      } else {
+        if (!device.reportedProperties) {
+          return;
+        }
+        context.log.info(`Initializing ${device.id} as ${device.model}`);
         patch = deviceModel.initialize(device.mobileId);
       }
     }
-    //: Reported properties if writable are completed - TODO maybe redundant
-    if (properties) {
-      for (const propName in properties) {
+    //: Reported properties if writable are completed
+    //:  This functionality does not work for "trigger" commands the
+    //:  reported property does not overwrite the configuration "true" setting.
+    if (device.reportedProperties) {
+      for (const propName in device.reportedProperties) {
         if (propName in delta) {
           patch[propName] = {
-            value: properties[propName],
+            value: device.reportedProperties[propName],
             ad: 'completed',
             ac: 200,
             av: delta.$version,
           };
-          delete properties[propName];
+          //: TBC Remove reported property to avoid generating a new version?
+          delete device.reportedProperties[propName];
           delete delta[propName];
         }
       }
@@ -248,7 +253,8 @@ async function updateDevice(context, device, twin, properties) {
         };
       }
       if (writable) {
-        if (twin.properties.desired[propName] ===
+        if (twin.properties.reported[propName] &&
+            twin.properties.desired[propName] ===
             twin.properties.reported[propName].value) {
           context.log.verbose(`${device.id} ${propName} desired===reported`);
           continue;
@@ -270,8 +276,7 @@ async function updateDevice(context, device, twin, properties) {
           ac: 400,
           //av: delta.$version,
         };
-        context.log.warn(`${propName} not writable`
-            + ` in model ${device.model}`);
+        context.log.warn(`${propName} not writable in model ${device.model}`);
       }
     }
     if (writableProperties.length > 0) {
@@ -298,15 +303,10 @@ async function updateDevice(context, device, twin, properties) {
       });
     }
   };
-  if (properties || patch) {
-    const update = Object.assign({}, properties, patch);
+  if (device.reportedProperties || patch) {
+    const update = Object.assign({}, device.reportedProperties, patch);
     for (const prop in update) {
       if (update[prop] === null) delete update[prop];
-      /*
-      if (prop in twin.properties.reported &&
-          _.isEqual(update[prop], twin.properties.reported[prop])) {
-        //delete update[prop];
-      }*/
     }
     if (!_.isEmpty(update)) {
       const err = await twin.properties.reported.update(update);
@@ -319,21 +319,21 @@ async function updateDevice(context, device, twin, properties) {
 /**
  * 
  * @param {Object} context 
- * @param {Object} properties 
  * @param {Object} device
+ * @param {Object} [device.properties]
  */
-async function handleTwin(context, properties, device) {
+async function handleTwin(context, device) {
   try {
     const twin = await hubClient.getTwin();
     if (device.model.includes('satelliteGateway')) {
-      updateSatelliteGateway(context, device, twin, properties);
+      updateSatelliteGateway(context, device, twin);
       //: Checking for new or configuration change of API
     } else if (device.model.includes('mailbox')) {
-      updateMailbox(context, device, twin, properties);
+      updateMailbox(context, device, twin);
       //: Checking for new or configuration change credentials
     } else {
       //: Actual device
-      await updateDevice(context, device, twin, properties);
+      await updateDevice(context, device, twin);
     }
   } catch (e) {
     context.log.error(e.stack);
@@ -341,40 +341,27 @@ async function handleTwin(context, properties, device) {
 }
 
 /**
- * Placeholder for keeping a connection open listening for commands
- * @private
- * @param {number} milliseconds 
- */
-function sleep(milliseconds) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
-}
-
-/**
  * Sends device information to IoT Hub/Central
  * @param {Object} context The function app context (for logging)
- * @param {{id: string, model: string, mobileId: string}} device 
- * @param {Object} [telemetry] A set of telemetry
- * @param {Object} [properties] A set of reported properties
- * @param {string} [timestamp] ISO8601 compliant timestamp
- * @param {number} [wait] Seconds to wait for pending commands or desired props
+ * @param {Object} device The device metadata
+ * @param {string} device.id The unique (IoT Hub/Central) ID
+ * @param {string} device.model The device model
+ * @param {string} device.mobileId The unique IDP modem identifier
+ * @param {Object} [device.telemetry] A set of telemetry
+ * @param {Object} [device.properties] A set of reported properties
+ * @param {string} [device.timestamp] ISO8601 compliant timestamp
  */
-async function bridge(context, device, telemetry, properties, timestamp, wait) {
-  let registrationId;
-  if (device) {
-    if (!device.id || 
-        !/^[a-zA-Z0-9-._:]*[a-zA-Z0-9-]+$/.test(device.id)) {
-      throw new Error(`Invalid format: deviceId must be alphanumeric and` +
-          ` may contain '-', '.', '_', ':' where the` +
-          ` last character must be alphanumeric or hyphen.`);
-    }
-    registrationId = device.id;
-  } else {
-    throw new Error('Invalid format: a device specification must be provided.');
+async function azureIotDeviceBridge(context, device) {
+  if (!device) {
+    throw new Error('No device supplied to bridge');
   }
+  if (!device.id || 
+      !/^[a-zA-Z0-9-._:]*[a-zA-Z0-9-]+$/.test(device.id)) {
+    throw new Error(`Invalid format: deviceId must be alphanumeric and` +
+        ` may contain '-', '.', '_', ':'` +
+        ` where the last character must be alphanumeric or hyphen.`);
+  }
+  const registrationId = device.id;
   const deviceSasKey = await getDeviceKey(registrationId);
   const provisioningSecurityClient =
       new SymmetricKeySecurityClient(registrationId, deviceSasKey);
@@ -385,17 +372,14 @@ async function bridge(context, device, telemetry, properties, timestamp, wait) {
       provisioningSecurityClient);
   const result = await provisioningClient.register();
   const connectionString = 
-      `HostName=${result.assignedHub}` 
-      + `;DeviceId=${result.deviceId}`
-      + `;SharedAccessKey=${deviceSasKey}`;
+      `HostName=${result.assignedHub}` +
+      `;DeviceId=${result.deviceId}` +
+      `;SharedAccessKey=${deviceSasKey}`;
   hubClient = Client.fromConnectionString(connectionString, singleIotHubTransport);
   await hubClient.open();
-  if (telemetry) await sendTelemetry(context, telemetry, timestamp);
-  await handleTwin(context, properties, device);
-  if (wait) {
-    //listenForCommands(wait * 1000);
-  }
+  if (device.telemetry) await sendTelemetry(context, device);
+  await handleTwin(context, device);
   await hubClient.close();
 }
 
-module.exports = bridge;
+module.exports = azureIotDeviceBridge;

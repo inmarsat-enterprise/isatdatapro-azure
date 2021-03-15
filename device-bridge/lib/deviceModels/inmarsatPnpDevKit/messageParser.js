@@ -13,14 +13,13 @@ function initialize(mobileId) {
     processorManufacturer: 'Broadcom',
     totalStorage: 16,
     totalMemory: 512,
-    //snr: 0,
-    powerMode: {
-      value: 0,
+    reportInterval: {
+      value: 900,
       ac: 200,
       av: 1
     },
-    locationInterval: {
-      value: 15,
+    qosInterval: {
+      value: 60,
       ac: 200,
       av: 1
     }
@@ -34,14 +33,20 @@ function writeProperty(propName, propValue) {
   }
   let otaMessage = {};
   switch (propName) {
-    case 'reportGet':
+    case 'commandReportGet':
       otaMessage.command = {
         payloadJson: {
           codecServiceId: 255,
           codecMessageId: 1,
-          fields: []
         }
       };
+      otaMessage.completion = {
+        codecServiceId: 255,
+        codecMessageId: 1,
+        property: propName,
+        resetValue: false,
+      };
+      break;
     case 'configSet':
       otaMessage.command = {
         payloadJson: {
@@ -82,6 +87,7 @@ function writeProperty(propName, propValue) {
           ]
         }
       };
+      break;
     case 'configGet':
       otaMessage.command = {
         payloadJson: {
@@ -90,6 +96,7 @@ function writeProperty(propName, propValue) {
           fields: []
         }
       };
+      break;
   }
   //TODO: add additional writable properties / commands here
   return otaMessage;
@@ -101,32 +108,41 @@ function parsePnpDevkit(context, message) {
   let {telemetry, reportedProperties, timestamp } =
       idpDefault.parse(context, message);
   if (!messageIsJson) {
-    context.log.warning(`Message definition file missing`
+    context.log.warn(`Message definition file missing`
         + ` for Mailbox ID ${message.mailboxId}`);
   } else if (message.codecServiceId === 255) {
     switch(message.payloadJson.codecMessageId) {
       case 1:
-        telemetry.latitude = round(telemetry.latitude/60000, 6);
-        telemetry.longitude = round(telemetry.longitude/60000, 6);
-        telemetry.snr = round(telemetry.snr / 10, 1);
-        reportedProperties.location = {
-          "lat": telemetry.latitude,
-          "lon": telemetry.longitude,
-          "alt": telemetry.altitude
+        telemetry.tracking = {
+          lat: round(telemetry.latitude/60000, 6),
+          lon: round(telemetry.longitude/60000, 6),
+          alt: round(telemetry.altitude, 0)
         };
+        delete telemetry.latitude;
+        delete telemetry.longitude;
+        delete telemetry.altitude;
+        telemetry.satelliteSnr = round(telemetry.snr / 10, 1);
+        delete telemetry.snr;
+        reportedProperties.location = Object.assign({}, telemetry.tracking);
         break;
       case 2:
       case 4:
         if (telemetry.reportInterval) {
           reportedProperties.reportInterval = telemetry.reportInterval;
+          delete telemetry.reportInterval;
         }
         if (telemetry.qosInterval) {
           reportedProperties.qosInterval = telemetry.qosInterval;
+          delete telemetry.qosInterval;
         }
         break;
       // Other cases pass through from idpDefault parser
       case 3:
         reportedProperties.textMobileOriginated = telemetry.text;
+        break;
+      default:
+        context.log.warn(`Unrecognized message` +
+            ` SIN 255 MIN ${message.payloadJson.codecMessageId}`);
     }
   }
   return { telemetry, reportedProperties, timestamp };

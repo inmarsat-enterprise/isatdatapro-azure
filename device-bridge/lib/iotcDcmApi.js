@@ -137,7 +137,9 @@ async function setDeviceTemplate(template) {
     method: 'PUT',
   };
   const res = JSON.parse(await api(setOptions, builtTemplate));
-  if (res.error) throw new Error(res.error.message);
+  if (res.error) {
+    throw new Error(res.error.message);
+  }
   return res.id;
 }
 
@@ -151,7 +153,9 @@ async function removeDeviceTemplate(template) {
     method: 'DELETE',
   };
   const res = JSON.parse(await api(removeOptions));
-  if (res.error) throw new Error(res.error.message);
+  if (res.error) {
+    throw new Error(res.error.message);
+  }
   return res.approved;
 }
 
@@ -165,7 +169,9 @@ async function listDeviceTemplates() {
     method: 'GET',
   };
   const res = JSON.parse(await api(getOptions));
-  if (res.error) throw new Error(res.error);
+  if (res.error) {
+    throw new Error(res.error);
+  }
   return res.value;
 }
 

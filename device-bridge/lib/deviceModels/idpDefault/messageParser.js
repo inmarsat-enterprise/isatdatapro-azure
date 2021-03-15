@@ -13,40 +13,40 @@ const writableProperties = [
 
 function initialize(mobileId) {
   const initialReport = {
-    mobileId: mobileId,
-    manufacturer: getManufacturer(mobileId),
+    idpMobileId: mobileId,
+    idpManufacturer: getManufacturer(mobileId),
     //hardwareVersion: '',
     //softwareVersion: '',
     //productId: 0,
     //broadcastIdCount: 0,
     //location: null,
-    operatorAccessLevel: 0,
+    idpOperatorAccessLevel: 0,
     //lastRxMsgTime: '',
     //lastRegistrationTime: '',
     //satelliteRegion: '',
-    lastResetReason: 0,
-    wakeupPeriod: {
+    idpLastResetReason: 0,
+    idpWakeupPeriod: {
       value: 0,
     },
-    broadcastIds: {
+    idpBroadcastIds: {
       value: {},
     },
-    txMute: {
+    idpTxMute: {
       value: false,
     },
-    commandReset: {
+    idpCommandReset: {
       value: -1,
     },
-    commandPingModem: {
+    idpCommandPingModem: {
       value: false,
     },
-    commandGetLocation: {
+    idpCommandGetLocation: {
       value: false,
     },
-    commandGetBroadcastIds: {
+    idpCommandGetBroadcastIds: {
       value: false,
     },
-    commandGetConfiguration: {
+    idpCommandGetConfiguration: {
       value: false,
     },
   };
@@ -73,7 +73,7 @@ function initialize(mobileId) {
 function writeProperty(propName, propValue) {
   let otaMessage = {};
   switch (propName) {
-    case 'wakeupPeriod':
+    case 'idpWakeupPeriod':
       otaMessage.command = {
         payloadJson: {
           codecServiceId: 0,
@@ -87,7 +87,7 @@ function writeProperty(propName, propValue) {
         }
       };
       break;
-    case 'txMute':
+    case 'idpTxMute':
       otaMessage.command = {
         payloadJson: {
           codecServiceId: 0,
@@ -101,7 +101,7 @@ function writeProperty(propName, propValue) {
         }
       };
       break;
-    case 'commandReset':
+    case 'idpCommandReset':
       otaMessage.command = {
         modemCommand: {
           command: 'reset',
@@ -117,7 +117,7 @@ function writeProperty(propName, propValue) {
         resetValue: 'none'
       };
       break;
-    case 'commandPingModem':
+    case 'idpCommandPingModem':
       otaMessage.command = {
         modemCommand: {
           command: 'ping',
@@ -132,7 +132,7 @@ function writeProperty(propName, propValue) {
         resetValue: false
       };
       break;
-    case 'commandGetLocation':
+    case 'idpCommandGetLocation':
       otaMessage.command = {
         modemCommand: {
           command: 'getLocation',
@@ -147,7 +147,7 @@ function writeProperty(propName, propValue) {
         resetValue: false
       };
       break;
-    case 'commandGetBroadcastIds':
+    case 'idpCommandGetBroadcastIds':
       otaMessage.command = {
         modemCommand: {
           command: 'getBroadcastIds',
@@ -162,7 +162,7 @@ function writeProperty(propName, propValue) {
         resetValue: false
       };
       break;
-    case 'commandGetConfiguration':
+    case 'idpCommandGetConfiguration':
       otaMessage.command = {
         modemCommand: {
           command: 'getConfiguration',
@@ -196,10 +196,10 @@ function getManufacturer(mobileId) {
  */
 function parseMetadata(message) {
   const reportedProperties = {};
-  reportedProperties.mobileId = message.mobileId;
-  reportedProperties.manufacturer = getManufacturer(message.mobileId);
-  reportedProperties.satelliteRegion = message.satelliteRegion;
-  reportedProperties.lastRxMsgTime = message.receiveTimeUtc;
+  reportedProperties.idpMobileId = message.mobileId;
+  reportedProperties.idpManufacturer = getManufacturer(message.mobileId);
+  reportedProperties.idpSatelliteRegion = message.satelliteRegion;
+  reportedProperties.idpLastRxMsgTime = message.receiveTimeUtc;
   if (message.completion) {
     reportedProperties[message.completion.property] =
         message.completion.resetValue;
@@ -244,6 +244,7 @@ function parsePingTime(secondOfDay) {
  * Returns a set of telemetry for codec-defined messages
  * If using codecServiceId=0 returns reportedProperties for the modem
  * Returns a datetime based on the satellite receive time of the message
+ * @param {Object} context Azure Function context for logging
  * @param {Object} message A return message
  * @returns {{ telemetry: Object, reportedProperties: Object, timestamp: string }}
  */
@@ -260,43 +261,43 @@ function parseGenericIdp(context, message) {
         case 97:
         case 1:
         case 0:
-          reportedProperties.hardwareVersion =
+          reportedProperties.idpHardwareVersion =
               `${telemetry.hardwareMajorVersion}`
               + `.${telemetry.hardwareMinorVersion}`;
-          reportedProperties.firmwareVersion =
+          reportedProperties.idpFirmwareVersion =
               `${telemetry.firmwareMajorVersion}`
               + `.${telemetry.firmwareMinorVersion}`;
-          reportedProperties.productId = telemetry.productId;
-          reportedProperties.wakeupPeriod =
+          reportedProperties.idpProductId = telemetry.productId;
+          reportedProperties.idpWakeupPeriod =
               telemetry.wakeupPeriod.toLowerCase();
-          reportedProperties.lastResetReason = telemetry.lastResetReason;
-          reportedProperties.operatorAccessLevel =
+          reportedProperties.idpLastResetReason = telemetry.lastResetReason;
+          reportedProperties.idpOperatorAccessLevel =
               telemetry.operatorTxState;
-          reportedProperties.userTxState =
+          reportedProperties.idpUserTxState =
               telemetry.userTxState === 0 ? false : true;
-          reportedProperties.broadcastIdCount = telemetry.broadcastIdCount;
+          reportedProperties.idpBroadcastIdCount = telemetry.broadcastIdCount;
           if (codecMessageId !== 97) {
-            reportedProperties.lastRegistrationTime = telemetry.receiveTimeUtc;
+            reportedProperties.idpLastRegistrationTime = telemetry.receiveTimeUtc;
           }
           telemetry = undefined;
           break;
         case 70:
-          reportedProperties.wakeupPeriod =
+          reportedProperties.idpWakeupPeriod =
               telemetry.wakeupPeriod.toLowerCase();
           telemetry = {
-            wakeupPeriodChangeSource:
+            idpWakeupPeriodChangeSource:
                 (telemetry.mobileInitiated === true) ? 'device' : 'cloud',
           };
           break;
         case 72:
-          telemetry.latitude = round(telemetry.latitude / 60000, 6);
-          telemetry.longitude = round(telemetry.longitude / 60000, 6);
-          reportedProperties.location = {
-            lat: telemetry.latitude,
-            lon: telemetry.longitude,
-            alt: telemetry.altitude
+          telemetry.idpLatitude = round(telemetry.latitude / 60000, 6);
+          telemetry.idpLongitude = round(telemetry.longitude / 60000, 6);
+          reportedProperties.idpLocation = {
+            lat: telemetry.idpLatitude,
+            lon: telemetry.idpLongitude,
+            alt: telemetry.idpAltitude,
           }
-          telemetry.heading = telemetry.heading * 2;
+          telemetry.idpHeading = telemetry.heading * 2;
           const { dayOfMonth, minuteOfDay } = telemetry;
           delete telemetry.dayOfMonth;
           delete telemetry.minuteOfDay;
@@ -307,7 +308,7 @@ function parseGenericIdp(context, message) {
           gnssFixDate.setUTCHours(utcHour);
           gnssFixDate.setUTCMinutes(utcMinute);
           gnssFixDate.setUTCSeconds(0);
-          telemetry.gnssFixTime = gnssFixDate.toISOString();
+          telemetry.idpGnssFixTime = gnssFixDate.toISOString();
           break;
         case 112:
           const receivedSecond = secondOfDay(message.receiveTimeUtc);
@@ -321,7 +322,7 @@ function parseGenericIdp(context, message) {
           break;
         case 115:
           //console.log(`${JSON.stringify(telemetry)}`);
-          reportedProperties.broadcastIds = telemetry.broadcastIds;
+          reportedProperties.idpBroadcastIds = telemetry.broadcastIds;
           telemetry = undefined;
           break;
       }

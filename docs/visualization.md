@@ -20,10 +20,111 @@ Prior to use, the device templates pushed by Device Bridge are intended to be
 manually configured by a *Builder* to define **Views** relevant to data 
 visualization.
 
+### Inmarsat PnP Developer Kit Template
+
 One example is a very simple device based on Inmarsat's *Plug-N-Play* developer 
-kit which periodically sends satellite signal strength telemetry along with its 
-location.  Location can be displayed on a map, while signal strength can be 
-plotted on a chart as time series data.
+kit which uses a Raspberry Pi Zero Wireless connected to an IsatData Pro modem
+to periodically send location and satellite signal strength telemetry.
+Location can be displayed on a map, while signal strength can be plotted on a
+chart as time series data.
+
+The Inmarsat-defined [Device Twin Definition Language](https://github.com/Azure/opendigitaltwins-dtdl/tree/master/DTDL) template `urn:inmarsat:idp:capabilityModel:inmarsatPnpDevKit:1`
+defines 3 interfaces:
+    * **Device Information** includes information about the Raspberry Pi as an
+    IoT Gateway, using Microsoft's template
+    `urn:azureiot:DeviceManagement:DeviceInformation:1`.
+    * **Satellite Modem** includes information about the IDP modem.
+    * **FieldEdge Ultralite IDP** includes information and capabilities of the
+    Edge app that sends the telemetry data via the satellite modem.
+
+1. Create a device Dashboard. Click **Views** and **Visualizing the device**.
+    1. Set the *View name* to **`Dashboard`**.
+    2. Under *Add a tile* and *Cloud property*:
+        1. Select **Customer**.
+        2. Click *+Cloud property* and select **FieldEdge Ultralite Hardware Model**.
+        3. Click *+Cloud property* and select **Satellite Modem Model**.
+        4. Click *+Cloud property* and select **Satellite Modem Part Number**.
+        5. Click **Add tile**.
+        6. Click the gear icon on the new tile and change the *Title*
+        to **`Hardware`**.
+    3. Under *Add a tile* and *Property*:
+        1. Select **Mobile ID**.
+        2. Click *+Property* and select **Modem Manufacturer**.
+        3. Click *+Property* and select **Wakeup Period**.
+        4. Click *+Property* and select **Last Message Received Time**.
+        5. Click *+Property* and select **Last Modem Registration Time**.
+        6. Click *+Property* and select **Satellite Region**.
+        7. Click **Add tile**.
+        8. Click the gear icon of the new tile and change the *Title* to
+        `Satellite Modem`.
+    4. Under *Add a tile* and *Property*:
+        1. Select **FieldEdge Ultralite / Location**.
+        2. Click **Add tile**.
+    5. Under *Add a tile* and *Telemetry*:
+        1. Select **Satellite (Rx) SNR**.
+        2. Click **Add tile**.
+        3. Click the gear icon on the new tile.
+        4. Set the **Display range** to *Past 1 week*.
+    6. Under *Add a tile* and *Property*:
+        1. Select **Report Interval**.
+        2. Select **QoS Measurement Interval**.
+        3. Click **Add tile**.
+        4. Click the gear icon on the new tile and change its Title to
+        `FEU-IDP App Settings`.
+    7. Under *Add a tile* and *Property*:
+        1. Select **Last Mobile-Originated Text**.
+        2. Select **Last Mobile-Terminated Text**.
+        3. Click **Add tile**.
+        4. Click the gear icon on the new tile and change its Title to
+        `Text Messages`.
+    8. Click **Save**.
+
+2. Create a device Configuration page. Click **Views**
+then **Editing device and cloud data**:
+    1. Set *Form name* to **`Configuration`**.
+    2. Under *Properties* select the following:
+        * **Reporting Interval**
+        * **QoS Measurement Interval**
+    3. Click *Add section*.
+    4. Click the gear icon of the new section and change the Section title
+    to `FieldEdge Ultralite Properties`.
+    5. Under *Properties* select the following:
+        * **Last Mobile-Originated Text**
+        * **Last Mobile-Terminated Text**
+    6. Click *Add section*.
+    7. Click the gear icon of the new section and change the Section title
+    to `Text Messages`.
+    8. Under *Properties* select the following:
+        * **Wakeup Period**
+        * **Reset IDP Modem (command)**
+        * **Ping IDP Modem (command)**
+    9. Click *Add section*.
+    10. Click the gear icon of the new section and change the Section title
+    to `Satellite Modem Operations`.
+    11. Under *Cloud properties* select the following:
+        * **Customer**
+        * **FieldEdge Ultralite Hardware Model**
+        * **Satellite Modem Model**
+        * **Satellite Modem Part Number**
+    12. Click *Add section*.
+    13. Click the gear icon of the new section and change the Section title
+    to `Device metadata`.
+    14. Click **Save**.
+
+2. Create a text messaging page. Click **Views**
+then **Editing device and cloud data**:
+    1. Set *Form name* to **`Text Messages`**.
+    2. Under *Properties* select the following:
+        * **Last Mobile-Originated Text**
+        * **Last Mobile-Terminated Text**
+    3. Click *Add section*.
+    4. Click the gear icon of the new section and change the Section title
+    to `Text Messages`.
+    5. Click **Save**.
+    
+3. Delete the (auto-generated) **About** and **Overview** Views.
+
+4. Click **Publish**.
 
 ![Example Device View](media/inmarsat-pnp-devkit-view.png)
 
@@ -46,6 +147,8 @@ list of IoT Central with Device status *unassociated* and Device template
 *unassigned*.
 
 A user can ***migrate*** an unassigned device to one of the available templates. 
+For example, the [Inmarsat PnP Developer Kit](#Inmarsat-PnP-Developer-Kit-Template)
+device template.
 After a migration has been done, all subsequent messages from that device will 
 be routed to the Device data model in IoT Central.
 

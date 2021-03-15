@@ -7,7 +7,8 @@ const handleMessage = require('../lib/idpDeviceInterfaceBridge');
 const { getDevices } = require('../lib/iotcDcmApi');
 const deviceModels = require('../lib/deviceModels');
 const { templates } = require('../lib/deviceTemplates');
-const util = require('../lib/utilities');
+const _ = require('lodash');
+//const util = require('../lib/utilities');
 
 const defaultDeviceIdFormat =
     process.env.IOTC_DFLT_DEVICE_ID_FORMAT || 'idp-${mobileId}';
@@ -41,19 +42,18 @@ module.exports = async function (context, eventGridEvent) {
   const thisFunction = { name: __filename };
   const callTime = new Date().toISOString();
   context.log.verbose(`${thisFunction.name} >>>> entry triggered`
-      + ` by ${JSON.stringify(eventGridEvent)}`);
-  let parsed;
+      + ` by ${JSON.stringify(eventGridEvent.eventType)}`);
+  //let parsed;
   let device;
-  const data = eventGridEvent.data;
-  const eventType = eventGridEvent.eventType;
+  const { data, eventType } = eventGridEvent;
   switch (eventType) {
-    case 'NewReturnMessage':
     case 'OtaCommandResponse':
+    case 'NewReturnMessage':
       device = await getDeviceMeta(data.mobileId);
       if (!device.model) device.model = 'idpDefault';
       if (!device.id) {
-        device.id = defaultDeviceIdFormat.replace('${mobileId}', mobileId);
-        context.log.warning(`Assigned device.id ${device.id}`);
+        device.id = defaultDeviceIdFormat.replace('${mobileId}', data.mobileId);
+        context.log.warn(`Assigned device.id ${device.id}`);
       }
       if (!device.mobileId) device.mobileId = data.mobileId;
       break;
@@ -76,15 +76,18 @@ module.exports = async function (context, eventGridEvent) {
       throw new Error(`Unsupported event ${eventGridEvent.eventType}`);
   }
   if (device.model in deviceModels) {
-    parsed = deviceModels[device.model].parse(context, data);
+    if (device.model === 'idpDefault') {
+      context.log.warn(`Using default IDP decoding for ${device.mobileId}`);
+    }
+    const parsed = deviceModels[device.model].parse(context, data);
     context.log.verbose(`Parsed: ${JSON.stringify(parsed)}`);
+    _.merge(device, parsed);
   } else {
     throw new Error(`Could not find model: ${device.model}`);
   }
   try {
     //TODO: move parsing to engine
-    await handleMessage(context, device,
-        parsed.telemetry, parsed.reportedProperties, parsed.timestamp);
+    await handleMessage(context, device);
   } catch (e) {
     context.log.error(e.stack);
   } finally {

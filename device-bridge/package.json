@@ -16,5 +16,10 @@
     "azure-iot-security-symmetric-key": "1.7.6",
     "lodash": "4.17.20"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "chai": "4.3.4",
+    "mocha": "8.3.2",
+    "rewire": "5.0.0",
+    "sinon": "9.2.4"
+  }
 }

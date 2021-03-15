@@ -73,7 +73,8 @@ handles notifications related to API outages and recovery, emailing a contact.
 ## IoT Central Data Visualization
 
 For speed/ease of implementation we chose to use **IoT Central** for 
-visualization and device management rather than implementing custom APIs and 
+[**visualization**](https://github.com/Inmarsat/isatdatapro-azure/blob/master/docs/visualization.md)
+and device management rather than implementing custom APIs and
 Web application(s).
 
 An integrator or device manufacturer creates a 

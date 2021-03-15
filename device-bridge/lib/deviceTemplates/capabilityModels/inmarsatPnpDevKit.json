@@ -4,7 +4,9 @@
     "CapabilityModel"
   ],
   "@context": "http://azureiot.com/v1/contexts/IoTModel.json",
-  "displayName": "Inmarsat Plug-n-Play Developer Kit Capability Model",
+  "displayName": {
+    "en": "Inmarsat Plug-n-Play Developer Kit Capability Model"
+  },
   "comment": "GatewayModel; DTDL v1-preview",
   "implements": [
     {
@@ -13,12 +15,17 @@
         "InterfaceInstance"
       ],
       "name": "deviceInformation",
+      "displayName": {
+        "en": "Device Information"
+      },
       "schema": {
         "@id": "urn:azureiot:DeviceManagement:DeviceInformation:1",
         "@type": [
           "Interface"
         ],
-        "displayName": "Device Information",
+        "displayName": {
+          "en": "Device Information"
+        },
         "contents": [
           {
             "@id": "urn:azureiot:DeviceManagement:DeviceInformation:manufacturer:1",
@@ -26,7 +33,9 @@
               "Property"
             ],
             "comment": "Company name of the device manufacturer. This could be the same as the name of the original equipment manufacturer (OEM). Ex. Contoso.",
-            "displayName": "Manufacturer",
+            "displayName": {
+              "en": "Manufacturer"
+            },
             "name": "manufacturer",
             "schema": "string"
           },
@@ -36,7 +45,9 @@
               "Property"
             ],
             "comment": "Device model name or ID. Ex. Surface Book 2.",
-            "displayName": "Device model",
+            "displayName": {
+              "en": "Device model"
+            },
             "name": "model",
             "schema": "string"
           },
@@ -46,7 +57,9 @@
               "Property"
             ],
             "comment": "Version of the software on your device. This could be the version of your firmware. Ex. 1.3.45",
-            "displayName": "Software version",
+            "displayName": {
+              "en": "Software version"
+            },
             "name": "swVersion",
             "schema": "string"
           },
@@ -56,7 +69,9 @@
               "Property"
             ],
             "comment": "Name of the operating system on the device. Ex. Windows 10 IoT Core.",
-            "displayName": "Operating system name",
+            "displayName": {
+              "en": "Operating system name"
+            },
             "name": "osName",
             "schema": "string"
           },
@@ -66,7 +81,9 @@
               "Property"
             ],
             "comment": "Architecture of the processor on the device. Ex. x64 or ARM.",
-            "displayName": "Processor architecture",
+            "displayName":  {
+              "en": "Processor architecture"
+            },
             "name": "processorArchitecture",
             "schema": "string"
           },
@@ -76,7 +93,9 @@
               "Property"
             ],
             "comment": "Name of the manufacturer of the processor on the device. Ex. Intel.",
-            "displayName": "Processor manufacturer",
+            "displayName": {
+              "en": "Processor manufacturer"
+            },
             "name": "processorManufacturer",
             "schema": "string"
           },
@@ -86,7 +105,9 @@
               "Property"
             ],
             "comment": "Total available storage on the device in kilobytes. Ex. 2048000 kilobytes.",
-            "displayName": "Total storage",
+            "displayName": {
+              "en": "Total storage"
+            },
             "name": "totalStorage",
             "displayUnit": "kilobytes",
             "schema": "long"
@@ -97,7 +118,9 @@
               "Property"
             ],
             "comment": "Total available memory on the device in kilobytes. Ex. 256000 kilobytes.",
-            "displayName": "Total memory",
+            "displayName": {
+              "en": "Total memory"
+            },
             "name": "totalMemory",
             "displayUnit": "kilobytes",
             "schema": "long"
@@ -111,7 +134,9 @@
         "InterfaceInstance"
       ],
       "name": "satelliteModem",
-      "displayName": "Satellite modem (ST2100)",
+      "displayName": {
+        "en": "Satellite Modem"
+      },
       "schema": {
         "comment": "retrieve from interfaces folder",
         "@id": "urn:inmarsat:idp:ut:1",
@@ -121,160 +146,197 @@
       }
     },
     {
-      "@id": "urn:inmarsat:idp:devKit:sampleEdge1:1",
+      "@id": "urn:inmarsat:idp:devKit:feuIdp:1",
       "@type": [
         "InterfaceInstance"
       ],
-      "name": "sampleEdge1",
-      "displayName": "Edge Application (Sample 1)",
+      "name": "feuIdp",
+      "displayName": {
+        "en": "FieldEdge Ultralite IDP"
+      },
       "schema": {
-        "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:1",
+        "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:1",
         "@type": [
           "Interface"
         ],
-        "displayName": "Satellite Modem extra",
+        "displayName": {
+          "en": "Satellite Over-The-Air Interface"
+        },
         "@context": "http://azureiot.com/v1/contexts/IoTModel.json",
         "contents": [
           {
-            "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:powerMode:1",
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:properties:reportInterval:1",
             "@type": [
               "Property"
             ],
-            "displayName": "Power Mode",
-            "name": "powerMode",
-            "writable": true,
-            "schema": {
-              "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:powerMode:enum:1",
-              "@type": [
-                "Enum"
-              ],
-              "displayName": "Enum",
-              "valueSchema": "integer",
-              "enumValues": [
-                {
-                  "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:powerMode:enum:mobilePowered:1",
-                  "@type": [
-                    "EnumValue"
-                  ],
-                  "displayName": "Mobile Powered",
-                  "enumValue": 0,
-                  "name": "mobilePowered"
-                },
-                {
-                  "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:powerMode:enum:fixedPowered:1",
-                  "@type": [
-                    "EnumValue"
-                  ],
-                  "displayName": "Fixed Powered",
-                  "enumValue": 1,
-                  "name": "fixedPowered"
-                },
-                {
-                  "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:powerMode:enum:mobileBattery:1",
-                  "@type": [
-                    "EnumValue"
-                  ],
-                  "displayName": "Mobile Battery",
-                  "enumValue": 2,
-                  "name": "mobileBattery"
-                },
-                {
-                  "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:powerMode:enum:fixedBattery:1",
-                  "@type": [
-                    "EnumValue"
-                  ],
-                  "displayName": "Fixed Battery",
-                  "enumValue": 3,
-                  "name": "fixedBattery"
-                },
-                {
-                  "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:powerMode:enum:mobileMinBattery:1",
-                  "@type": [
-                    "EnumValue"
-                  ],
-                  "displayName": "Mobile Min Battery",
-                  "enumValue": 4,
-                  "name": "mobileMinBattery"
-                },
-                {
-                  "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:powerMode:enum:mobileParked:1",
-                  "@type": [
-                    "EnumValue"
-                  ],
-                  "displayName": "Mobile Parked",
-                  "enumValue": 5,
-                  "name": "mobileParked"
-                }
-              ]
-            }
-          },
-          {
-            "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:reportInterval:1",
-            "@type": [
-              "Property"
-            ],
-            "displayName": "Reporting Interval",
+            "displayName": {
+              "en": "Reporting Interval"
+            },
             "name": "reportInterval",
+            "unit": "second",
             "writable": true,
             "schema": "integer"
           },
           {
-            "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:qosInterval:1",
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:properties:qosInterval:1",
             "@type": [
               "Property"
             ],
-            "displayName": "QoS Measurement Interval",
+            "displayName": {
+              "en": "QoS Measurement Interval"
+            },
             "name": "qosInterval",
+            "unit": "second",
             "writable": true,
             "schema": "integer"
           },
           {
-            "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:textMobileOriginated:1",
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:properties:textMobileOriginated:1",
             "@type": [
               "Property"
             ],
-            "displayName": "Last Mobile-Originated Text",
+            "displayName": {
+              "en": "Last Mobile-Originated Text"
+            },
             "name": "textMobileOriginated",
             "writable": false,
             "schema": "string"
           },
           {
-            "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:properties:textMobileTerminated:1",
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:properties:textMobileTerminated:1",
             "@type": [
               "Property"
             ],
-            "displayName": "Last Mobile-Terminated Text",
+            "displayName": {
+              "en": "Last Mobile-Terminated Text"
+            },
             "name": "textMobileTerminated",
             "writable": true,
             "schema": "string"
           },
           {
-            "@id": "urn:inmarsat:idp:devKit:sampleEdge1:satelliteModemMeta:telemetry:snr:1",
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:properties:location:1",
+            "@type": [
+              "Property",
+              "Location"
+            ],
+            "displayName": {
+              "en": "Location"
+            },
+            "name": "location",
+            "schema": "geopoint"
+          },
+          {
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:telemetry:trackingTimestamp:1",
             "@type": [
               "Telemetry"
             ],
-            "displayName": "SNR",
-            "name": "snr",
-            "displayUnit": "dB(Hz)",
+            "displayName": {
+              "en": "Tracking Timestamp"
+            },
+            "name": "trackingTimestamp",
+            "unit": "second",
+            "schema": "integer"
+          },
+          {
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:telemetry:tracking:1",
+            "@type": [
+              "Telemetry",
+              "Location"
+            ],
+            "displayName": {
+              "en": "Tracking"
+            },
+            "name": "tracking",
+            "schema": "geopoint"
+          },
+          {
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:telemetry:speed:1",
+            "@type": [
+              "Telemetry"
+            ],
+            "displayName": {
+              "en": "Speed"
+            },
+            "name": "speed",
+            "unit": "kilometrePerHour",
+            "schema": "integer"
+          },
+          {
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:telemetry:heading:1",
+            "@type": [
+              "Telemetry"
+            ],
+            "displayName": {
+              "en": "Heading"
+            },
+            "name": "heading",
+            "unit": "degreeOfArc",
+            "schema": "integer"
+          },
+          {
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:telemetry:gnssSatellites:1",
+            "@type": [
+              "Telemetry"
+            ],
+            "displayName": {
+              "en": "GNSS satellites used for fix"
+            },
+            "name": "gnssSatellites",
+            "schema": "integer"
+          },
+          {
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:telemetry:pdop:1",
+            "@type": [
+              "Telemetry"
+            ],
+            "displayName": {
+              "en": "Fix Probability Dilution of Precision"
+            },
+            "name": "pdop",
             "schema": "double"
+          },
+          {
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:telemetry:satelliteSnr:1",
+            "@type": [
+              "Telemetry"
+            ],
+            "displayName": {
+              "en": "Satellite (Rx) SNR"
+            },
+            "name": "satelliteSnr",
+            "displayUnit": "dB-Hz",
+            "schema": "double"
+          },
+          {
+            "comment": "Command proxy using writable property",
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:commands:getReport:1",
+            "@type": [
+              "Property"
+            ],
+            "writable": true,
+            "displayName": {
+              "en": "Get Report (command)"
+            },
+            "name": "commandGetReport",
+            "schema": "boolean"
+          },
+          {
+            "comment": "Command proxy using writable property",
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:commands:getConfig:1",
+            "@type": [
+              "Property"
+            ],
+            "writable": true,
+            "displayName": {
+              "en": "Get Config (command)"
+            },
+            "name": "commandGetConfig",
+            "schema": "boolean"
           }
         ]
       }
     }
   ],
-  "contents": [
-    {
-        "@id": "urn:enterpriseIotPoc:ExampleGateway_1qv:gnss:1",
-        "@type": [
-            "Relationship",
-            "SemanticType/GatewayDevice"
-        ],
-        "comment": "",
-        "displayName": "GNSS",
-        "name": "gnss",
-        "target": [
-            "*"
-        ]
-    }
-  ]
+  "contents": []
 }

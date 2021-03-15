@@ -50,7 +50,7 @@ module.exports = async function (context, eventGridEvent) {
   
     function onApiOutage(satelliteGateway, timestamp) {
       const event = eventGrid.ApiOutageEvent(satelliteGateway, timestamp);
-      context.log.warning(`Satellite API outage detected`);
+      context.log.warn(`Satellite API outage detected`);
       context.bindings.outputEvent.push(event);
     }
   
