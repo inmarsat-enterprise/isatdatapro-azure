@@ -183,6 +183,22 @@ async function updateMailbox(context, device, twin) {
 }
 
 /**
+ * A placeholder for offline (asynchronous) commands
+ * @param {Object} context 
+ * @param {Object} msg 
+ */
+function offlineCommand(context, msg) {
+  context.log.verbose(`Processing ${JSON.stringify(msg)}`);
+  hubClient.complete(msg, function(err) {
+    if (err) {
+      context.log.error(err.stack);
+    } else {
+      context.log.warn('Command should be submitted');
+    }
+  });
+}
+
+/**
  * Updates a device with reported properties.
  * Checks for desired properties (including proxy commands) and triggers 
  * `CommandRequest` events if applicable
@@ -192,96 +208,104 @@ async function updateMailbox(context, device, twin) {
  * @param {Object} twin The digital twin of the device
  */
 async function updateDevice(context, device, twin) {
+  context.log.verbose(`Processing updates for device ${device.id}`);
   let patch;
   //: Not using twin.on('properties.desired') since it won't trigger immediate
   if (twin.properties.desired) {
+    if (!device.model) {
+      throw new Error(`No device model defined for ${device.id}`);
+    }
+    const deviceModel = require('./deviceModels')[device.model];
     patch = {};
     const writableProperties = [];
     const delta = Object.assign({}, twin.properties.desired);
     context.log.verbose(`${device.id} desired property changes:`
         + ` ${JSON.stringify(delta)}`);
-    const deviceModel = require('./deviceModels')[device.model];
     if (delta['$version'] === 1) {
       if (twin.properties.reported.$version > 1) {
-        context.log.warn(`${device.id}`
-            + ` $version=${twin.properties.reported.$version}`
-            + ` but requesting $version=1`);
-        if (!device.reportedProperties) {
-          return;
-        }
-        context.log.info(`Initializing ${device.id} as ${device.model}`);
-        patch = deviceModel.initialize(device.mobileId);
+        context.log.warn(`${device.id}` +
+            ` $version=${twin.properties.reported.$version}` +
+            ` but requesting $version=1`);
       }
+      context.log.info(`Initializing ${device.id} as ${device.model}`);
+      patch = deviceModel.initialize(device.mobileId);
+      context.log.verbose(`Patching ${JSON.stringify(patch)}`);
     }
     //: Reported properties if writable are completed
     //:  This functionality does not work for "trigger" commands the
     //:  reported property does not overwrite the configuration "true" setting.
-    if (device.reportedProperties) {
-      for (const propName in device.reportedProperties) {
+    if (device.patch) {
+      for (const propName in device.patch) {
         if (propName in delta) {
-          patch[propName] = {
-            value: device.reportedProperties[propName],
-            ad: 'completed',
-            ac: 200,
-            av: delta.$version,
-          };
-          //: TBC Remove reported property to avoid generating a new version?
-          delete device.reportedProperties[propName];
+          patch[propName] = device.patch[propName];
+          if (delta.$version !== device.patch[propName].av) {
+            context.log.warn(`Version mismatch expected ${delta.$version}` +
+                ` got ${device.patch[propName].av}`);
+          }
+          //: TBD Remove reported property to avoid generating a new command
           delete delta[propName];
+          context.log.verbose(`Desired property ${propName}` +
+              ` version ${delta.$version} completed`);
         }
       }
     }
     for (const propName in delta) {
       //: If writable in the device model get the OTA command setup
       if (propName === '$version') continue;
-      //const deviceModel = require('./deviceModels')[device.model];
+      context.log.verbose(`Assessing desired change to ${propName}`);
       if (propName in twin.properties.reported &&
           twin.properties.reported[propName].value === delta[propName] &&
           twin.properties.reported[propName].av >= delta.$version) {
-        context.log.verbose(`${device.id} ${propName} pending`);
+        context.log.verbose(`${device.id} ${propName} pending` +
+            ` value: ${delta[propName]}`);
         continue;
       }
       let writable;
       try {
-        writable = deviceModel.writeProperty(propName, delta[propName]);
+        context.log.verbose(`Deriving write operation for ${propName}`);
+        writable = deviceModel.writeProperty(propName, delta[propName], delta.$version);
       } catch (e) {
+        context.log.error(e.message);
         patch[propName] = {
           value: delta[propName],
-          ac: 500,
+          ac: 400,
           ad: e.message,
           av: delta.$version
+        };
+      }
+      if (writable === null) {
+        patch[propName] = {
+          value: delta[propName],
+          ad: 'reset',
+          ac: 200,
+          av: delta.$version,
         };
       }
       if (writable) {
         if (twin.properties.reported[propName] &&
             twin.properties.desired[propName] ===
             twin.properties.reported[propName].value) {
-          context.log.verbose(`${device.id} ${propName} desired===reported`);
+          context.log.verbose(`${device.id} ${propName} desired === reported` +
+              ` (skipping write)`);
           continue;
         }
+        context.log.verbose(`Triggering write ${propName} =` +
+            ` ${twin.properties.desired[propName]}`);
         patch[propName] = {
           value: delta[propName],
           ad: 'triggered',
           ac: 202,
           av: delta.$version,
         };
-        writable.property = propName;
-        writable.newValue = delta[propName];
-        writable.version = delta.$version;
+        writable.mobileId = device.mobileId;
         writableProperties.push(writable);
-      } else {
-        patch[propName] = {
-          value: delta[propName],
-          ad: 'not writable',
-          ac: 400,
-          //av: delta.$version,
-        };
-        context.log.warn(`${propName} not writable in model ${device.model}`);
       }
     }
     if (writableProperties.length > 0) {
+      context.log.verbose(`Processing ${writableProperties.length} OTA writes`);
       context.bindings.outputEvent = [];
       writableProperties.forEach(prop => {
+        context.log.verbose(`Processing command ${JSON.stringify(prop.command)}`);
         //: publish event to EventGrid for orchestrator
         const event = {
           id: uuid(),
@@ -289,16 +313,10 @@ async function updateDevice(context, device, twin) {
               + ` for ${device.mobileId}`,
           dataVersion: '2.0',
           eventType: 'CommandRequest',
-          data: {
-            mobileId: device.mobileId,
-            command: prop.command,
-            completion: prop.completion,
-            retries: prop.retries,
-            commandVersion: prop.version,
-          },
+          data: prop,
           eventTime: new Date().toISOString()
         };
-        context.log.verbose(`Publishing ${JSON.stringify(event)}`);
+        context.log.info(`Publishing ${JSON.stringify(event)} to EventGrid`);
         context.bindings.outputEvent.push(event);
       });
     }
@@ -306,13 +324,22 @@ async function updateDevice(context, device, twin) {
   if (device.reportedProperties || patch) {
     const update = Object.assign({}, device.reportedProperties, patch);
     for (const prop in update) {
-      if (update[prop] === null) delete update[prop];
+      if (update[prop] === null) {
+        context.log.warn(`Removing null value for ${prop}`);
+        delete update[prop];
+      }
     }
     if (!_.isEmpty(update)) {
       const err = await twin.properties.reported.update(update);
-      context.log(`Sent ${device.id} properties: ${JSON.stringify(update)}`
-          + (err ? `; error: ${err.toString()}` : ` status: success`));
+      context.log(`Sent ${device.id} properties: ${JSON.stringify(update)}` +
+          (err ? `; error: ${err.toString()}` : ` status: success`));
     }
+  }
+  if (device.extraPatch) {
+    const extraPatch = device.extraPatch;
+    const err = await twin.properties.reported.update(extraPatch);
+    context.log(`Special patch ${device.id} ${JSON.stringify(extraPatch)}` +
+        (err ? `; error: ${err.toString()}` : ` status: success`));
   }
 }
 
@@ -324,6 +351,7 @@ async function updateDevice(context, device, twin) {
  */
 async function handleTwin(context, device) {
   try {
+    context.log.verbose(`Getting IoT Hub Twin for ${device.id}`);
     const twin = await hubClient.getTwin();
     if (device.model.includes('satelliteGateway')) {
       updateSatelliteGateway(context, device, twin);
@@ -362,21 +390,30 @@ async function azureIotDeviceBridge(context, device) {
         ` where the last character must be alphanumeric or hyphen.`);
   }
   const registrationId = device.id;
+  context.log.verbose(`Getting device ${device.id} SAS key`);
   const deviceSasKey = await getDeviceKey(registrationId);
+  context.log.verbose(`Getting provisioning security client`);
   const provisioningSecurityClient =
       new SymmetricKeySecurityClient(registrationId, deviceSasKey);
+  context.log.verbose(`Creating provisioning device client`);
   const provisioningClient = await ProvisioningDeviceClient.create(
       provisioningHost,
       idScope,
       new singleProvisioningTransport(),
       provisioningSecurityClient);
+  context.log.verbose(`Registering provisioning client`);
   const result = await provisioningClient.register();
   const connectionString = 
       `HostName=${result.assignedHub}` +
       `;DeviceId=${result.deviceId}` +
       `;SharedAccessKey=${deviceSasKey}`;
+  context.log.verbose(`Connecting to IoT Hub ${result.assignedHub}`);
   hubClient = Client.fromConnectionString(connectionString, singleIotHubTransport);
   await hubClient.open();
+  hubClient.on('message', function(msg) {
+    context.log.verbose(`Received offline command ${JSON.stringify(msg)}`);
+    offlineCommand(context, msg);
+  });
   if (device.telemetry) await sendTelemetry(context, device);
   await handleTwin(context, device);
   await hubClient.close();

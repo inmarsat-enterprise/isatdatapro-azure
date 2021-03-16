@@ -6,7 +6,7 @@ const df = require('durable-functions');
 const { clientGetStatusAll, getFunctionName } = require('../SharedCode');
 
 const testMode = process.env.testMode;
-const MAX_AGE_SECONDS = 3600;
+const MAX_AGE_SECONDS = 60;
 
 /**
  * Derives the codecServiceId (SIN) and codecMessageId (MIN)
@@ -41,16 +41,21 @@ function getCodecIds(data) {
 async function testCleanup(context, client, instances) {
   let terminated = 0;
   for (let i=0; i < instances.length; i++) {
-    const { createdTime, runtimeStatus } = instances[i];
+    const { instanceId, createdTime, runtimeStatus } = instances[i];
     const age = (new Date() - new Date(createdTime)) / 1000;
-    if ((instances[i].instanceId.includes('-undefined-') ||
-        instances[i].instanceId.includes('-null-') ||
+    if ((instanceId.includes('-undefined-') ||
+        instanceId.includes('-null-') ||
         age > MAX_AGE_SECONDS) &&
         runtimeStatus !== 'Terminated') {
-      await client.terminate(instances[i].instanceId);
-      context.log.warn(`Terminated instance ${instances[i].instanceId}`);
+      await client.terminate(instanceId, 'Test Mode');
+      let newRuntimeStatus = runtimeStatus;
+      while (newRuntimeStatus !== 'Terminated') {
+        newRuntimeStatus = await client.getStatus(instanceId);
+      }
+      context.log.warn(`Terminated instance ${instanceId}`);
       terminated++;
     } else if (runtimeStatus === 'Terminated') {
+      context.log.verbose(`Found terminated instance ${instanceId}`);
       terminated++;
     }
   }
@@ -58,10 +63,11 @@ async function testCleanup(context, client, instances) {
     const createdFrom = new Date(0);
     const createdTo = new Date();
     const runtimeStatuses = [ df.OrchestrationRuntimeStatus.Terminated ];
-    const { instancesDeleted } = await client.purgeInstanceHistoryBy(
+    const purgeResult = await client.purgeInstanceHistoryBy(
         createdFrom, createdTo, runtimeStatuses);
-    if (instancesDeleted > 0) {
-      context.log.warn(`Purged ${JSON.stringify(purgeResult)} instances`);
+    if (purgeResult.instancesDeleted > 0) {
+      context.log.warn(`Purged orchestrator instance history` +
+          ` ${JSON.stringify(purgeResult)}`);
     }
   }
 }
@@ -77,11 +83,14 @@ module.exports = async function (context, eventGridEvent) {
     try {
       const { codecServiceId, codecMessageId } = getCodecIds(data);
       // TODO: add commandVersion, avoid repeating same version even if terminated
-      instanceId = `otaCommand-${data.mobileId}` 
-          + `-${codecServiceId}-${codecMessageId}`;
+      instanceId = `otaCommand-${data.mobileId}` +
+          `-${codecServiceId}-${codecMessageId}`;
       if (data.commandVersion) instanceId += `-${data.commandVersion}`;
       //: work around terminated instances bug by flushing history
       let instances = await clientGetStatusAll(context, client);
+      if (testMode) {
+        await testCleanup(context, client, instances);
+      }
       let running = false;
       let completed = false;
       for (let i=0; i < instances.length; i++) {
@@ -95,16 +104,12 @@ module.exports = async function (context, eventGridEvent) {
           break;
         }
       }
-      if (testMode) {
-        await testCleanup(context, client, instances);
-      }
       if (!running && !completed) {
+        context.log.info(`Starting orchestration with ID=${instanceId}`);
         await client.startNew('OtaCommandOrchestrator',
             instanceId, eventGridEvent);
-        context.log(`Started orchestration with ID=${instanceId}`);
       } else {
-        context.log.warn(`Orchestrator ${instanceId} in progress`
-            + ` - ignoring event`);
+        context.log.warn(`Orchestrator ${instanceId} in progress ignoring event`);
       }
     } catch (e) {
       context.log.error(e.stack);

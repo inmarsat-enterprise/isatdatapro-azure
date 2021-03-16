@@ -70,8 +70,13 @@ function initialize(mobileId) {
  * @param {*} [propValue] The value to write
  * @returns {{ command: Object, response: Object }} CommandRequest event parameters
  */
-function writeProperty(propName, propValue) {
-  let otaMessage = {};
+function writeProperty(propName, propValue, version) {
+  let otaMessage = {
+    completion: {
+      property: propName,
+      av: version,
+    }
+  };
   switch (propName) {
     case 'idpWakeupPeriod':
       otaMessage.command = {
@@ -110,14 +115,10 @@ function writeProperty(propName, propValue) {
           codecMessageId: 68,
         }
       };
-      otaMessage.completion = {
-        codecServiceId: 0,
-        codecMessageId: 0,
-        property: propName,
-        resetValue: 'none'
-      };
+      otaMessage.completion.resetValue = 0;
       break;
     case 'idpCommandPingModem':
+      if (propValue === false) return null;
       otaMessage.command = {
         modemCommand: {
           command: 'ping',
@@ -125,12 +126,7 @@ function writeProperty(propName, propValue) {
           codecMessageId: 112,
         }
       };
-      otaMessage.completion = {
-        codecServiceId: 0,
-        codecMessageId: 112,
-        property: propName,
-        resetValue: false
-      };
+      otaMessage.completion.resetValue = false;
       break;
     case 'idpCommandGetLocation':
       otaMessage.command = {
@@ -140,12 +136,7 @@ function writeProperty(propName, propValue) {
           codecMessageId: 72,
         }
       };
-      otaMessage.completion = {
-        codecServiceId: 0,
-        codecMessageId: 72,
-        property: propName,
-        resetValue: false
-      };
+      otaMessage.completion.resetValue = false;
       break;
     case 'idpCommandGetBroadcastIds':
       otaMessage.command = {
@@ -155,12 +146,7 @@ function writeProperty(propName, propValue) {
           codecMessageId: 115,
         }
       };
-      otaMessage.completion = {
-        codecServiceId: 0,
-        codecMessageId: 115,
-        property: propName,
-        resetValue: false
-      };
+      otaMessage.completion.resetValue = false;
       break;
     case 'idpCommandGetConfiguration':
       otaMessage.command = {
@@ -170,15 +156,10 @@ function writeProperty(propName, propValue) {
           codecMessageId: 97,
         }
       };
-      otaMessage.completion = {
-        codecServiceId: 0,
-        codecMessageId: 97,
-        property: propName,
-        resetValue: false
-      };
+      otaMessage.completion.resetValue = false;
       break;
     default:
-      otaMessage = null;
+      throw new Error(`Property ${propName} not writable by idpDefault`);
   }
   return otaMessage;
 }

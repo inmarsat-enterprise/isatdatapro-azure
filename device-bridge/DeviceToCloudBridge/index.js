@@ -3,7 +3,7 @@
  * Parses the event data based on a device model definition which maps 
  * data into telemetry and reported properties
  */
-const handleMessage = require('../lib/idpDeviceInterfaceBridge');
+const handleEvent = require('../lib/idpDeviceInterfaceBridge');
 const { getDevices } = require('../lib/iotcDcmApi');
 const deviceModels = require('../lib/deviceModels');
 const { templates } = require('../lib/deviceTemplates');
@@ -28,7 +28,6 @@ async function getDeviceMeta(identifier) {
         if (templates[template].id === provisionedDevices[d].instanceOf) {
           device.id = provisionedDevices[d].id;
           device.model = template;
-          //device.mobileId = mobileId;
           break;
         }
       }
@@ -43,51 +42,72 @@ module.exports = async function (context, eventGridEvent) {
   const callTime = new Date().toISOString();
   context.log.verbose(`${thisFunction.name} >>>> entry triggered`
       + ` by ${JSON.stringify(eventGridEvent.eventType)}`);
-  //let parsed;
   let device;
-  const { data, eventType } = eventGridEvent;
-  switch (eventType) {
-    case 'OtaCommandResponse':
-    case 'NewReturnMessage':
-      device = await getDeviceMeta(data.mobileId);
-      if (!device.model) device.model = 'idpDefault';
-      if (!device.id) {
-        device.id = defaultDeviceIdFormat.replace('${mobileId}', data.mobileId);
-        context.log.warn(`Assigned device.id ${device.id}`);
-      }
-      if (!device.mobileId) device.mobileId = data.mobileId;
-      break;
-    case 'MailboxQuery':
-    case 'SatelliteGatewayQuery':
-      device = await getDeviceMeta(eventGridEvent.data.name);
-      if (!device.id) {
-        if (eventType === 'MailboxQuery') {
-          const operator = data.satelliteGatewayName.toLowerCase();
-          const tag = operator.includes('orbc') ? 'gatewayAccount' : 'mailbox';
-          device.id = `${operator}-${tag}-${data.mailboxId}`;
-          device.model = 'mailbox';
-        } else {
-          device.id = `${data.name}-mgs`;
-          device.model = 'satelliteGateway';
-        }
-      }
-      break;
-    default:
-      throw new Error(`Unsupported event ${eventGridEvent.eventType}`);
-  }
-  if (device.model in deviceModels) {
-    if (device.model === 'idpDefault') {
-      context.log.warn(`Using default IDP decoding for ${device.mobileId}`);
-    }
-    const parsed = deviceModels[device.model].parse(context, data);
-    context.log.verbose(`Parsed: ${JSON.stringify(parsed)}`);
-    _.merge(device, parsed);
-  } else {
-    throw new Error(`Could not find model: ${device.model}`);
-  }
   try {
-    //TODO: move parsing to engine
-    await handleMessage(context, device);
+    const { data, eventType } = eventGridEvent;
+    switch (eventType) {
+
+      case 'NewReturnMessage':
+        context.log.verbose(`Received message ${data.messageId}` +
+            ` from ${data.mobileId}`);
+        device = await getDeviceMeta(data.mobileId);
+        if (!device.model) {
+          context.log.warn(`Device not provisioned: using idpDefault model`);
+          device.model = 'idpDefault';
+        }
+        if (!device.id) {
+          device.id = defaultDeviceIdFormat.replace('${mobileId}', data.mobileId);
+          context.log.warn(`Assigned device.id ${device.id}`);
+        }
+        device.mobileId = data.mobileId;
+        context.log.verbose(`Attempting to parse message ID ${data.messageId}`);
+        const parsed = deviceModels[device.model].parse(context, data);
+        context.log.verbose(`Parsed: ${JSON.stringify(parsed)}`);
+        _.merge(device, parsed);
+        break;
+      
+      case 'OtaCommandComplete':
+        context.log.verbose(`Received command completion` +
+            ` for ${JSON.stringify(data.command)}`);
+        device = await getDeviceMeta(data.mobileId);
+        device.mobileId = data.mobileId;
+        device.patch = {};
+        device.patch[data.completion.property] = {
+          value: data.completion.value,
+          ac: 'commandDeliveredTime' in data ? 200 : 500,
+          av: data.completion.av,
+        };
+        if ('resetValue' in data.completion) {
+          context.log.warn('Proxy command reset not currently functional');
+          // device.extraPatch = {};
+          // device.extraPatch[data.completion.property] =
+          //     data.completion.resetValue;
+        }
+        break;
+
+      case 'MailboxQuery':
+      case 'SatelliteGatewayQuery':
+        device = await getDeviceMeta(eventGridEvent.data.name);
+        if (!device.id) {
+          if (eventType === 'MailboxQuery') {
+            const operator = data.satelliteGatewayName.toLowerCase();
+            const tag = operator.includes('orbc') ? 'gatewayAccount' : 'mailbox';
+            device.id = `${operator}-${tag}-${data.mailboxId}`;
+            device.model = 'mailbox';
+          } else {
+            device.id = `${data.name}-mgs`;
+            device.model = 'satelliteGateway';
+          }
+        }
+        break;
+      default:
+        throw new Error(`Unsupported event ${eventGridEvent.eventType}`);
+    }
+    if (device.model in deviceModels) {
+      await handleEvent(context, device);
+    } else {
+      throw new Error(`Could not find model: ${device.model}`);
+    }
   } catch (e) {
     context.log.error(e.stack);
   } finally {

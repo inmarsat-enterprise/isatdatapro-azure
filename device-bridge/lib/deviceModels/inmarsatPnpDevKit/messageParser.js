@@ -27,11 +27,20 @@ function initialize(mobileId) {
   return Object.assign({}, patch, idpDefault.initialize(mobileId));
 }
 
-function writeProperty(propName, propValue) {
-  if (idpDefault.writableProperties.includes(propName)) {
-    return idpDefault.writeProperty(propName, propValue);
+function writeProperty(propName, propValue, version) {
+  try {
+    return idpDefault.writeProperty(propName, propValue, version);
+  } catch (e) {
+    if (!(e.message.includes('not writable'))) {
+      throw e;
+    }
   }
-  let otaMessage = {};
+  let otaMessage = {
+    completion: {
+      property: propName,
+      av: version,
+    }
+  };
   switch (propName) {
     case 'commandReportGet':
       otaMessage.command = {
@@ -40,12 +49,8 @@ function writeProperty(propName, propValue) {
           codecMessageId: 1,
         }
       };
-      otaMessage.completion = {
-        codecServiceId: 255,
-        codecMessageId: 1,
-        property: propName,
-        resetValue: false,
-      };
+      otaMessage.completion.value = true;
+      otaMessage.completion.resetValue = false;
       break;
     case 'configSet':
       otaMessage.command = {
@@ -87,18 +92,21 @@ function writeProperty(propName, propValue) {
           ]
         }
       };
+      otaMessage.completion.value = propValue;
       break;
     case 'configGet':
       otaMessage.command = {
         payloadJson: {
           codecServiceId: 255,
           codecMessageId: 4,
-          fields: []
         }
       };
+      otaMessage.completion.value = true;
+      otaMessage.completion.resetValue = false;
       break;
+    default:
+      throw new Error(`Property ${propName} not writable via satellite`);
   }
-  //TODO: add additional writable properties / commands here
   return otaMessage;
 }
 

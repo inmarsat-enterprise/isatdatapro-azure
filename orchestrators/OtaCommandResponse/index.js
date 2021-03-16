@@ -7,6 +7,8 @@ module.exports = async function (context, eventGridEvent) {
   if (eventGridEvent.eventType === 'NewReturnMessage') {
     const client = df.getClient(context);
     const message = eventGridEvent.data;
+    context.log.verbose(`Processing return message ${message.messageId}` +
+        ` from ${message.mobileId}`);
     let instances = await clientGetStatusAll(context, client);
     for (let i=0; i < instances.length; i++) {
       if ((instances[i].customStatus.state === 'awaitingResponse' ||
@@ -14,11 +16,10 @@ module.exports = async function (context, eventGridEvent) {
           instances[i].customStatus.mobileId === message.mobileId &&
           instances[i].customStatus.codecServiceId === message.codecServiceId &&
           instances[i].customStatus.codecMessageId === message.codecMessageId) {
-        const eventData = message;
         context.log.verbose(`${funcName} raising event ResponseReceived with`
-            + ` ${eventData}`);
+            + ` ${message}`);
         await client.raiseEvent(instances[i].instanceId, 'ResponseReceived',
-            eventData);
+            message);
         break;
       }
     }

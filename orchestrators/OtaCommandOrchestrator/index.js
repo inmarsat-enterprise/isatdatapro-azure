@@ -21,6 +21,7 @@ module.exports = df.orchestrator(function* (context) {
       state: 'submitting',
       mobileId: mobileId,
     });
+    
     // Submit command as OTA message
     const submissionId =
         yield context.df.callActivity("OtaCommandSubmit", input.data);
@@ -39,6 +40,7 @@ module.exports = df.orchestrator(function* (context) {
       messageId: messageId,
     });
     outputs.push({ commandMessageId: messageId });
+    
     // ForwardMessageStateChange captured by OtaCommandDelivery function
     context.log.verbose(`${funcName} sent messageId: ${messageId} awaiting`
         + ` CommandDelivered`);
@@ -49,41 +51,59 @@ module.exports = df.orchestrator(function* (context) {
       mobileId: mobileId,
       deliveryTime: delivered.deliveryTime,
     });
+    let completionEvent = {
+      id: uuid(),
+      dataVersion: '2.0',
+      data: Object.assign({}, input.data),
+    };
     if (delivered.success) {
       context.log.verbose(`${funcName} successfully delivered command`);
+      completionEvent.subject = `Command delivered: ${commandMeta}`;
+      completionEvent.eventType = 'OtaCommandComplete';
+      completionEvent.data.commandDeliveredTime = delivered.deliveryTime;
+      completionEvent.eventTime = delivered.deliveryTime;
       outputs.push({ commandReceiveTime: delivered.deliveryTime });
-      if (input.data.completion) {
-        // Wait for event NewReturnMessage with expectedResponse identifier(s)
-        // TODO: may need an explicit timeout for this?
-        const { codecServiceId, codecMessageId } = input.data.completion;
-        context.df.setCustomStatus({
-          state: 'awaitingResponse',
-          mobileId: mobileId,
-          codecServiceId: codecServiceId,
-          codecMessageId: codecMessageId,
-        });
-        // NewReturnMessage captured/filtered by OtaResponseReceived
-        context.log.verbose(`${funcName} awaiting ResponseReceived`
-            + `(codecServiceId:${codecServiceId}`
-            + ` | codecMessageId:${codecMessageId})`);
-        const response =
-            yield context.df.waitForExternalEvent('ResponseReceived');
-        const responseEvent = {
-          id: uuid(),
-          subject: `Command response to ${commandMeta}`,
-          dataVersion: '2.0',
-          eventType: 'OtaCommandResponse',
-          data: Object.assign(response, { completion: input.data.completion }),
-          eventTime: response.receiveTimeUtc
-        };
-        context.log(`${funcName} publishing ${JSON.stringify(responseEvent)}`
-            + ` for Device Bridge`);
-        context.bindings.outputEvent = responseEvent;
-        outputs.push({ responsePublished: responseEvent });
-      }
     } else {
+      completionEvent.subject = `Command failed: ${commandMeta}`;
+      completionEvent.eventType = 'OtaCommandComplete';
+      completionEvent.data.commandFailedTime = delivered.deliveryTime;
+      completionEvent.eventTime = delivered.deliveryTime;
       outputs.push({ commandFailedTime: delivered.deliveryTime });
     }
+    context.log(`${funcName} publishing ${JSON.stringify(completionEvent)}` +
+        ` for Device Bridge`);
+    context.bindings.outputEvent = completionEvent;
+    outputs.push({ completionEventPublished: completionEvent.id });
+  }
+  if (input.data.completion && 'codecServiceId' in input.data.completion) {
+    context.log.warn('Response event untested...');
+    // Wait for event NewReturnMessage with expectedResponse identifier(s)
+    // TODO: may need an explicit timeout for this?
+    const { codecServiceId, codecMessageId } = input.data.completion;
+    context.df.setCustomStatus({
+      state: 'awaitingResponse',
+      mobileId: mobileId,
+      codecServiceId: codecServiceId,
+      codecMessageId: codecMessageId,
+    });
+    // NewReturnMessage captured/filtered by OtaResponseReceived
+    context.log.verbose(`${funcName} awaiting ResponseReceived`
+        + `(codecServiceId:${codecServiceId}`
+        + ` | codecMessageId:${codecMessageId})`);
+    const response =
+        yield context.df.waitForExternalEvent('ResponseReceived');
+    responseEvent = {
+      id: uuid(),
+      dataVersion: '2.0',
+      subject: `Command response to ${commandMeta}`,
+      eventType: 'OtaCommandResponse',
+      data: Object.assign({}, response),
+      eventTime: response.receiveTimeUtc,
+    }
+    context.log(`${funcName} publishing ${JSON.stringify(responseEvent)}` +
+        ` for Device Bridge`);
+    context.bindings.outputEvent = responseEvent;
+    outputs.push({ responseEventPublished: responseEvent.id });
   }
   context.log.verbose(`${funcName} outputs: ${JSON.stringify(outputs)}`);
   return outputs;
