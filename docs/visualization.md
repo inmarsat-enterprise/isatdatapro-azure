@@ -43,75 +43,56 @@ defines 3 interfaces:
         1. Select **Customer**.
         2. Click *+Cloud property* and select **FieldEdge Ultralite Hardware Model**.
         3. Click *+Cloud property* and select **Satellite Modem Model**.
-        4. Click *+Cloud property* and select **Satellite Modem Part Number**.
-        5. Click **Add tile**.
-        6. Click the gear icon on the new tile and change the *Title*
-        to **`Hardware`**.
+        4. Click **Add tile**.
+        5. Click the gear icon on the new tile and change the *Title*
+        to **`Customer Hardware`** and click *Update*.
     3. Under *Add a tile* and *Property*:
         1. Select **Mobile ID**.
         2. Click *+Property* and select **Modem Manufacturer**.
+        4. Click *Cloud property* and select **Satellite Modem Part Number**.
         3. Click *+Property* and select **Wakeup Period**.
         4. Click *+Property* and select **Last Message Received Time**.
         5. Click *+Property* and select **Last Modem Registration Time**.
         6. Click *+Property* and select **Satellite Region**.
         7. Click **Add tile**.
         8. Click the gear icon of the new tile and change the *Title* to
-        `Satellite Modem`.
+        `Satellite Modem` and click *Update*.
     4. Under *Add a tile* and *Property*:
-        1. Select **FieldEdge Ultralite / Location**.
+        1. Select **FieldEdge Ultralite IDP / Location**.
         2. Click **Add tile**.
     5. Under *Add a tile* and *Telemetry*:
         1. Select **Satellite (Rx) SNR**.
         2. Click **Add tile**.
         3. Click the gear icon on the new tile.
-        4. Set the **Display range** to *Past 1 week*.
-    6. Under *Add a tile* and *Property*:
-        1. Select **Report Interval**.
-        2. Select **QoS Measurement Interval**.
-        3. Click **Add tile**.
-        4. Click the gear icon on the new tile and change its Title to
-        `FEU-IDP App Settings`.
-    7. Under *Add a tile* and *Property*:
-        1. Select **Last Mobile-Originated Text**.
-        2. Select **Last Mobile-Terminated Text**.
-        3. Click **Add tile**.
-        4. Click the gear icon on the new tile and change its Title to
-        `Text Messages`.
-    8. Click **Save**.
+        4. Set the **Display range** to *Past 1 week* and click *Update*.
+    6. Click **Save**.
 
 2. Create a device Configuration page. Click **Views**
 then **Editing device and cloud data**:
     1. Set *Form name* to **`Configuration`**.
+    2. Under *Cloud properties* select the following:
+        * **Customer**
+        * **FieldEdge Ultralite Hardware Model**
+        * **Satellite Modem Model**
+        * **Satellite Modem Part Number**
+    3. Click *Add section*.
+    4. Click the gear icon of the new section and change the Section title
+    to `Device metadata`.
     2. Under *Properties* select the following:
         * **Reporting Interval**
         * **QoS Measurement Interval**
     3. Click *Add section*.
     4. Click the gear icon of the new section and change the Section title
-    to `FieldEdge Ultralite Properties`.
-    5. Under *Properties* select the following:
-        * **Last Mobile-Originated Text**
-        * **Last Mobile-Terminated Text**
-    6. Click *Add section*.
-    7. Click the gear icon of the new section and change the Section title
-    to `Text Messages`.
+    to `FieldEdge Ultralite Properties (set using Commands view)`.
     8. Under *Properties* select the following:
         * **Wakeup Period**
-        * **Reset IDP Modem (command)**
-        * **Ping IDP Modem (command)**
+        * **Transmitter Mute**
     9. Click *Add section*.
     10. Click the gear icon of the new section and change the Section title
-    to `Satellite Modem Operations`.
-    11. Under *Cloud properties* select the following:
-        * **Customer**
-        * **FieldEdge Ultralite Hardware Model**
-        * **Satellite Modem Model**
-        * **Satellite Modem Part Number**
-    12. Click *Add section*.
-    13. Click the gear icon of the new section and change the Section title
-    to `Device metadata`.
+    to `Satellite Modem`.
     14. Click **Save**.
 
-2. Create a text messaging page. Click **Views**
+3. Create a text messaging page. Click **Views**
 then **Editing device and cloud data**:
     1. Set *Form name* to **`Text Messages`**.
     2. Under *Properties* select the following:
@@ -119,14 +100,46 @@ then **Editing device and cloud data**:
         * **Last Mobile-Terminated Text**
     3. Click *Add section*.
     4. Click the gear icon of the new section and change the Section title
-    to `Text Messages`.
+    to `Most recent message`.
     5. Click **Save**.
     
+4. Create a command page. Click **Views** then **Visualizing the device**.
+    1. Set the *View name* to **`Commands`**.
+    2. Under *Add a tile* and *Commands*:
+        1. Select **Get Report**.
+        2. Click **Add tile**.
+        3. Select **Set Properties**.
+        4. Click **Add tile**.
+        5. Select **Ping IDP Modem**.
+        6. Click **Add tile**.
+        7. Select **Reset IDP Modem**.
+        8. Click **Add tile**.
+    3. Click **Save**.
+
 3. Delete the (auto-generated) **About** and **Overview** Views.
 
 4. Click **Publish**.
 
-![Example Device View](media/inmarsat-pnp-devkit-view.png)
+![Example Device View](media/iotc-device-dashboard-pnp.png)
+
+## Device Provisioning (Manual)
+
+The recommended way to provision new devices is manually:
+
+1. Click **Devices**
+
+2. Click **New**
+
+3. Fill in the form:
+    1. **Device Name** can be something easily identifiable
+    e.g. `My Developer Kit`
+    2. **Device ID** must be unique containing your IDP modem serial number
+    (aka Mobile ID) e.g. `idpPnpKit-01234567MFR3EE3`
+    3. **Device Template** select your template
+    e.g. `Inmarsat PNP Developer Kit`
+    4. Click **Create**
+
+    ![Create a new device](media/iotc-device-provisioning-manual.png)
 
 ## Device Auto-provisioning
 

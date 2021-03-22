@@ -205,7 +205,7 @@ module.exports = {
 /* Comment this line to test
 (async () => {
   try {
-    await updateDeviceTemplates();
+    await updateDeviceTemplates(console);
     console.log(await listDeviceTemplates());
   } catch (e) {
     console.log(e.stack);

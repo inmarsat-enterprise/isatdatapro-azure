@@ -165,6 +165,17 @@
         "@context": "http://azureiot.com/v1/contexts/IoTModel.json",
         "contents": [
           {
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:properties:version:1",
+            "@type": [
+              "Property"
+            ],
+            "displayName": {
+              "en": "App Version"
+            },
+            "name": "appVersion",
+            "schema": "string"
+          },
+          {
             "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:properties:reportInterval:1",
             "@type": [
               "Property"
@@ -174,7 +185,9 @@
             },
             "name": "reportInterval",
             "unit": "second",
-            "writable": true,
+            "writable": false,
+            "comment": "Set using *Set Properties* command",
+            "description": "Valid range [0..86400] seconds.",
             "schema": "integer"
           },
           {
@@ -186,8 +199,10 @@
               "en": "QoS Measurement Interval"
             },
             "name": "qosInterval",
+            "comment": "Set using *Set Properties* command",
+            "description": "Valid range [0..86400] seconds.",
             "unit": "second",
-            "writable": true,
+            "writable": false,
             "schema": "integer"
           },
           {
@@ -309,30 +324,62 @@
             "schema": "double"
           },
           {
-            "comment": "Command proxy using writable property",
-            "@id": "urn:inmarsat:idp:devKit:feuIdp:commands:getReport:1",
-            "@type": [
-              "Property"
-            ],
-            "writable": true,
+            "comment": "Offline command",
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:commands:reportGet:1",
+            "@type": "Command",
+            "durable": true,
+            "name": "commandReportGet",
             "displayName": {
-              "en": "Get Report (command)"
+              "en": "Get Report"
             },
-            "name": "commandGetReport",
-            "schema": "boolean"
+            "description": "Queries a location/SNR report and restarts the timer."
           },
           {
-            "comment": "Command proxy using writable property",
-            "@id": "urn:inmarsat:idp:devKit:feuIdp:commands:getConfig:1",
-            "@type": [
-              "Property"
-            ],
-            "writable": true,
+            "comment": "Offline command",
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:commands:configSet:1",
+            "@type": "Command",
+            "durable": true,
+            "name": "configSet",
             "displayName": {
-              "en": "Get Config (command)"
+              "en": "Set Properties"
             },
-            "name": "commandGetConfig",
-            "schema": "boolean"
+            "description": "Allows configuration of application settings.",
+            "request": {
+              "@type": "CommandPayload",
+              "name": "configProperties",
+              "displayName": "Configuration Properties",
+              "comment": "Interval valid range [0..86400] seconds.",
+              "schema": {
+                "@id": "urn:inmarsat:idp:devKit:feuIdp:commands:configSet:configProperties:1",
+                "@type": "Object",
+                "displayName": "Object",
+                "fields": [
+                  {
+                    "@id": "urn:inmarsat:idp:devKit:feuIdp:commands:configSet:configProperties:reportInterval:1",
+                    "name": "reportInterval",
+                    "displayName": "Reporting Interval",
+                    "schema": "integer"
+                  },
+                  {
+                    "@id": "urn:inmarsat:idp:devKit:feuIdp:commands:configSet:configProperties:qosInterval:1",
+                    "name": "qosInterval",
+                    "displayName": "QoS Measurement Interval",
+                    "schema": "integer"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "comment": "Offline command",
+            "@id": "urn:inmarsat:idp:devKit:feuIdp:commands:configGet:1",
+            "@type": "Command",
+            "durable": true,
+            "name": "configGet",
+            "displayName": {
+              "en": "Get Config"
+            },
+            "description": "Queries the current application configuration."
           }
         ]
       }

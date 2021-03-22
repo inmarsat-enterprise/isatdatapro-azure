@@ -3,10 +3,10 @@
  */
 'use strict';
 
-const singleIotHubTransport = require('azure-iot-device-mqtt').Mqtt;
+const IotHubTransport = require('azure-iot-device-mqtt').Mqtt;
 //const multiplexIotHubTransport = require('azure-iot-device-amqp').Amqp;
 const { Client, Message } = require('azure-iot-device');
-const singleProvisioningTransport = require('azure-iot-provisioning-device-mqtt').Mqtt;
+const IotDpsTransport = require('azure-iot-provisioning-device-mqtt').Mqtt;
 //const multiplexProvisioningTransport = require('azure-iot-provisioning-device-amqp').Amqp;
 const SymmetricKeySecurityClient = require('azure-iot-security-symmetric-key').SymmetricKeySecurityClient;
 const ProvisioningDeviceClient = require('azure-iot-provisioning-device').ProvisioningDeviceClient;
@@ -70,132 +70,100 @@ async function sendTelemetry(context, device, schema) {
 }
 
 /**
- * Updates writable properties with version
- * @param {Object} properties The reported properties
- * @param {number} version 
+ * Publishes an EventGrid event `CommandRequest` for orchestrator handling
+ * @param {Object} context Azure Function context for logging
+ * @param {Object} otaCommand An OTA command structure
+ * @param {string} [subject] Optional event subject to override default
+ * @returns {Object} An EventGrid event object
  */
-function updateWritableProperties(properties, version) {
-  const patch = Object.assign({}, properties);
-  for (const propName in properties) {
-    if (typeof(properties[propName]) === 'object') {
-      patch[propName].av = version;
-    }
-  }
-  return patch;
+function commandRequest(context, otaCommand, subject) {
+  return {
+    id: uuid(),
+    subject: subject || `OTA command for ${otaCommand.mobileId}`,
+    dataVersion: '2.0',
+    eventType: 'CommandRequest',
+    data: otaCommand,
+    eventTime: new Date().toISOString()
+  };
 }
 
 /**
- * Updates a SatelliteGateway
+ * Processes an offline command to populate a `commandRequest`
  * @param {Object} context The Azure Function context for logging
- * @param {Object} device The Satellite Gateway modeled as a device 
- * @param {Object} [device.properties] Optional properties to update
- * @param {string} [device.properties.name]
- * @param {string} [device.properties.url]
- * @param {Object} twin The satelliteGateway twin obtained from the IoT Hub
+ * @param {Object} device The device the command is being sent to
+ * @param {Object} msg An IoT Hub offline cloud-to-device message
  */
-async function updateSatelliteGateway(context, device, twin) {
-  context.log.warn(`Satellite Gateway update not yet supported...`);
-  return;
-  if (twin.properties.desired) {
-    if (twin.properties.desired['$version'] === 1) {
-      if (twin.properties.reported.$version > 1) {
-        context.log.warn(`${device.id}`
-            + ` $version=${twin.properties.reported.$version}`
-            + ` but requesting $version=1`);
-        return;
-      } else {
-        if (twin.properties.desired.name || twin.properties.desired.url) {
-          const event = {
-            id: uuid(),
-            subject: `Satellite Gateway update for ${device}`,
-            dataVersion: '2.0',
-            eventType: 'SatelliteGatewayUpdate',
-            data: {
-              name: twin.properties.desired.name,
-              url: twin.properties.desired.url,
-            },
-            eventTime: new Date().toISOString()
-          };
-          context.log.verbose(`Publishing ${JSON.stringify(event)}`);
-          context.bindings.outputEvent = event;
-        }
-      }
+function offlineCommand(context, device, msg) {
+  context.log.verbose(`Processing offline command ${JSON.stringify(msg)}`);
+  let commandName;
+  let decodedData;
+  const { messageId, expiryTimeUtc, lockToken, correlationId, userId } = msg;
+  if (!msg.properties) throw new Error('Command missing properties');
+  if (!msg.properties.propertyList) throw new Error('Command missing propertyList');
+  for (let i=0; i < msg.properties.propertyList.length; i++) {
+    if (msg.properties.propertyList[i].key === 'method-name') {
+      commandName = msg.properties.propertyList[i].value;
+      break;
     }
   }
-  if (device.properties) {
-    const version = twin.properties.reported.$version;
-    const err = await twin.properties.reported.update(
-        updateWritableProperties(device.properties, version));
-    if (err) context.log.error(err);
+  if (!commandName) throw new Error('No command name found');
+  if (commandName.includes(':')) {
+    const parts = commandName.split(':');
+    context.log.verbose(`Schema: ${JSON.stringify(parts)}`);
+    commandName = parts[parts.length - 1];
+  }
+  if (Buffer.isBuffer(msg.data)) {
+    decodedData = JSON.parse(msg.getData().toString());
+  } else {
+    decodedData = msg.getData();
+  }
+  try {
+    const otaCommand = Object.assign({ mobileId: device.mobileId },
+        device.lib.otaCommand(commandName, decodedData));
+    const subject = `Command ${commandName} to ${device.mobileId}`;
+    commandRequest(context, otaCommand, subject);
+  } catch (e) {
+    context.log.error(e.stack);
   }
 }
 
 /**
- * Updates a Mailbox 
- * @param {Object} context The Azure Function context for logging
- * @param {Object} device The Mailbox modeled as a device
- * @param {Object} [device.properties] Optional mailbox properties to update
- * @param {string} [device.properties.name] Mailbox name
- * @param {string} [device.properties.satelliteGatewayName] 
- * @param {string} [device.properties.mailboxId] Mailbox name
- * @param {string} [device.properties.accessId] Mailbox name
- * @param {string} [device.properties.password] Mailbox name
- * @param {Object} twin The mailbox twin obtained from the IoT Hub
+ * Sets up an Over-The-Air property write for the orchestrator.
+ * Returns a patch object for Azure device twin and EventGrid event object.
+ * @param {Object} context An Azure Function context for logging
+ * @param {Object} device The device metadata
+ * @param {string} propName The property name to write
+ * @param {*} propValue The value to write to the property
+ * @param {number} version The twin.desired.properties $version
+ * @returns {Object} {writePatch, event}
  */
-async function updateMailbox(context, device, twin) {
-  context.log.warn(`Mailbox updates not yet supported...`);
-  return;
-  if (twin.properties.desired) {
-    if (twin.properties.desired['$version'] === 1) {
-      if (twin.properties.reported.$version > 1) {
-        context.log.warn(`${device.id}`
-            + ` $version=${twin.properties.reported.$version}`
-            + ` but requesting $version=1`);
-        return;
-      } else {
-        if (twin.properties.desired.length > 1) {
-          const event = {
-            id: uuid(),
-            subject: `Mailbox data for ${twin.properties.desired.mailboxId}`,
-            dataVersion: '2.0',
-            eventType: 'MailboxUpdate',
-            data: {
-              name: twin.properties.desired.name,
-              satelliteGatewayName: twin.properties.desired.satelliteGatewayName,
-              mailboxId: twin.properties.desired.mailboxId,
-              accessId: twin.properties.desired.accessId,
-              password: twin.properties.desired.password,
-            },
-            eventTime: new Date().toISOString()
-          };
-          context.log.verbose(`Publishing ${JSON.stringify(event)}`);
-          context.bindings.outputEvent = event;
-        }
-      }
-    }
+function otaWriteProperty(context, device, propName, propValue, version) {
+  let patch = {};
+  let event;
+  try {
+    context.log.verbose(`Deriving write operation for ${propName}`);
+    const otaCommand = Object.assign({ mobileId: device.mobileId },
+        device.lib.writeProperty(propName, propValue, version));
+    context.log.verbose(`Triggering write ${propName} = ${propValue}`);
+    patch[propName] = {
+      value: propValue,
+      ad: 'pending OTA write',
+      ac: 202,
+      av: version,
+    };
+    const subject = `Set IOTC desired property` +
+        ` ${propName}=${propValue} for ${device.mobileId}`;
+    event = commandRequest(context, otaCommand, subject);
+  } catch (e) {
+    context.log.error(e.message);
+    patch[propName] = {
+      value: propValue,
+      ac: 400,
+      ad: e.message,
+      av: version
+    };
   }
-  if (device.properties) {
-    const version = twin.properties.reported.$version;
-    const err = await twin.properties.reported.update(
-        updateWritableProperties(device.properties, version));
-    if (err) context.log.error(err);
-  }
-}
-
-/**
- * A placeholder for offline (asynchronous) commands
- * @param {Object} context 
- * @param {Object} msg 
- */
-function offlineCommand(context, msg) {
-  context.log.verbose(`Processing ${JSON.stringify(msg)}`);
-  hubClient.complete(msg, function(err) {
-    if (err) {
-      context.log.error(err.stack);
-    } else {
-      context.log.warn('Command should be submitted');
-    }
-  });
+  return { writePatch: patch, event: event };
 }
 
 /**
@@ -209,31 +177,16 @@ function offlineCommand(context, msg) {
  */
 async function updateDevice(context, device, twin) {
   context.log.verbose(`Processing updates for device ${device.id}`);
-  let patch;
-  //: Not using twin.on('properties.desired') since it won't trigger immediate
-  if (twin.properties.desired) {
-    if (!device.model) {
-      throw new Error(`No device model defined for ${device.id}`);
-    }
-    const deviceModel = require('./deviceModels')[device.model];
-    patch = {};
-    const writableProperties = [];
-    const delta = Object.assign({}, twin.properties.desired);
-    context.log.verbose(`${device.id} desired property changes:`
-        + ` ${JSON.stringify(delta)}`);
-    if (delta['$version'] === 1) {
-      if (twin.properties.reported.$version > 1) {
-        context.log.warn(`${device.id}` +
-            ` $version=${twin.properties.reported.$version}` +
-            ` but requesting $version=1`);
-      }
+  let patch = {};
+  //: If no prior reported properties then initialize
+  if (twin.properties.desired.$version === 1) {
+    if (twin.properties.reported.$version <= 1) {
       context.log.info(`Initializing ${device.id} as ${device.model}`);
-      patch = deviceModel.initialize(device.mobileId);
-      context.log.verbose(`Patching ${JSON.stringify(patch)}`);
+      patch = device.lib.initialize(device.mobileId);
     }
-    //: Reported properties if writable are completed
-    //:  This functionality does not work for "trigger" commands the
-    //:  reported property does not overwrite the configuration "true" setting.
+  } else if (twin.properties.desired.$version > 1) {
+    let delta = twin.properties.desired;
+    //: Check for completed desired properties
     if (device.patch) {
       for (const propName in device.patch) {
         if (propName in delta) {
@@ -241,18 +194,18 @@ async function updateDevice(context, device, twin) {
           if (delta.$version !== device.patch[propName].av) {
             context.log.warn(`Version mismatch expected ${delta.$version}` +
                 ` got ${device.patch[propName].av}`);
+            patch[propName].av = delta.$version;
           }
-          //: TBD Remove reported property to avoid generating a new command
+          //: Remove from desired list to avoid generating a new command
           delete delta[propName];
           context.log.verbose(`Desired property ${propName}` +
               ` version ${delta.$version} completed`);
         }
       }
     }
+    context.bindings.outputEvent = [];
     for (const propName in delta) {
-      //: If writable in the device model get the OTA command setup
       if (propName === '$version') continue;
-      context.log.verbose(`Assessing desired change to ${propName}`);
       if (propName in twin.properties.reported &&
           twin.properties.reported[propName].value === delta[propName] &&
           twin.properties.reported[propName].av >= delta.$version) {
@@ -260,67 +213,16 @@ async function updateDevice(context, device, twin) {
             ` value: ${delta[propName]}`);
         continue;
       }
-      let writable;
-      try {
-        context.log.verbose(`Deriving write operation for ${propName}`);
-        writable = deviceModel.writeProperty(propName, delta[propName], delta.$version);
-      } catch (e) {
-        context.log.error(e.message);
-        patch[propName] = {
-          value: delta[propName],
-          ac: 400,
-          ad: e.message,
-          av: delta.$version
-        };
-      }
-      if (writable === null) {
-        patch[propName] = {
-          value: delta[propName],
-          ad: 'reset',
-          ac: 200,
-          av: delta.$version,
-        };
-      }
-      if (writable) {
-        if (twin.properties.reported[propName] &&
-            twin.properties.desired[propName] ===
-            twin.properties.reported[propName].value) {
-          context.log.verbose(`${device.id} ${propName} desired === reported` +
-              ` (skipping write)`);
-          continue;
-        }
-        context.log.verbose(`Triggering write ${propName} =` +
-            ` ${twin.properties.desired[propName]}`);
-        patch[propName] = {
-          value: delta[propName],
-          ad: 'triggered',
-          ac: 202,
-          av: delta.$version,
-        };
-        writable.mobileId = device.mobileId;
-        writableProperties.push(writable);
-      }
-    }
-    if (writableProperties.length > 0) {
-      context.log.verbose(`Processing ${writableProperties.length} OTA writes`);
-      context.bindings.outputEvent = [];
-      writableProperties.forEach(prop => {
-        context.log.verbose(`Processing command ${JSON.stringify(prop.command)}`);
-        //: publish event to EventGrid for orchestrator
-        const event = {
-          id: uuid(),
-          subject: `IOTC Desired property ${prop.property}=${prop.newValue}`
-              + ` for ${device.mobileId}`,
-          dataVersion: '2.0',
-          eventType: 'CommandRequest',
-          data: prop,
-          eventTime: new Date().toISOString()
-        };
+      const { writePatch, event } = otaWriteProperty(context, device,
+          propName, delta[propName], delta.$version);
+      patch = Object.assign(patch, writePatch);
+      if (event) {
         context.log.info(`Publishing ${JSON.stringify(event)} to EventGrid`);
         context.bindings.outputEvent.push(event);
-      });
+      }
     }
-  };
+  }
+  //: Update read-only and writable properties
   if (device.reportedProperties || patch) {
     const update = Object.assign({}, device.reportedProperties, patch);
     for (const prop in update) {
@@ -335,34 +237,18 @@ async function updateDevice(context, device, twin) {
           (err ? `; error: ${err.toString()}` : ` status: success`));
     }
   }
-  if (device.extraPatch) {
-    const extraPatch = device.extraPatch;
-    const err = await twin.properties.reported.update(extraPatch);
-    context.log(`Special patch ${device.id} ${JSON.stringify(extraPatch)}` +
-        (err ? `; error: ${err.toString()}` : ` status: success`));
-  }
 }
 
 /**
- * 
- * @param {Object} context 
- * @param {Object} device
- * @param {Object} [device.properties]
+ * Gets the device twin from IoT Hub and updates it
+ * @param {Object} context Azure Function context for logging
+ * @param {Object} device Device metadata
  */
 async function handleTwin(context, device) {
   try {
     context.log.verbose(`Getting IoT Hub Twin for ${device.id}`);
     const twin = await hubClient.getTwin();
-    if (device.model.includes('satelliteGateway')) {
-      updateSatelliteGateway(context, device, twin);
-      //: Checking for new or configuration change of API
-    } else if (device.model.includes('mailbox')) {
-      updateMailbox(context, device, twin);
-      //: Checking for new or configuration change credentials
-    } else {
-      //: Actual device
-      await updateDevice(context, device, twin);
-    }
+    await updateDevice(context, device, twin);
   } catch (e) {
     context.log.error(e.stack);
   }
@@ -376,7 +262,8 @@ async function handleTwin(context, device) {
  * @param {string} device.model The device model
  * @param {string} device.mobileId The unique IDP modem identifier
  * @param {Object} [device.telemetry] A set of telemetry
- * @param {Object} [device.properties] A set of reported properties
+ * @param {Object} [device.reportedProperties] A set of reported properties
+ * @param {Object} [device.patch] Delayed property write updates
  * @param {string} [device.timestamp] ISO8601 compliant timestamp
  */
 async function azureIotDeviceBridge(context, device) {
@@ -389,6 +276,10 @@ async function azureIotDeviceBridge(context, device) {
         ` may contain '-', '.', '_', ':'` +
         ` where the last character must be alphanumeric or hyphen.`);
   }
+  if (!device.model) {
+    throw new Error(`No device model defined for ${device.id}`);
+  }
+  device.lib = require('./deviceModels')[device.model];
   const registrationId = device.id;
   context.log.verbose(`Getting device ${device.id} SAS key`);
   const deviceSasKey = await getDeviceKey(registrationId);
@@ -399,7 +290,7 @@ async function azureIotDeviceBridge(context, device) {
   const provisioningClient = await ProvisioningDeviceClient.create(
       provisioningHost,
       idScope,
-      new singleProvisioningTransport(),
+      new IotDpsTransport(),
       provisioningSecurityClient);
   context.log.verbose(`Registering provisioning client`);
   const result = await provisioningClient.register();
@@ -408,12 +299,24 @@ async function azureIotDeviceBridge(context, device) {
       `;DeviceId=${result.deviceId}` +
       `;SharedAccessKey=${deviceSasKey}`;
   context.log.verbose(`Connecting to IoT Hub ${result.assignedHub}`);
-  hubClient = Client.fromConnectionString(connectionString, singleIotHubTransport);
-  await hubClient.open();
+  hubClient = Client.fromConnectionString(connectionString, IotHubTransport);
+  //: Prepare to receive offline commands
   hubClient.on('message', function(msg) {
     context.log.verbose(`Received offline command ${JSON.stringify(msg)}`);
-    offlineCommand(context, msg);
+    const commandResult = offlineCommand(context, device, msg);
+    hubClient.complete(msg, function(err) {
+      if (err) {
+        context.log.error(`Command complete error: ${err.toString()}`);
+      } else {
+        context.log.info('Command ' + commandResult ? 'succeeded' : 'failed');
+      }
+    });
   });
+  //: Automated provisioning if modelId is known
+  // if (device.modelId) {
+  //   hubClient.setOptions({ modelId: device.modelId });
+  // }
+  await hubClient.open();
   if (device.telemetry) await sendTelemetry(context, device);
   await handleTwin(context, device);
   await hubClient.close();

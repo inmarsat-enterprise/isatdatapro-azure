@@ -1,16 +1,6 @@
 const commonMessageFormat = require('../../codecCommonMessageFormat');
 const { round } = require('../../utilities');
 
-const writableProperties = [
-  'wakeupPeriod',
-  'commandPingModem',
-  'commandGetLocation',
-  'commandReset',
-  'txMute',
-  'commandGetBroadcastIds',
-  'commandGetConfiguration',
-];
-
 function initialize(mobileId) {
   const initialReport = {
     idpMobileId: mobileId,
@@ -21,45 +11,33 @@ function initialize(mobileId) {
     //broadcastIdCount: 0,
     //location: null,
     idpOperatorAccessLevel: 0,
+    idpUserAccessLevel: 0,
     //lastRxMsgTime: '',
     //lastRegistrationTime: '',
     //satelliteRegion: '',
     idpLastResetReason: 0,
     idpWakeupPeriod: {
-      value: 0,
+      'value': 0,
+      'av': 0,
+      'ac': 200,
+      'ad': 'default'
     },
-    idpBroadcastIds: {
-      value: {},
-    },
+    idpBroadcastIds: {},
     idpTxMute: {
-      value: false,
-    },
-    idpCommandReset: {
-      value: -1,
-    },
-    idpCommandPingModem: {
-      value: false,
-    },
-    idpCommandGetLocation: {
-      value: false,
-    },
-    idpCommandGetBroadcastIds: {
-      value: false,
-    },
-    idpCommandGetConfiguration: {
-      value: false,
+      'value': false,
+      'av': 0,
+      'ac': 200,
+      'ad': 'default'
     },
   };
-  for (const writable in initialReport) {
-    if (writable === 'broadcastIds') {
-      for (let i=0; i < 16; i++) {
-        initialReport[writable].value[i] = 0;
-      }
-    }
-    if (writableProperties.includes(writable)) {
-      initialReport[writable].ac = 200;
-      initialReport[writable].av = 1;
-    }
+  for (let i=0; i < 16; i++) {
+    const index = `index${i}`;
+    initialReport.idpBroadcastIds[index] = {
+      'value': 0,
+      'av': 0,
+      'ac': 200,
+      'ad': 'default'
+    };
   }
   return initialReport;
 }
@@ -106,60 +84,73 @@ function writeProperty(propName, propValue, version) {
         }
       };
       break;
+    default:
+      throw new Error(`Property ${propName} not writable by idpDefault`);
+  }
+  return otaMessage;
+}
+
+function otaCommand(commandName, data) {
+  let otaMessage = {};
+  switch (commandName) {
     case 'idpCommandReset':
+      const resetType = parseInt(data);
       otaMessage.command = {
-        modemCommand: {
-          command: 'reset',
-          params: `${propValue}`,
+        payloadJson: {
           codecServiceId: 0,
           codecMessageId: 68,
+          fields: [
+            {
+              name: 'resetType',
+              stringValue: resetType.toString()
+            }
+          ]
         }
       };
-      otaMessage.completion.resetValue = 0;
       break;
     case 'idpCommandPingModem':
-      if (propValue === false) return null;
+      const d = new Date();
+      const pingTime = ((d.getUTCHours() * 3600 + d.getUTCMinutes() * 60 +
+          d.getUTCSeconds()) % 65535);  
       otaMessage.command = {
-        modemCommand: {
-          command: 'ping',
+        payloadJson: {
           codecServiceId: 0,
           codecMessageId: 112,
+          fields: [
+            {
+              name: 'requestTime',
+              stringValue: pingTime.toString()
+            }
+          ]
         }
       };
-      otaMessage.completion.resetValue = false;
       break;
     case 'idpCommandGetLocation':
       otaMessage.command = {
-        modemCommand: {
-          command: 'getLocation',
+        payloadJson: {
           codecServiceId: 0,
-          codecMessageId: 72,
+          codecMessageId: 72
         }
       };
-      otaMessage.completion.resetValue = false;
       break;
     case 'idpCommandGetBroadcastIds':
       otaMessage.command = {
-        modemCommand: {
-          command: 'getBroadcastIds',
+        payloadJson: {
           codecServiceId: 0,
-          codecMessageId: 115,
+          codecMessageId: 115
         }
       };
-      otaMessage.completion.resetValue = false;
       break;
     case 'idpCommandGetConfiguration':
       otaMessage.command = {
-        modemCommand: {
-          command: 'getConfiguration',
+        payloadJson: {
           codecServiceId: 0,
-          codecMessageId: 97,
+          codecMessageId: 97
         }
       };
-      otaMessage.completion.resetValue = false;
       break;
     default:
-      throw new Error(`Property ${propName} not writable by idpDefault`);
+      throw new Error(`No command defined for ${commandName}`);
   }
   return otaMessage;
 }
@@ -303,7 +294,12 @@ function parseGenericIdp(context, message) {
           break;
         case 115:
           //console.log(`${JSON.stringify(telemetry)}`);
-          reportedProperties.idpBroadcastIds = telemetry.broadcastIds;
+          reportedProperties.idpBroadcastIds = {};
+          for (let i=0; i < 16; i++) {
+            const index = `index${i}`;
+            const broadcastId = telemetry.broadcastIds[i][0].value;
+            reportedProperties.idpBroadcastIds[index] = broadcastId
+          }
           telemetry = undefined;
           break;
       }
@@ -314,8 +310,7 @@ function parseGenericIdp(context, message) {
 
 module.exports = {
   parse: parseGenericIdp,
-  //parseGenericIdp,
   writeProperty,
-  writableProperties,
+  otaCommand,
   initialize,
 };

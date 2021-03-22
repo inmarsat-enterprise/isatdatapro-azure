@@ -11,17 +11,19 @@ function initialize(mobileId) {
     osName: 'Raspberry Pi OS',
     processorArchitecture: 'ARMv6',
     processorManufacturer: 'Broadcom',
-    totalStorage: 16,
-    totalMemory: 512,
+    // totalStorage: 16,
+    // totalMemory: 512,
     reportInterval: {
-      value: 900,
-      ac: 200,
-      av: 1
+      'value': 900,
+      'ac': 200,
+      'av': 0,
+      'ad': 'default'
     },
     qosInterval: {
-      value: 60,
-      ac: 200,
-      av: 1
+      'value': 60,
+      'ac': 200,
+      'av': 0,
+      'ad': 'default'
     }
   };
   return Object.assign({}, patch, idpDefault.initialize(mobileId));
@@ -42,43 +44,6 @@ function writeProperty(propName, propValue, version) {
     }
   };
   switch (propName) {
-    case 'commandReportGet':
-      otaMessage.command = {
-        payloadJson: {
-          codecServiceId: 255,
-          codecMessageId: 1,
-        }
-      };
-      otaMessage.completion.value = true;
-      otaMessage.completion.resetValue = false;
-      break;
-    case 'configSet':
-      otaMessage.command = {
-        payloadJson: {
-          codecServiceId: 255,
-          codecMessageId: 2,
-          fields: []
-        }
-      };  
-      if (propValue.reportInterval) {
-        if (propValue.reportInterval < 0 || propValue.reportInterval > 86400) {
-          throw new Error(`reportInterval must be in range [0..86400]`);
-        }
-        otaMessage.command.payloadJson.fields.push({
-          name: 'reportInterval',
-          stringValue: `${propValue.reportInterval}`
-        });
-      }
-      if (propValue.qosInterval) {
-        if (propValue.qosInterval < 0 || propValue.qosInterval > 86400) {
-          throw new Error(`qosInterval must be in range [0..86400]`);
-        }
-        otaMessage.command.payloadJson.fields.push({
-          name: 'qosInterval',
-          stringValue: `${propValue.qosInterval}`
-        });
-      }
-      break;
     case 'textMobileTerminated':
       otaMessage.command = {
         payloadJson: {
@@ -94,6 +59,60 @@ function writeProperty(propName, propValue, version) {
       };
       otaMessage.completion.value = propValue;
       break;
+    default:
+      throw new Error(`Property ${propName} not writable via satellite`);
+  }
+  return otaMessage;
+}
+
+function otaCommand(commandName, data) {
+  try {
+    return idpDefault.otaCommand(commandName, data);
+  } catch (e) {
+    if (!(e.message.includes('defined'))) {
+      throw e;
+    }
+  }
+  let otaMessage = {};
+  switch (commandName) {
+    case 'commandReportGet':
+    case 'reportGet':
+      otaMessage.command = {
+        payloadJson: {
+          codecServiceId: 255,
+          codecMessageId: 1,
+        }
+      };
+      break;
+    case 'commandConfigSet':
+    case 'configSet':
+      otaMessage.command = {
+        payloadJson: {
+          codecServiceId: 255,
+          codecMessageId: 2,
+          fields: []
+        }
+      };
+      if (data.reportInterval) {
+        if (data.reportInterval < 0 || data.reportInterval > 86400) {
+          throw new Error(`reportInterval must be in range [0..86400]`);
+        }
+        otaMessage.command.payloadJson.fields.push({
+          name: 'reportInterval',
+          stringValue: data.reportInterval.toString()
+        });
+      }
+      if (data.qosInterval) {
+        if (data.qosInterval < 0 || data.qosInterval > 86400) {
+          throw new Error(`qosInterval must be in range [0..86400]`);
+        }
+        otaMessage.command.payloadJson.fields.push({
+          name: 'qosInterval',
+          stringValue: data.qosInterval.toString()
+        });
+      }
+      break;
+    case 'commandConfigGet':
     case 'configGet':
       otaMessage.command = {
         payloadJson: {
@@ -101,11 +120,9 @@ function writeProperty(propName, propValue, version) {
           codecMessageId: 4,
         }
       };
-      otaMessage.completion.value = true;
-      otaMessage.completion.resetValue = false;
       break;
     default:
-      throw new Error(`Property ${propName} not writable via satellite`);
+      throw new Error(`No command defined for ${commandName}`);
   }
   return otaMessage;
 }
@@ -159,5 +176,6 @@ function parsePnpDevkit(context, message) {
 module.exports = {
   parse: parsePnpDevkit,
   writeProperty,
+  otaCommand,
   initialize,
 };

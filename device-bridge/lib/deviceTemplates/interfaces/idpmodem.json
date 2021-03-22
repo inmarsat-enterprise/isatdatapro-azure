@@ -79,7 +79,7 @@
           "Property"
         ],
         "displayName": {
-          "en": "Active Broadcast Groups"
+          "en": "Broadcast Groups Subscribed Count"
         },
         "name": "idpBroadcastIdCount",
         "schema": "integer"
@@ -364,8 +364,8 @@
           "en": "Broadcast Groups"
         },
         "name": "idpBroadcastIds",
-        "comment": "Should be writable but is a restricted operation",
-        "writable": false,
+        "comment": "Should be Array type but not supported in IOT Central",
+        "writable": true,
         "schema": {
           "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:1",
           "@type": [
@@ -544,6 +544,17 @@
         "schema": "integer"
       },
       {
+        "@id": "urn:inmarsat:idp:ut:properties:idpUserAccessLevel:1",
+        "@type": [
+          "Property"
+        ],
+        "displayName": {
+          "en": "User Access Level"
+        },
+        "name": "idpUserAccessLevel",
+        "schema": "integer"
+      },
+      {
         "@id": "urn:inmarsat:idp:ut:properties:idpLastRxMsgTime:1",
         "@type": [
           "Property"
@@ -674,125 +685,111 @@
         "schema": "dateTime"
       },
       {
-        "comment": "Command proxy using writable property",
+        "comment": "Offline command",
         "@id": "urn:inmarsat:idp:ut:commands:reset:1",
-        "@type": [
-          "Property"
-        ],
+        "@type": "Command",
+        "durable": true,
         "name": "idpCommandReset",
         "displayName": {
-          "en": "Reset IDP Modem (command)"
+          "en": "Reset IDP Modem"
         },
-        "writable": true,
-        "schema": {
-          "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:1",
-          "@type": [
-            "Enum"
-          ],
-          "displayName": "Reset Type",
+        "description": "Resets the satellite modem and/or asserts external reset output",
+        "request": {
+          "@type": "CommandPayload",
           "name": "resetType",
-          "valueSchema": "integer",
-          "enumValues": [
-            {
-              "comment": "Command proxy reset value",
-              "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:none:1",
-              "@type": [
-                "EnumValue"
-              ],
-              "displayName": "None",
-              "enumValue": -1,
-              "name": "none"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:modemPreserve:1",
-              "@type": [
-                "EnumValue"
-              ],
-              "displayName": "Modem Preserve",
-              "enumValue": 0,
-              "name": "modemPreserve"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:modemFlush:1",
-              "@type": [
-                "EnumValue"
-              ],
-              "displayName": "Modem Flush",
-              "enumValue": 1,
-              "name": "modemFlush"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:terminalModemPreserve:1",
-              "@type": [
-                "EnumValue"
-              ],
-              "displayName": "Terminal Modem Preserve",
-              "enumValue": 2,
-              "name": "terminalModemPreserve"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:terminalModemFlush:1",
-              "@type": [
-                "EnumValue"
-              ],
-              "displayName": "Terminal Modem Flush",
-              "enumValue": 3,
-              "name": "terminalModemFlush"
-            }
-          ]
+          "displayName": {
+            "en": "Reset Type"
+          },
+          "description": "Preserve or Flush transmit queue; Modem and/or External (Terminal)",
+          "schema": {
+            "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:1",
+            "@type": "Enum",
+            "displayName": "Enum",
+            "valueSchema": "integer",
+            "enumValues": [
+              {
+                "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:modemPreserve:1",
+                "@type": [
+                  "EnumValue"
+                ],
+                "displayName": "Modem Preserve",
+                "enumValue": 0,
+                "name": "modemPreserve"
+              },
+              {
+                "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:modemFlush:1",
+                "@type": [
+                  "EnumValue"
+                ],
+                "displayName": "Modem Flush",
+                "enumValue": 1,
+                "name": "modemFlush"
+              },
+              {
+                "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:terminalModemPreserve:1",
+                "@type": [
+                  "EnumValue"
+                ],
+                "displayName": "Terminal",
+                "enumValue": 2,
+                "name": "terminalModemPreserve"
+              },
+              {
+                "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:terminalModemFlush:1",
+                "@type": [
+                  "EnumValue"
+                ],
+                "displayName": "Terminal and Modem Flush",
+                "enumValue": 3,
+                "name": "terminalModemFlush"
+              }
+            ]
+          }
         }
       },
       {
-        "comment": "Command proxy using writable property",
+        "comment": "Offline command",
         "@id": "urn:inmarsat:idp:ut:commands:pingModem:1",
-        "@type": [
-          "Property"
-        ],
-        "writable": true,
-        "displayName": {
-          "en": "Ping IDP Modem (command)"
-        },
+        "@type": "Command",
+        "durable": true,
         "name": "idpCommandPingModem",
-        "schema": "boolean"
+        "displayName": {
+          "en": "Ping IDP Modem"
+        },
+        "description": "Sends a simple command to solicit a response with latency information."
       },
       {
-        "comment": "Command proxy using writable property",
+        "comment": "Offline command",
         "@id": "urn:inmarsat:idp:ut:commands:getLocation:1",
-        "@type": [
-          "Property"
-        ],
-        "writable": true,
-        "displayName": {
-          "en": "Get IDP Modem Location (command)"
-        },
+        "@type": "Command",
+        "durable": true,
         "name": "idpCommandGetLocation",
-        "schema": "boolean"
+        "displayName": {
+          "en": "Get IDP Modem Location"
+        },
+        "description": "Solicits the modem's location using its built-in GNSS."
       },
       {
-        "comment": "Command proxy using writable property",
+        "comment": "Offline command",
         "@id": "urn:inmarsat:idp:ut:commands:getBroadcastIds:1",
-        "@type": [
-          "Property"
-        ],
-        "writable": true,
-        "displayName": {
-          "en": "List IDP Modem Broadcast Groups (command)"
-        },
+        "@type": "Command",
+        "durable": true,
         "name": "idpCommandGetBroadcastIds",
-        "schema": "boolean"
+        "displayName": {
+          "en": "List IDP Modem Broadcast Groups"
+        },
+        "description": "Queries the modem's subscribed broadcast IDs."
       },
       {
-        "comment": "Command proxy using writable property",
+        "comment": "Offline command",
         "@id": "urn:inmarsat:idp:ut:commands:getConfiguration:1",
-        "@type": [
-          "Property"
-        ],
-        "writable": true,
-        "displayName": {
-          "en": "Get IDP Modem Configuration (command)"
-        },
+        "@type": "Command",
+        "durable": true,
         "name": "idpCommandGetConfiguration",
-        "schema": "boolean"
+        "displayName": {
+          "en": "Get IDP Modem Configuration"
+        },
+        "description": "Queries the modem's current configuration set."
       }
     ]
   }

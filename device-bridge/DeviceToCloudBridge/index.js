@@ -53,6 +53,7 @@ module.exports = async function (context, eventGridEvent) {
         device = await getDeviceMeta(data.mobileId);
         if (!device.model) {
           context.log.warn(`Device not provisioned: using idpDefault model`);
+          //TODO: Trigger a workflow for operator to manually provision device
           device.model = 'idpDefault';
         }
         if (!device.id) {
@@ -77,14 +78,8 @@ module.exports = async function (context, eventGridEvent) {
           ac: 'commandDeliveredTime' in data ? 200 : 500,
           av: data.completion.av,
         };
-        if ('resetValue' in data.completion) {
-          context.log.warn('Proxy command reset not currently functional');
-          // device.extraPatch = {};
-          // device.extraPatch[data.completion.property] =
-          //     data.completion.resetValue;
-        }
         break;
-
+      /* TODO: future manage mailboxes and satellite message gateway via IOTC
       case 'MailboxQuery':
       case 'SatelliteGatewayQuery':
         device = await getDeviceMeta(eventGridEvent.data.name);
@@ -100,6 +95,7 @@ module.exports = async function (context, eventGridEvent) {
           }
         }
         break;
+        */
       default:
         throw new Error(`Unsupported event ${eventGridEvent.eventType}`);
     }
