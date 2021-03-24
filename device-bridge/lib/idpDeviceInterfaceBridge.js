@@ -110,18 +110,21 @@ function offlineCommand(context, device, msg) {
   if (commandName.includes(':')) {
     const parts = commandName.split(':');
     context.log.verbose(`Schema: ${JSON.stringify(parts)}`);
+    // const componentName = parts[0];
     commandName = parts[parts.length - 1];
   }
-  if (Buffer.isBuffer(msg.data)) {
+  try {
     decodedData = JSON.parse(msg.getData().toString());
-  } else {
-    decodedData = msg.getData();
+  } catch (e) {
+    decodedData = msg.getData().toString();
   }
   try {
     const otaCommand = Object.assign({ mobileId: device.mobileId },
         device.lib.otaCommand(commandName, decodedData));
     const subject = `Command ${commandName} to ${device.mobileId}`;
-    commandRequest(context, otaCommand, subject);
+    const event = commandRequest(context, otaCommand, subject);
+    context.log.info(`Publishing ${JSON.stringify(event)} to EventGrid`);
+    context.bindings.outputEvent.push(event);
   } catch (e) {
     context.log.error(e.stack);
   }
@@ -203,7 +206,6 @@ async function updateDevice(context, device, twin) {
         }
       }
     }
-    context.bindings.outputEvent = [];
     for (const propName in delta) {
       if (propName === '$version') continue;
       if (propName in twin.properties.reported &&
@@ -279,6 +281,7 @@ async function azureIotDeviceBridge(context, device) {
   if (!device.model) {
     throw new Error(`No device model defined for ${device.id}`);
   }
+  context.bindings.outputEvent = [];
   device.lib = require('./deviceModels')[device.model];
   const registrationId = device.id;
   context.log.verbose(`Getting device ${device.id} SAS key`);

@@ -46,16 +46,18 @@ async function testCleanup(context, client, instances) {
     if ((instanceId.includes('-undefined-') ||
         instanceId.includes('-null-') ||
         age > MAX_AGE_SECONDS) &&
-        runtimeStatus !== 'Terminated') {
+        runtimeStatus === 'Running') {
       await client.terminate(instanceId, 'Test Mode');
       let newRuntimeStatus = runtimeStatus;
       while (newRuntimeStatus !== 'Terminated') {
+        await new Promise(resolve => setTimeout(resolve, 5000));
         newRuntimeStatus = await client.getStatus(instanceId);
       }
       context.log.warn(`Terminated instance ${instanceId}`);
       terminated++;
-    } else if (runtimeStatus === 'Terminated') {
-      context.log.verbose(`Found terminated instance ${instanceId}`);
+    } else if (runtimeStatus === 'Terminated' ||
+          runtimeStatus === 'Completed') {
+      context.log.verbose(`Found ${runtimeStatus} instance ${instanceId}`);
       terminated++;
     }
   }
@@ -84,9 +86,10 @@ module.exports = async function (context, eventGridEvent) {
       const { codecServiceId, codecMessageId } = getCodecIds(data);
       // TODO: add commandVersion, avoid repeating same version even if terminated
       instanceId = `otaCommand-${data.mobileId}` +
-          `-${codecServiceId}-${codecMessageId}`;
-      if (data.commandVersion) instanceId += `-${data.commandVersion}`;
-      //: work around terminated instances bug by flushing history
+          `-${codecServiceId}-${codecMessageId}` +
+          `-${eventGridEvent.id}`;
+      //: work around terminated instances bug by flushing history related to
+      // https://github.com/Azure/azure-functions-durable-extension/issues/1193
       let instances = await clientGetStatusAll(context, client);
       if (testMode) {
         await testCleanup(context, client, instances);
