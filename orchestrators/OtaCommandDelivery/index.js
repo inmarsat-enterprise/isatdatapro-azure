@@ -12,29 +12,33 @@ const failedStates = [
 const completedStates = successStates.concat(failedStates);
 
 module.exports = async function (context, eventGridEvent) {
-  const funcName = getFunctionName(__filename);
-  if (eventGridEvent.eventType === 'ForwardMessageStateChange') {
-    const { messageId, newState } = eventGridEvent.data;
-    if (completedStates.includes(newState)) {
-      context.log.verbose(`${funcName} received forward message ${messageId}`
-          + ` with state ${newState}`);
-      const client = df.getClient(context);
-      //: work around terminated instances bug by flushing history
-      let instances = await clientGetStatusAll(context, client);
-      for (let i=0; i < instances.length; i++) {
-        if (instances[i].customStatus.messageId &&
-            instances[i].customStatus.messageId === messageId) {
-          const eventData = {
-            success: successStates.includes(newState) ? true : false,
-            deliveryTime: eventGridEvent.data.stateTimeUtc,
-          };
-          context.log.verbose(`${funcName} raising event CommandDelivered with`
-              + ` ${JSON.stringify(eventData)}`);
-          await client.raiseEvent(instances[i].instanceId, 'CommandDelivered',
-              eventData);
-          break;
+  try {
+    const funcName = getFunctionName(__filename);
+    if (eventGridEvent.eventType === 'ForwardMessageStateChange') {
+      const { messageId, newState } = eventGridEvent.data;
+      if (completedStates.includes(newState)) {
+        context.log.verbose(`${funcName} received forward message ${messageId}`
+            + ` with state ${newState}`);
+        const client = df.getClient(context);
+        //: work around terminated instances bug by flushing history
+        let instances = await clientGetStatusAll(context, client);
+        for (let i=0; i < instances.length; i++) {
+          if (instances[i].customStatus.messageId &&
+              instances[i].customStatus.messageId === messageId) {
+            const eventData = {
+              success: successStates.includes(newState) ? true : false,
+              deliveryTime: eventGridEvent.data.stateTimeUtc,
+            };
+            context.log.verbose(`${funcName} raising event CommandDelivered with`
+                + ` ${JSON.stringify(eventData)}`);
+            await client.raiseEvent(instances[i].instanceId, 'CommandDelivered',
+                eventData);
+            break;
+          }
         }
       }
     }
+  } catch (e) {
+    context.log.error(e.toString());
   }
 };

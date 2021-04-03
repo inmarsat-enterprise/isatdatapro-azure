@@ -69,6 +69,11 @@ function writeProperty(propName, propValue, version) {
           ]
         }
       };
+      otaMessage.completion.value = propValue;
+      otaMessage.completion.response = {
+        codecServiceId: 0,
+        codecMessageId: 70,
+      };
       break;
     case 'idpTxMute':
       otaMessage.command = {
@@ -83,6 +88,7 @@ function writeProperty(propName, propValue, version) {
           ]
         }
       };
+      otaMessage.completion.value = propValue;
       break;
     default:
       throw new Error(`Property ${propName} not writable by idpDefault`);

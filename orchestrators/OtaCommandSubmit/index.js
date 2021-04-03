@@ -26,17 +26,23 @@ function buildSubmission(data) {
 }
 
 module.exports = async function (context, data) {
-  const funcName = getFunctionName(__filename);
-  const submissionId = testMode ? 1 : uuid();
-  const event = {
-    id: uuid(),
-    subject: `Submit forward message ${submissionId} to ${data.mobileId}`,
-    dataVersion: '2.0',
-    eventType: 'NewForwardSubmission',
-    data: Object.assign({ submissionId: submissionId }, buildSubmission(data)),
-    eventTime: new Date().toISOString()
-  };
-  context.log.verbose(`${funcName} publishing ${JSON.stringify(event)}`);
-  context.bindings.outputEvent = event;
-  return submissionId;
+  try {
+    const funcName = getFunctionName(__filename);
+    const submissionId = data.otaCommandId;
+    const event = {
+      id: uuid(),
+      subject: `Submit forward message ${submissionId} to ${data.mobileId}`,
+      dataVersion: '2.0',
+      eventType: 'NewForwardSubmission',
+      data: Object.assign({ submissionId: submissionId }, buildSubmission(data)),
+      eventTime: new Date().toISOString()
+    };
+    context.log.verbose(`${funcName} publishing ${JSON.stringify(event)}`);
+    if (!testMode) {
+      context.bindings.outputEvent = event;
+    }
+    return submissionId;
+  } catch (e) {
+    context.log.error(e.toString());
+  }
 };

@@ -74,17 +74,18 @@ async function sendTelemetry(context, device, schema) {
  * @param {Object} context Azure Function context for logging
  * @param {Object} otaCommand An OTA command structure
  * @param {string} [subject] Optional event subject to override default
- * @returns {Object} An EventGrid event object
  */
 function commandRequest(context, otaCommand, subject) {
-  return {
+  const event = {
     id: uuid(),
     subject: subject || `OTA command for ${otaCommand.mobileId}`,
     dataVersion: '2.0',
-    eventType: 'CommandRequest',
+    eventType: 'OtaCommandRequest',
     data: otaCommand,
     eventTime: new Date().toISOString()
   };
+  context.log.info(`Publishing ${JSON.stringify(event)} to EventGrid`);
+  context.bindings.outputEvent.push(event);
 }
 
 /**
@@ -122,9 +123,14 @@ function offlineCommand(context, device, msg) {
     const otaCommand = Object.assign({ mobileId: device.mobileId },
         device.lib.otaCommand(commandName, decodedData));
     const subject = `Command ${commandName} to ${device.mobileId}`;
-    const event = commandRequest(context, otaCommand, subject);
-    context.log.info(`Publishing ${JSON.stringify(event)} to EventGrid`);
-    context.bindings.outputEvent.push(event);
+    commandRequest(context, otaCommand, subject);
+    hubClient.complete(msg, function(err) {
+      if (err) {
+        context.log.error(`IoT Hub Client complete error ${JSON.stringify(err)}`);
+      } else {
+        context.log.info(`IoT Hub Client completed offline command`);
+      }
+    });
   } catch (e) {
     context.log.error(e.stack);
   }
@@ -138,11 +144,10 @@ function offlineCommand(context, device, msg) {
  * @param {string} propName The property name to write
  * @param {*} propValue The value to write to the property
  * @param {number} version The twin.desired.properties $version
- * @returns {Object} {writePatch, event}
+ * @returns {Object} property patch for write operation
  */
 function otaWriteProperty(context, device, propName, propValue, version) {
   let patch = {};
-  let event;
   try {
     context.log.verbose(`Deriving write operation for ${propName}`);
     const otaCommand = Object.assign({ mobileId: device.mobileId },
@@ -156,7 +161,7 @@ function otaWriteProperty(context, device, propName, propValue, version) {
     };
     const subject = `Set IOTC desired property` +
         ` ${propName}=${propValue} for ${device.mobileId}`;
-    event = commandRequest(context, otaCommand, subject);
+    commandRequest(context, otaCommand, subject);
   } catch (e) {
     context.log.error(e.message);
     patch[propName] = {
@@ -166,7 +171,7 @@ function otaWriteProperty(context, device, propName, propValue, version) {
       av: version
     };
   }
-  return { writePatch: patch, event: event };
+  return patch;
 }
 
 /**
@@ -201,27 +206,30 @@ async function updateDevice(context, device, twin) {
           }
           //: Remove from desired list to avoid generating a new command
           delete delta[propName];
-          context.log.verbose(`Desired property ${propName}` +
+          context.log.info(`Desired property ${propName}` +
               ` version ${delta.$version} completed`);
         }
       }
     }
     for (const propName in delta) {
       if (propName === '$version') continue;
-      if (propName in twin.properties.reported &&
-          twin.properties.reported[propName].value === delta[propName] &&
-          twin.properties.reported[propName].av >= delta.$version) {
-        context.log.verbose(`${device.id} ${propName} pending` +
-            ` value: ${delta[propName]}`);
+      if (!(propName in twin.properties.reported)) {
+        context.log.warn(`${device.id} ${propName} not found` +
+            ` in twin.properties.reported`);
+      }
+      const reported = twin.properties.reported[propName];
+      if (reported.ac === 202) {
+        context.log.info(`${device.id} ${propName} pending` +
+            ` value: ${delta[propName]} version: ${delta.$version}`);
         continue;
       }
-      const { writePatch, event } = otaWriteProperty(context, device,
+      if (reported.value === delta[propName]) {
+        context.log.verbose(`${device.id} ${propName} reported matches desired`);
+        continue;
+      }
+      const writePatch = otaWriteProperty(context, device,
           propName, delta[propName], delta.$version);
       patch = Object.assign(patch, writePatch);
-      if (event) {
-        context.log.info(`Publishing ${JSON.stringify(event)} to EventGrid`);
-        context.bindings.outputEvent.push(event);
-      }
     }
   }
   //: Update read-only and writable properties

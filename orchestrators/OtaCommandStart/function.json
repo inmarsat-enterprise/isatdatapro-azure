@@ -2,7 +2,7 @@
   "bindings": [
     {
       "type": "eventGridTrigger",
-      "name": "eventGridEventCommandRequest",
+      "name": "eventGridEventOtaCommandRequest",
       "direction": "in"
     },
     {

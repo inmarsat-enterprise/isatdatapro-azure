@@ -68,17 +68,23 @@ module.exports = async function (context, eventGridEvent) {
         break;
       
       case 'OtaCommandComplete':
-        context.log.verbose(`Received command completion` +
-            ` for ${JSON.stringify(data.command)}`);
+        context.log.info(eventGridEvent.subject);
         device = await getDeviceMeta(data.mobileId);
         device.mobileId = data.mobileId;
-        device.patch = {};
-        device.patch[data.completion.property] = {
-          value: data.completion.value,
-          ac: 'commandDeliveredTime' in data ? 200 : 500,
-          av: data.completion.av,
-        };
+        if (data.completion) {
+          device.patch = {};
+          device.patch[data.completion.property] = {
+            value: data.completion.value,
+            ac: 'commandDeliveredTime' in data ? 200 : 500,
+            av: data.completion.av,
+          };
+
+        } else {
+          context.log.verbose(`No completion data available`)
+          // TODO something special for offline command completion?
+        }
         break;
+        
       /* TODO: future manage mailboxes and satellite message gateway via IOTC
       case 'MailboxQuery':
       case 'SatelliteGatewayQuery':
