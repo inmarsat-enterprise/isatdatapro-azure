@@ -19,8 +19,17 @@ module.exports = async function (context, timer) {
   const callTime = new Date().toISOString();
   context.bindings.outputEvent = [];
 
-  function onForwardMessageStateChange(messageId,
-    newState, reason, stateTimeUtc, mobileId) {
+  /**
+   * Generates an EventGrid event in response to a change in forward message
+   * state.
+   * @param {number} messageId The unique forward message ID
+   * @param {string} newState The message state
+   * @param {string} reason The reason for the message state
+   * @param {string} stateTimeUtc The UTC time of the state in ISO format
+   * @param {string} mobileId The unique mobile ID (or broadcast ID)
+   */
+  function onForwardMessageStateChange(
+      messageId, newState, reason, stateTimeUtc, mobileId) {
     const eventType = 'ForwardMessageStateChange';
     const subject = `Forward message ${messageId} state changed: ${newState}`;
     const data = {
@@ -36,6 +45,13 @@ module.exports = async function (context, timer) {
     context.bindings.outputEvent.push(event);
   }
 
+  /**
+   * Generates an EventGrid event when an unknown forward message has been
+   * detected by retrieving statuses, implying another API client submitted
+   * the message.
+   * @param {number} messageId A unique forward message ID
+   * @param {string | number} mailboxId The unique Mailbox ID being used
+   */
   function onOtherClientForwardSubmission(messageId, mailboxId) {
     const eventType = 'OtherClientForwardSubmission';
     const subject = `Other Client submitted forward message ${messageId}`
@@ -49,15 +65,27 @@ module.exports = async function (context, timer) {
     context.bindings.outputEvent.push(event);
   }
 
+  /**
+   * Generates an EventGrid event when an API outage has been inferred from a
+   * failed operation.
+   * @param {string} satelliteGateway The unique satellite message gateway name
+   * @param {string} timestamp The UTC time of the outage detection, ISO format
+   */
   function onApiOutage(satelliteGateway, timestamp) {
     const event = eventGrid.ApiOutageEvent(satelliteGateway, timestamp);
     context.log.warn(`Satellite API outage detected`);
     context.bindings.outputEvent.push(event);
   }
 
-  function onApiRecovery(satelliteGateway, timestamp) {
+  /**
+   * Generates an EventGrid event when an API recovery has been inferred from a
+   * successful operation following an API outage.
+   * @param {string} satelliteGateway The unique satellite message gateway name
+   * @param {string} timestamp The UTC time of the outage detection, ISO format
+   */
+   function onApiRecovery(satelliteGateway, timestamp) {
     const event = eventGrid.ApiRecoveryEvent(satelliteGateway, timestamp);
-    context.log(`Satellite API recovery detected`);
+    context.log.info(`Satellite API recovery detected`);
     context.bindings.outputEvent.push(event);
   }
 

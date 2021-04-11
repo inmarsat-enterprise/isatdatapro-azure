@@ -1,14 +1,12 @@
-/* Triggers on NewReturnMessage or OtaCommandResponse eventgrid events
- * or MailboxQuery or SatelliteGatewayQuery events
+/* Triggers on NewReturnMessage or OtaCommandResponse eventgrid events.
  * Parses the event data based on a device model definition which maps 
- * data into telemetry and reported properties
+ * data into telemetry and reported properties.
  */
 const handleEvent = require('../lib/idpDeviceInterfaceBridge');
 const { getDevices } = require('../lib/iotcDcmApi');
 const deviceModels = require('../lib/deviceModels');
 const { templates } = require('../lib/deviceTemplates');
 const _ = require('lodash');
-//const util = require('../lib/utilities');
 
 const defaultDeviceIdFormat =
     process.env.IOTC_DFLT_DEVICE_ID_FORMAT || 'idp-${mobileId}';
@@ -37,6 +35,11 @@ async function getDeviceMeta(identifier) {
   return device;
 }
 
+/**
+ * Processes standard mobile-originated messages and OTA command completion.
+ * @param {object} context Azure Function context for logging, etc
+ * @param {object} eventGridEvent The triggering Event
+ */
 module.exports = async function (context, eventGridEvent) {
   const thisFunction = { name: __filename };
   const callTime = new Date().toISOString();
@@ -72,10 +75,24 @@ module.exports = async function (context, eventGridEvent) {
         device = await getDeviceMeta(data.mobileId);
         device.mobileId = data.mobileId;
         if (data.completion) {
+          let ac = 200;
+          let ad = 'completed'
+          if ('reason' in data) {
+            switch (data.reason) {
+              case 'ERROR':
+                ac = 500;
+                break;
+              default:
+                // Other codes imply OTA message timeout
+                ac = 408;
+            }
+            ad = data.reason;
+          }
           device.patch = {};
           device.patch[data.completion.property] = {
             value: data.completion.value,
-            ac: 'commandDeliveredTime' in data ? 200 : 500,
+            ac: ac,
+            ad: ad,
             av: data.completion.av,
           };
 
@@ -87,6 +104,7 @@ module.exports = async function (context, eventGridEvent) {
         
       /* TODO: future manage mailboxes and satellite message gateway via IOTC
       case 'MailboxQuery':
+        // Similar processing as SatelliteGatewayQuery
       case 'SatelliteGatewayQuery':
         device = await getDeviceMeta(eventGridEvent.data.name);
         if (!device.id) {
@@ -101,7 +119,8 @@ module.exports = async function (context, eventGridEvent) {
           }
         }
         break;
-        */
+      */
+      
       default:
         throw new Error(`Unsupported event ${eventGridEvent.eventType}`);
     }

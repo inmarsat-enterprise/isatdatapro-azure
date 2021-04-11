@@ -4,17 +4,17 @@ const { round } = require('../../utilities');
 function initialize(mobileId) {
   const initialReport = {
     idpMobileId: mobileId,
-    idpManufacturer: getManufacturer(mobileId),
-    //hardwareVersion: '',
-    //softwareVersion: '',
-    //productId: 0,
-    //broadcastIdCount: 0,
-    //location: null,
+    idpModemManufacturer: getManufacturer(mobileId),
+    //idpHardwareVersion: '',
+    //idpFirmwareVersion: '',
+    //idpProductId: 0,
+    //idpBroadcastIdCount: 0,
+    //idpLocation: null,
     idpOperatorAccessLevel: 0,
     idpUserAccessLevel: 0,
-    //lastRxMsgTime: '',
-    //lastRegistrationTime: '',
-    //satelliteRegion: '',
+    //idpLastRxMsgTime: '',
+    //idpLastRegistrationTime: '',
+    //idpSatelliteRegion: '',
     idpLastResetReason: 0,
     idpWakeupPeriod: {
       'value': 0,
@@ -70,6 +70,7 @@ function writeProperty(propName, propValue, version) {
         }
       };
       otaMessage.completion.value = propValue;
+      // Future: wait for the modem to register its new wakeupPeriod
       otaMessage.completion.response = {
         codecServiceId: 0,
         codecMessageId: 70,
@@ -161,6 +162,11 @@ function otaCommand(commandName, data) {
   return otaMessage;
 }
 
+/**
+ * Derives the manufacturer name based on unique Mobile ID
+ * @param {string} mobileId 
+ * @returns {string} The manufacturer name
+ */
 function getManufacturer(mobileId) {
   if (mobileId.includes('SKY')) return 'ORBCOMM';
   if (mobileId.includes('HON')) return 'Honeywell';
@@ -175,13 +181,9 @@ function getManufacturer(mobileId) {
 function parseMetadata(message) {
   const reportedProperties = {};
   reportedProperties.idpMobileId = message.mobileId;
-  reportedProperties.idpManufacturer = getManufacturer(message.mobileId);
+  reportedProperties.idpModemManufacturer = getManufacturer(message.mobileId);
   reportedProperties.idpSatelliteRegion = message.satelliteRegion;
   reportedProperties.idpLastRxMsgTime = message.receiveTimeUtc;
-  if (message.completion) {
-    reportedProperties[message.completion.property] =
-        message.completion.resetValue;
-  }
   return reportedProperties;
 }
 
@@ -237,14 +239,17 @@ function parseGenericIdp(context, message) {
     if (message.codecServiceId === 0) {
       switch (message.codecMessageId) {
         case 97:
+          // Configuration response to a request, same format as registration
         case 1:
+          // Beam switch registration, same format as network registration
         case 0:
+          // Network registration
           reportedProperties.idpHardwareVersion =
-              `${telemetry.hardwareMajorVersion}`
-              + `.${telemetry.hardwareMinorVersion}`;
+              `${telemetry.hardwareMajorVersion}` +
+              `.${telemetry.hardwareMinorVersion}`;
           reportedProperties.idpFirmwareVersion =
-              `${telemetry.firmwareMajorVersion}`
-              + `.${telemetry.firmwareMinorVersion}`;
+              `${telemetry.firmwareMajorVersion}` +
+              `.${telemetry.firmwareMinorVersion}`;
           reportedProperties.idpProductId = telemetry.productId;
           reportedProperties.idpWakeupPeriod =
               telemetry.wakeupPeriod.toLowerCase();
@@ -255,11 +260,13 @@ function parseGenericIdp(context, message) {
               telemetry.userTxState === 0 ? false : true;
           reportedProperties.idpBroadcastIdCount = telemetry.broadcastIdCount;
           if (codecMessageId !== 97) {
-            reportedProperties.idpLastRegistrationTime = telemetry.receiveTimeUtc;
+            reportedProperties.idpLastRegistrationTime =
+                telemetry.receiveTimeUtc;
           }
           telemetry = undefined;
           break;
         case 70:
+          // Wakeup period changed
           reportedProperties.idpWakeupPeriod =
               telemetry.wakeupPeriod.toLowerCase();
           telemetry = {
@@ -268,6 +275,7 @@ function parseGenericIdp(context, message) {
           };
           break;
         case 72:
+          // Location response to request
           telemetry.idpLatitude = round(telemetry.latitude / 60000, 6);
           telemetry.idpLongitude = round(telemetry.longitude / 60000, 6);
           reportedProperties.idpLocation = {
@@ -289,6 +297,7 @@ function parseGenericIdp(context, message) {
           telemetry.idpGnssFixTime = gnssFixDate.toISOString();
           break;
         case 112:
+          // Ping response to request
           const receivedSecond = secondOfDay(message.receiveTimeUtc);
           let { requestTime, responseTime } = telemetry;
           if (receivedSecond > 65535) {
@@ -299,7 +308,7 @@ function parseGenericIdp(context, message) {
           telemetry.responseTime = parsePingTime(responseTime);
           break;
         case 115:
-          //console.log(`${JSON.stringify(telemetry)}`);
+          // List broadcast IDs response to request
           reportedProperties.idpBroadcastIds = {};
           for (let i=0; i < 16; i++) {
             const index = `index${i}`;

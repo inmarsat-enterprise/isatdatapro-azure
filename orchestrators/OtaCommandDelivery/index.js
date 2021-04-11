@@ -6,6 +6,7 @@ const successStates = [
   'DELIVERED',
 ];
 const failedStates = [
+  'ERROR',
   'FAILED_DELIVERY',
   'TIMED_OUT',
 ];
@@ -15,7 +16,7 @@ module.exports = async function (context, eventGridEvent) {
   try {
     const funcName = getFunctionName(__filename);
     if (eventGridEvent.eventType === 'ForwardMessageStateChange') {
-      const { messageId, newState } = eventGridEvent.data;
+      const { messageId, newState, reason } = eventGridEvent.data;
       if (completedStates.includes(newState)) {
         context.log.verbose(`${funcName} received forward message ${messageId}`
             + ` with state ${newState}`);
@@ -27,6 +28,7 @@ module.exports = async function (context, eventGridEvent) {
               instances[i].customStatus.messageId === messageId) {
             const eventData = {
               success: successStates.includes(newState) ? true : false,
+              reason: reason,
               deliveryTime: eventGridEvent.data.stateTimeUtc,
             };
             context.log.verbose(`${funcName} raising event CommandDelivered with`

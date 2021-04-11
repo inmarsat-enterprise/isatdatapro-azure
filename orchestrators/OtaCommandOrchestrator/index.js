@@ -67,13 +67,16 @@ module.exports = df.orchestrator(function* (context) {
         completionEvent.eventType = 'OtaCommandComplete';
         completionEvent.data.commandDeliveredTime = delivered.deliveryTime;
         completionEvent.eventTime = delivered.deliveryTime;
-        outputs.push({ commandReceiveTime: delivered.deliveryTime });
+        outputs.push({ commandDeliveredTime: delivered.deliveryTime });
       } else {
         completionEvent.subject = `Command failed: ${commandMeta}`;
         completionEvent.eventType = 'OtaCommandComplete';
         completionEvent.data.commandFailedTime = delivered.deliveryTime;
         completionEvent.eventTime = delivered.deliveryTime;
-        outputs.push({ commandFailedTime: delivered.deliveryTime });
+        outputs.push({
+          commandFailedTime: delivered.deliveryTime,
+          reason: delivered.reason,
+        });
       }
       context.log.info(`${funcName} publishing` +
           ` ${JSON.stringify(completionEvent)} for Device Bridge`);
@@ -118,6 +121,12 @@ module.exports = df.orchestrator(function* (context) {
     // */
   
     context.log.verbose(`${funcName} outputs: ${JSON.stringify(outputs)}`);
+    for (let i=0; i < outputs.length; i++) {
+      if ('commandFailedTime' in outputs[i]) {
+        context.log.warn(`Command ${command.id} failed (${outputs[i].reason})` +
+            ` at ${outputs[i].commandFailedTime}`);
+      }
+    }
     return outputs;
   } catch (e) {
     context.log.error(e.toString());
