@@ -43,7 +43,7 @@ module.exports = async function (context, eventGridEvent) {
         ];
         for (let i=0; i < instances.length; i++) {
           context.log.verbose(`${funcName} Found instance:` +
-              ` ${instances[i].instanceId}`);
+              ` ${instances[i].instanceId} ${instances[i].runtimeStatus}`);
           if (instances[i].instanceId !== instanceId) continue;
           if (activeStatuses.includes(instances[i].runtimeStatus)) {
             running = true;
