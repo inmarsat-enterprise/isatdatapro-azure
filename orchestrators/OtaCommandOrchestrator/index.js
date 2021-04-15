@@ -17,8 +17,8 @@ module.exports = df.orchestrator(function* (context) {
     const input = context.df.getInput();
     input.data.otaCommandId = input.id;
     if (input && input.data) {
-      context.log.verbose(`${funcName} orchestrating command ${input.id}:`
-          + ` ${JSON.stringify(input.data)}`);
+      context.log.verbose(`${funcName} orchestrating command ${input.id}:` +
+          ` ${JSON.stringify(input.data)}`);
       const mobileId = input.data.mobileId;
       const commandMeta = input.subject;
       context.df.setCustomStatus({
@@ -26,7 +26,7 @@ module.exports = df.orchestrator(function* (context) {
         mobileId: mobileId,
       });
       
-      // Submit command as OTA message
+      // 1. Submit command as OTA message and get message ID
       const submissionId =
           yield context.df.callActivity("OtaCommandSubmit", input.data);
       context.df.setCustomStatus({
@@ -34,8 +34,8 @@ module.exports = df.orchestrator(function* (context) {
         mobileId: mobileId,
         submissionId: submissionId,
       });
-      context.log.verbose(`${funcName} waiting for NewForwardMessage with`
-          + ` submissionId: ${submissionId}`);
+      context.log.verbose(`OtaCommandSending waiting for NewForwardMessage` +
+          ` with submissionId: ${submissionId}`);
       const { messageId } =
           yield context.df.waitForExternalEvent('CommandSending');
       context.df.setCustomStatus({
@@ -45,9 +45,9 @@ module.exports = df.orchestrator(function* (context) {
       });
       outputs.push({ commandMessageId: messageId });
       
-      // ForwardMessageStateChange captured by OtaCommandDelivery function
-      context.log.verbose(`${funcName} sent messageId: ${messageId} awaiting`
-          + ` CommandDelivered`);
+      // 2. ForwardMessageStateChange captured by OtaCommandDelivery function
+      context.log.verbose(`OtaCommandSending sent messageId: ${messageId}` +
+          ` OtaCommandDelivery now awaiting ForwardMessageStateChange`);
       const delivered =
           yield context.df.waitForExternalEvent('CommandDelivered');
       context.df.setCustomStatus({
@@ -61,18 +61,17 @@ module.exports = df.orchestrator(function* (context) {
         data: Object.assign({}, input.data),
       };
       delete completionEvent.data.command;
+      completionEvent.eventType = 'OtaCommandComplete';
+      completionEvent.eventTime = delivered.deliveryTime;
       if (delivered.success) {
-        context.log.verbose(`${funcName} successfully delivered command`);
+        context.log.verbose(`Command ${input.data.otaCommandId} delivered`);
         completionEvent.subject = `Command delivered: ${commandMeta}`;
-        completionEvent.eventType = 'OtaCommandComplete';
         completionEvent.data.commandDeliveredTime = delivered.deliveryTime;
-        completionEvent.eventTime = delivered.deliveryTime;
         outputs.push({ commandDeliveredTime: delivered.deliveryTime });
       } else {
+        context.log.warn(`Command ${input.data.otaCommandId} failed`)
         completionEvent.subject = `Command failed: ${commandMeta}`;
-        completionEvent.eventType = 'OtaCommandComplete';
         completionEvent.data.commandFailedTime = delivered.deliveryTime;
-        completionEvent.eventTime = delivered.deliveryTime;
         outputs.push({
           commandFailedTime: delivered.deliveryTime,
           reason: delivered.reason,
@@ -120,10 +119,12 @@ module.exports = df.orchestrator(function* (context) {
     }
     // */
   
-    context.log.verbose(`${funcName} outputs: ${JSON.stringify(outputs)}`);
+    context.log.verbose(`OtaCommandOrchestrator outputs:` +
+        ` ${JSON.stringify(outputs)}`);
     for (let i=0; i < outputs.length; i++) {
       if ('commandFailedTime' in outputs[i]) {
-        context.log.warn(`Command ${command.id} failed (${outputs[i].reason})` +
+        context.log.warn(`Command ${input.data.otaCommandId} failed` +
+            ` (${outputs[i].reason})` +
             ` at ${outputs[i].commandFailedTime}`);
       }
     }

@@ -34,6 +34,7 @@ module.exports = async function (context, eventGridEvent) {
           await instanceCleanup(context, client, instances, cleanupStatuses);
           instances = await clientGetStatusAll(context, client);
         }
+        context.log.verbose(`Found ${instances.length} orchestrator instances`);
         let running = false;
         let completed = false;
         const activeStatuses = [
