@@ -50,6 +50,8 @@ module.exports = df.orchestrator(function* (context) {
           ` OtaCommandDelivery now awaiting ForwardMessageStateChange`);
       const delivered =
           yield context.df.waitForExternalEvent('CommandDelivered');
+      context.log.verbose(`OtaCommandOrchestrator received CommandDelivered` +
+          ` with ${JSON.stringify(delivered)}`);
       context.df.setCustomStatus({
         state: delivered.success ? 'delivered' : 'failed',
         mobileId: mobileId,
@@ -59,10 +61,10 @@ module.exports = df.orchestrator(function* (context) {
         id: uuid(),
         dataVersion: '2.0',
         data: Object.assign({}, input.data),
+        eventType = 'OtaCommandComplete',
+        eventTime = delivered.deliveryTime,
       };
       delete completionEvent.data.command;
-      completionEvent.eventType = 'OtaCommandComplete';
-      completionEvent.eventTime = delivered.deliveryTime;
       if (delivered.success) {
         context.log.verbose(`Command ${input.data.otaCommandId} delivered`);
         completionEvent.subject = `Command delivered: ${commandMeta}`;
