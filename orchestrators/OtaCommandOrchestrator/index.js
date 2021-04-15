@@ -6,13 +6,14 @@
 
 const df = require('durable-functions');
 const uuid = require('uuid').v4;
-const { getFunctionName } = require('../SharedCode');
+//const { getFunctionName } = require('../SharedCode');
 
 const testMode = process.env.testMode;
+const funcName = 'OtaCommandOrchestrator';
 
 module.exports = df.orchestrator(function* (context) {
   try {
-    const funcName = getFunctionName(__filename);
+    //const funcName = getFunctionName(__filename);
     let outputs = [];
     const input = context.df.getInput();
     input.data.otaCommandId = input.id;
@@ -50,7 +51,7 @@ module.exports = df.orchestrator(function* (context) {
           ` OtaCommandDelivery now awaiting ForwardMessageStateChange`);
       const delivered =
           yield context.df.waitForExternalEvent('CommandDelivered');
-      context.log.verbose(`OtaCommandOrchestrator received CommandDelivered` +
+      context.log.verbose(`${funcName} received CommandDelivered` +
           ` with ${JSON.stringify(delivered)}`);
       context.df.setCustomStatus({
         state: delivered.success ? 'delivered' : 'failed',
@@ -121,7 +122,7 @@ module.exports = df.orchestrator(function* (context) {
     }
     // */
   
-    context.log.verbose(`OtaCommandOrchestrator outputs:` +
+    context.log.verbose(`${funcName} outputs:` +
         ` ${JSON.stringify(outputs)}`);
     for (let i=0; i < outputs.length; i++) {
       if ('commandFailedTime' in outputs[i]) {

@@ -2,6 +2,8 @@
 const df = require('durable-functions');
 const { clientGetStatusAll, getFunctionName } = require('../SharedCode');
 
+const funcName = 'OtaCommandDelivery';
+
 const successStates = [
   'DELIVERED',
 ];
@@ -14,7 +16,7 @@ const completedStates = successStates.concat(failedStates);
 
 module.exports = async function (context, eventGridEvent) {
   try {
-    const funcName = getFunctionName(__filename);
+    //const funcName = getFunctionName(__filename);
     if (eventGridEvent.eventType === 'ForwardMessageStateChange') {
       const { messageId, newState, reason } = eventGridEvent.data;
       if (completedStates.includes(newState)) {

@@ -6,12 +6,15 @@
 const df = require('durable-functions');
 const { clientGetStatusAll, getFunctionName } = require('../SharedCode');
 
+const funcName = 'OtaCommandSending';
+
 module.exports = async function (context, eventGridEvent) {
   try {
-    const funcName = getFunctionName(__filename);
+    //const funcName = getFunctionName(__filename);
     if (eventGridEvent.eventType === 'NewForwardMessage') {
       const { submissionId, messageId } = eventGridEvent.data;
-      context.log.verbose(`${funcName} received NewForwardMessage ${messageId}`);
+      context.log.verbose(`${funcName} received NewForwardMessage` +
+          ` ${messageId} at ${Date.now()}`);
       const client = df.getClient(context);
       //: work around terminated instances bug by flushing history
       let instances = await clientGetStatusAll(context, client);

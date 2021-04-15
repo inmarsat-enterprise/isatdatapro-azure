@@ -6,15 +6,16 @@ const df = require('durable-functions');
 const { clientGetStatusAll, getFunctionName, getCodecIds, instanceCleanup } = require('../SharedCode');
 
 const testMode = process.env.testMode;
+const funcName = 'OtaCommandStart';
 
 module.exports = async function (context, eventGridEvent) {
   try {
-    const funcName = getFunctionName(__filename);
+    //const funcName = getFunctionName(__filename);
     let instanceId;
     if (eventGridEvent.eventType === 'OtaCommandRequest') {
       const data = eventGridEvent.data;
-      context.log.verbose(`${funcName} received OtaCommandRequest:`
-          + ` ${JSON.stringify(data)}`);
+      context.log.verbose(`${funcName} received OtaCommandRequest`
+          + ` ${eventGridEvent.id}: ${JSON.stringify(data)} at ${Date.now()}`);
       const client = df.getClient(context);
       try {
         const { codecServiceId, codecMessageId } = getCodecIds(data);
@@ -34,7 +35,6 @@ module.exports = async function (context, eventGridEvent) {
           await instanceCleanup(context, client, instances, cleanupStatuses);
           instances = await clientGetStatusAll(context, client);
         }
-        context.log.verbose(`Found ${instances.length} orchestrator instances`);
         let running = false;
         let completed = false;
         const activeStatuses = [
@@ -42,22 +42,24 @@ module.exports = async function (context, eventGridEvent) {
           df.OrchestrationRuntimeStatus.Pending,
         ];
         for (let i=0; i < instances.length; i++) {
-          if (instances[i].instanceId === instanceId) {
-            if (activeStatuses.includes(instances[i].runtimeStatus)) {
-              running = true;
-            } else if (instances[i].runtimeStatus ===
-                  df.OrchestrationRuntimeStatus.Completed) {
-              completed = true;
-            }
-            break;
+          context.log.verbose(`${funcName} Found instance:` +
+              ` ${instances[i].instanceId}`);
+          if (instances[i].instanceId !== instanceId) continue;
+          if (activeStatuses.includes(instances[i].runtimeStatus)) {
+            running = true;
+          } else if (instances[i].runtimeStatus ===
+                df.OrchestrationRuntimeStatus.Completed) {
+            completed = true;
           }
         }
         if (!running && !completed) {
-          context.log.info(`Starting orchestration with ID=${instanceId}`);
+          context.log.info(`${funcName} Starting orchestration` +
+              ` with ID=${instanceId}`);
           await client.startNew('OtaCommandOrchestrator',
               instanceId, eventGridEvent);
         } else {
-          context.log.warn(`Orchestrator ${instanceId} in progress ignoring event`);
+          context.log.warn(`Orchestrator ${instanceId} in progress` +
+              `...ignoring event`);
         }
       } catch (e) {
         context.log.error(e.stack);

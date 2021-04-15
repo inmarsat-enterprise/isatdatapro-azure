@@ -1,8 +1,9 @@
 ﻿//Triggered by OtaCommandOrchestrator
 const uuid = require('uuid').v4;
-const { getFunctionName } = require('../SharedCode');
+//const { getFunctionName } = require('../SharedCode');
 
 const testMode = process.env.testMode;
+const funcName = 'OtaCommandSubmit';
 
 /**
  * Returns a forward message submission-compatible object
@@ -27,7 +28,7 @@ function buildSubmission(data) {
 
 module.exports = async function (context, data) {
   try {
-    const funcName = getFunctionName(__filename);
+    //const funcName = getFunctionName(__filename);
     const submissionId = data.otaCommandId;
     const event = {
       id: uuid(),
