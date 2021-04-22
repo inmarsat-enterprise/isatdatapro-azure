@@ -1,12 +1,13 @@
 {
   "bindings": [
     {
+      "name": "eventGridEvent",
       "type": "eventGridTrigger",
-      "name": "eventGridEventForwardMessageStateChange",
       "direction": "in"
     },
     {
-      "name": "otaCommandDelivery",
+      "name": "starter",
+      "orchestration": "OtaCommandOrchestrator",
       "type": "orchestrationClient",
       "direction": "in"
     }

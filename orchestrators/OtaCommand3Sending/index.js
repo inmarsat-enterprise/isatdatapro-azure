@@ -6,10 +6,11 @@
 const df = require('durable-functions');
 const { clientGetStatusAll, getFunctionName } = require('../SharedCode');
 
-const funcName = 'OtaCommandSending';
+const funcName = 'OtaCommand3Sending';
 
 module.exports = async function (context, eventGridEvent) {
   try {
+    //TODO: error/warning handling if triggered by wrong eventType
     //const funcName = getFunctionName(__filename);
     if (eventGridEvent.eventType === 'NewForwardMessage') {
       const { submissionId, messageId } = eventGridEvent.data;
@@ -19,13 +20,17 @@ module.exports = async function (context, eventGridEvent) {
       //: work around terminated instances bug by flushing history
       let instances = await clientGetStatusAll(context, client);
       for (let i=0; i < instances.length; i++) {
-        if (instances[i].customStatus.submissionId &&
-            instances[i].customStatus.submissionId === submissionId) {
+        const { instanceId, customStatus } = instances[i];
+        if (!customStatus) {
+          context.log.warning(`No customStatus for instance ${instanceId}`);
+          continue;
+        }
+        if (customStatus.submissionId &&
+            customStatus.submissionId === submissionId) {
           const eventData = { messageId: messageId };
           context.log.verbose(`${funcName} raising CommandSending with`
               + ` ${JSON.stringify(eventData)}`);
-          await client.raiseEvent(instances[i].instanceId, 'CommandSending',
-              eventData);
+          await client.raiseEvent(instanceId, 'CommandSending', eventData);
           break;
         }
       }

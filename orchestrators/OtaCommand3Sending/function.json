@@ -2,11 +2,11 @@
   "bindings": [
     {
       "type": "eventGridTrigger",
-      "name": "eventGridEventOtaCommandRequest",
+      "name": "eventGridEvent",
       "direction": "in"
     },
     {
-      "name": "otaCommandStarter",
+      "name": "CommandSending",
       "type": "orchestrationClient",
       "direction": "in"
     }

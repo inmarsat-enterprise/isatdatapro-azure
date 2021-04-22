@@ -1,12 +1,12 @@
 ﻿// Orchestrator Client
 /**
- * Listens for CommandRequest event to start orchestration
+ * Listens for CommandRequest event to start singleton OtaCommandOrchestrator
  */
 const df = require('durable-functions');
 const { clientGetStatusAll, getFunctionName, getCodecIds, instanceCleanup } = require('../SharedCode');
 
 const testMode = process.env.testMode;
-const funcName = 'OtaCommandStart';
+const funcName = 'OtaCommand1Start';
 
 module.exports = async function (context, eventGridEvent) {
   try {
@@ -58,7 +58,7 @@ module.exports = async function (context, eventGridEvent) {
           await client.startNew('OtaCommandOrchestrator',
               instanceId, eventGridEvent);
         } else {
-          context.log.warn(`Orchestrator ${instanceId} in progress` +
+          context.log.warn(`Orchestrator ${instanceId} already in progress` +
               `...ignoring event`);
         }
       } catch (e) {

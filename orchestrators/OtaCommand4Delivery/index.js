@@ -26,17 +26,21 @@ module.exports = async function (context, eventGridEvent) {
         //: work around terminated instances bug by flushing history
         let instances = await clientGetStatusAll(context, client);
         for (let i=0; i < instances.length; i++) {
-          if (instances[i].customStatus.messageId &&
-              instances[i].customStatus.messageId === messageId) {
+          const { instanceId, customStatus } = instances[i];
+          if (!customStatus) {
+            context.log.warn(`No customStatus for instance ${instanceId}`);
+            continue;
+          }
+          if (customStatus.messageId &&
+              customStatus.messageId === messageId) {
             const eventData = {
               success: successStates.includes(newState) ? true : false,
               reason: reason,
               deliveryTime: eventGridEvent.data.stateTimeUtc,
             };
-            context.log.verbose(`${funcName} raising event CommandDelivered with`
-                + ` ${JSON.stringify(eventData)}`);
-            await client.raiseEvent(instances[i].instanceId, 'CommandDelivered',
-                eventData);
+            context.log.verbose(`${funcName} raising event CommandDelivered` +
+                ` with ${JSON.stringify(eventData)}`);
+            await client.raiseEvent(instanceId, 'CommandDelivered', eventData);
             break;
           }
         }

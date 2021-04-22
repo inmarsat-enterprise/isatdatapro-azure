@@ -4,13 +4,6 @@
       "name": "context",
       "type": "orchestrationTrigger",
       "direction": "in"
-    },
-    {
-      "type": "eventGrid",
-      "name": "outputEvent",
-      "topicEndpointUri": "EVENTGRID_TOPIC_ENDPOINT",
-      "topicKeySetting": "EVENTGRID_TOPIC_KEY",
-      "direction": "out"      
     }
   ]
 }

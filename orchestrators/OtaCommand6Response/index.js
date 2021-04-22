@@ -12,15 +12,18 @@ module.exports = async function (context, eventGridEvent) {
           ` from ${message.mobileId}`);
       let instances = await clientGetStatusAll(context, client);
       for (let i=0; i < instances.length; i++) {
-        if ((instances[i].customStatus.state === 'awaitingResponse' ||
-            instances[i].customStatus.state === 'awaitingCompletion') &&
-            instances[i].customStatus.mobileId === message.mobileId &&
-            instances[i].customStatus.codecServiceId === message.codecServiceId &&
-            instances[i].customStatus.codecMessageId === message.codecMessageId) {
-          context.log.info(`${funcName} raising event ResponseReceived with`
-              + ` ${message}`);
-          await client.raiseEvent(instances[i].instanceId, 'ResponseReceived',
-              message);
+        const { instanceId, customStatus } = instances[i];
+        if (!customStatus) {
+          context.log.warn(`No customStatus for instance ${instanceId}`);
+          continue;
+        }
+        if (customStatus.state === 'awaitingResponse' &&
+            customStatus.mobileId === message.mobileId &&
+            customStatus.codecServiceId === message.codecServiceId &&
+            customStatus.codecMessageId === message.codecMessageId) {
+          context.log.info(`${funcName} raising event ResponseReceived with` +
+              ` ${message}`);
+          await client.raiseEvent(instanceId, 'ResponseReceived', message);
           break;
         }
       }

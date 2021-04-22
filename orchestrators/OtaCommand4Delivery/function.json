@@ -2,11 +2,11 @@
   "bindings": [
     {
       "type": "eventGridTrigger",
-      "name": "eventGridEventNewForwardMessage",
+      "name": "eventGridEvent",
       "direction": "in"
     },
     {
-      "name": "otaCommandSending",
+      "name": "CommandDelivered",
       "type": "orchestrationClient",
       "direction": "in"
     }
