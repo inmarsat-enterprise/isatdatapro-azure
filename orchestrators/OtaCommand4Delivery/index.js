@@ -37,6 +37,7 @@ module.exports = async function (context, eventGridEvent) {
               success: successStates.includes(newState) ? true : false,
               reason: reason,
               deliveryTime: eventGridEvent.data.stateTimeUtc,
+              referenceNumber: eventGridEvent.data.referenceNumber,
             };
             context.log.verbose(`${funcName} raising event CommandDelivered` +
                 ` with ${JSON.stringify(eventData)}`);

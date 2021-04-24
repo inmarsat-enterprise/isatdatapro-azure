@@ -27,9 +27,17 @@ module.exports = async function (context, timer) {
    * @param {string} reason The reason for the message state
    * @param {string} stateTimeUtc The UTC time of the state in ISO format
    * @param {string} mobileId The unique mobile ID (or broadcast ID)
+   * @param {string} description Human-readable description of the event
+   * @param {number} referenceNumber A correlation number for a return message
    */
   function onForwardMessageStateChange(
-      messageId, newState, reason, stateTimeUtc, mobileId) {
+      messageId,
+      newState,
+      reason,
+      stateTimeUtc,
+      mobileId,
+      description,
+      referenceNumber) {
     const eventType = 'ForwardMessageStateChange';
     const subject = `Forward message ${messageId} state changed: ${newState}`;
     const data = {
@@ -38,6 +46,7 @@ module.exports = async function (context, timer) {
       newState: newState,
       reason: reason,
       stateTimeUtc: stateTimeUtc,
+      referenceNumber: referenceNumber,
     };
     const eventTime = stateTimeUtc ? stateTimeUtc : (new Date()).toISOString();
     const event = new eventGrid.Event(eventType, subject, data, eventTime);

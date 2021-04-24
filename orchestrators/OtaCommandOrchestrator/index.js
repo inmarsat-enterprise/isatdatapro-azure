@@ -15,9 +15,9 @@ const funcName = 'OtaCommandOrchestrator';
 const activitySubmit = 'OtaCommand2Submit';
 const activitySending = 'OtaCommand3Sending';
 const activityDelivery = 'OtaCommand4Delivery';
-const activityCompletionEvent = 'OtaCommand5CompletionEvent';
-const activityResponse = 'OtaCommand6Response';
-const activityResponseEvent = 'OtaCommand7ResponseEvent';
+const activityCompletionEvent = 'OtaCommand7CompletionEvent';
+const activityResponse = 'OtaCommand5Response';
+const activityResponseEvent = 'OtaCommand6ResponseEvent';
 const responseFeatureEnabled = false;
 
 module.exports = df.orchestrator(function* (context) {
@@ -32,8 +32,7 @@ module.exports = df.orchestrator(function* (context) {
         moment.utc(context.df.currentUtcDateTime).add(timeout, "s");
     const timeoutTask = context.df.createTimer(expiration.toDate());
     let winner;  // for timeout management
-    const mobileId = input.data.mobileId;
-    // const commandMeta = input.subject;
+    const { mobileId } = input.data;
     const otaCommandId = input.id;
     input.data.otaCommandId = otaCommandId;
     if (!context.df.isReplaying) {
@@ -106,29 +105,11 @@ module.exports = df.orchestrator(function* (context) {
       reason: delivered.reason,
     });
 
-    const completionMeta = {
-      delivered: delivered,
-      commandMeta: input.data,
-    };
-    // const completionEventId =
-    //     yield context.df.callActivity(activityCompletionEvent, completionMeta);
-    const completionEventTask =
-        context.df.callActivity(activityCompletionEvent, completionMeta);
-    winner = yield context.df.Task.any([completionEventTask, timeoutTask]);
-    if (winner === timeoutTask) {
-      return handleTimeout(context, activityCompletionEvent, outputs);
-    }
-    const { id: completionEventId } = completionEventTask.result;
-    if (!context.df.isReplaying) {
-      context.log.verbose(`Published event ${completionEventId} to EventGrid`);
-    }
-    outputs.push({ completionEventId: completionEventId });
-  
     // 4. TODO: future feature for response to commands
     // TODO: add grace time for response?
     if (responseFeatureEnabled &&
-        delivered.success &&
-        input.data.completion.response) {
+      delivered.success &&
+      input.data.completion.response) {
       const { resCodecServiceId, resCodecMessageId } =
           input.data.completion.response;
       if (!context.df.isReplaying) {
@@ -165,7 +146,26 @@ module.exports = df.orchestrator(function* (context) {
       }
       outputs.push({ responseEventId: responseEventId });
     }
-    
+  
+  // 5. ForwardMessageStateChange/completion captured by OtaCommandDelivery
+  const completionMeta = {
+      delivered: delivered,
+      commandMeta: input.data,
+    };
+    // const completionEventId =
+    //     yield context.df.callActivity(activityCompletionEvent, completionMeta);
+    const completionEventTask =
+        context.df.callActivity(activityCompletionEvent, completionMeta);
+    winner = yield context.df.Task.any([completionEventTask, timeoutTask]);
+    if (winner === timeoutTask) {
+      return handleTimeout(context, activityCompletionEvent, outputs);
+    }
+    const { id: completionEventId } = completionEventTask.result;
+    if (!context.df.isReplaying) {
+      context.log.verbose(`Published event ${completionEventId} to EventGrid`);
+    }
+    outputs.push({ completionEventId: completionEventId });
+  
     timeoutTask.cancel();
     context.log.verbose(`${funcName} outputs: ${JSON.stringify(outputs)}`);
     for (let i=0; i < outputs.length; i++) {
