@@ -14,7 +14,7 @@ module.exports = async function (context, commandMeta) {
     const eventGridData = Object.assign({ submissionId: otaCommandId },
         buildSubmission(commandMeta));
     const event = {
-      id: testMode ? 'testUuid' : uuid(),
+      id: uuid(),
       subject: `Submit forward message ${otaCommandId} to ${mobileId}`,
       dataVersion: '2.0',
       eventType: 'NewForwardSubmission',

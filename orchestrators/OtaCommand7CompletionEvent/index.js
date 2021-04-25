@@ -9,32 +9,32 @@ module.exports = async function(context, eventData) {
   const { delivered, commandMeta } = eventData;
   const { otaCommandId } = commandMeta;
   try {
-    const completionEvent = {
+    const event = {
       id: uuid(),
       dataVersion: '2.0',
       data: Object.assign({}, commandMeta),
       eventType: 'OtaCommandComplete',
       eventTime: delivered.deliveryTime,
     };
-    delete completionEvent.data.command;
+    delete event.data.command;
     if (delivered.success) {
       context.log.verbose(`Command ${otaCommandId} delivered`);
-      completionEvent.subject = `Command delivered: ${otaCommandId}`;
-      completionEvent.data.commandDeliveredTime = delivered.deliveryTime;
+      event.subject = `Command delivered: ${otaCommandId}`;
+      event.data.commandDeliveredTime = delivered.deliveryTime;
     } else {
       context.log.warn(`Command ${otaCommandId} failed`)
-      completionEvent.subject = `Command failed: ${otaCommandId}`;
-      completionEvent.data.commandFailedTime = delivered.deliveryTime;
+      event.subject = `Command failed: ${otaCommandId}`;
+      event.data.commandFailedTime = delivered.deliveryTime;
     }
     if (!testMode) {
       context.log.info(`${funcName} publishing to EventGrid` +
-          ` ${JSON.stringify(completionEvent)} for Device Bridge`);
-      context.bindings.outputEvent = completionEvent;
+          ` ${JSON.stringify(event)} for Device Bridge`);
+      context.bindings.outputEvent = event;
     } else {
       context.log.warn('testMode enabled not publishing to EventGrid' +
-          ` ${JSON.stringify(completionEvent)}`);
+          ` ${JSON.stringify(event)}`);
     }
-    return completionEvent.id;
+    return { eventType: event.eventType, id: event.id };
   } catch (e) {
     context.log.error(e.toString());
   }

@@ -1,6 +1,7 @@
 const df = require("durable-functions");
 const { clientGetStatusAll, getFunctionName, instanceCleanup } = require('../SharedCode');
 
+const funcName = 'OtaCommandInstanceCleanup';
 const INSTANCE_MAX_AGE_SECONDS = process.env.INSTANCE_MAX_AGE_SECONDS;
 const agedStatuses = [
   df.OrchestrationRuntimeStatus.Running,
@@ -12,7 +13,8 @@ const cleanupStatuses = [
 
 module.exports = async function (context, otaCleanupTimer) {
   try {
-    const funcName = getFunctionName(__filename);  
+    // const funcName = getFunctionName(__filename);
+    context.log.verbose(`${funcName} executing`);
     const client = df.getClient(context);
       let instances = await clientGetStatusAll(context, client);
       await instanceCleanup(context, client, instances, cleanupStatuses,

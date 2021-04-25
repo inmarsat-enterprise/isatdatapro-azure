@@ -9,7 +9,7 @@ module.exports = async function(context, eventData) {
   const { response, commandMeta } = eventData;
   const { otaCommandId } = commandMeta;
   try {
-    const responseEvent = {
+    const event = {
       id: uuid(),
       dataVersion: '2.0',
       subject: `Command response for ${otaCommandId}`,
@@ -19,13 +19,13 @@ module.exports = async function(context, eventData) {
     };
     if (!testMode) {
       context.log.info(`${funcName} publishing to EventGrid` +
-          ` ${JSON.stringify(responseEvent)} for Device Bridge`);
-      context.bindings.outputEvent = responseEvent;
+          ` ${JSON.stringify(event)} for Device Bridge`);
+      context.bindings.outputEvent = event;
     } else {
       context.log.warn('testMode enabled not publishing to EventGrid' +
-          ` ${JSON.stringify(responseEvent)}`);
+          ` ${JSON.stringify(event)}`);
     }
-    return responseEvent.id;
+    return { eventType: event.eventType, id: event.id };
   } catch (e) {
     context.log.error(e.toString());
   }

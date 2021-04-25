@@ -18,12 +18,12 @@ const activityDelivery = 'OtaCommand4Delivery';
 const activityCompletionEvent = 'OtaCommand7CompletionEvent';
 const activityResponse = 'OtaCommand5Response';
 const activityResponseEvent = 'OtaCommand6ResponseEvent';
-const responseFeatureEnabled = false;
+const responseFeatureEnabled = true;
 
 module.exports = df.orchestrator(function* (context) {
   let outputs = [];
   try {
-    //const funcName = getFunctionName(__filename);
+    // 1. Triggered by OtaCommandRequest
     const input = context.df.getInput();
     if (!input || !input.data) throw new Error('Missing input data');
     if (!input.id) throw new Error('Missing input.id');
@@ -40,36 +40,36 @@ module.exports = df.orchestrator(function* (context) {
           ` ${JSON.stringify(input.data)}`);
     }
     
-    // 1. Submit command as OTA message
-    // const submissionId =
-    //     yield context.df.callActivity(activitySubmit, input.data);
+    // 2. Submit command as OTA message
     const submitTask = context.df.callActivity(activitySubmit, input.data);
     winner = yield context.df.Task.any([submitTask, timeoutTask]);
     if (winner === timeoutTask) {
       return handleTimeout(context, activitySubmit, outputs);
     }
-    const { eventType: submitEvent, id: submissionId } = submitTask.result;
+    const { eventType: submitEvent, id: submitId } = submitTask.result;
     if (!context.df.isReplaying) {
-      context.log.verbose(`${activitySubmit} submitted ${submitEvent}`);
+      context.log.verbose(`${activitySubmit} submitted ${submitEvent}` +
+          ` (${submitId})`);
       context.log.verbose(`${activitySending} awaiting NewForwardMessage` +
-          ` with submissionId ${submissionId}`);
+          ` with submissionId ${otaCommandId}`);
       context.df.setCustomStatus({
         state: 'submitted',
         mobileId: mobileId,
-        submissionId: submissionId,
+        submissionId: otaCommandId,
       });
     }
+    outputs.push({
+      submissionEvent: submitEvent,
+      submissionEventId: submitId,
+    });
 
-    // 2. Submission generates a NewForwardMessage with unique ID
-    // const { messageId } =
-    //     yield context.df.waitForExternalEvent('CommandSending');
+    // 3. Submission generates a NewForwardMessage with unique ID
     const sendingTask = context.df.waitForExternalEvent('CommandSending');
     winner = yield context.df.Task.any([sendingTask, timeoutTask]);
     if (winner === timeoutTask) {
       return handleTimeout(context, activitySending, outputs);
     }
     const { messageId } = sendingTask.result;
-    outputs.push({ commandMessageId: messageId });
     if (!context.df.isReplaying) {
       context.log.verbose(`${activitySending} sent messageId ${messageId}` +
           ` ${activityDelivery} awaiting ForwardMessageStateChange`);
@@ -79,16 +79,15 @@ module.exports = df.orchestrator(function* (context) {
         messageId: messageId,
       });
     }
+    outputs.push({ commandMessageId: messageId });
     
-    // 3. ForwardMessageStateChange/completion captured by OtaCommandDelivery
-    // const delivered =
-    //     yield context.df.waitForExternalEvent('CommandDelivered');
+    // 4. ForwardMessageStateChange captured by OtaCommandDelivery
     const deliveryTask = context.df.waitForExternalEvent('CommandDelivered');
     winner = yield context.df.Task.any([deliveryTask, timeoutTask]);
     if (winner === timeoutTask) {
       return handleTimeout(context, activityDelivery, outputs);
     }
-    const { delivered } = deliveryTask.result;
+    const delivered = deliveryTask.result;
     if (!context.df.isReplaying) {
       context.log.verbose(`${funcName} received CommandDelivered` +
           ` with ${JSON.stringify(delivered)}`);
@@ -105,22 +104,23 @@ module.exports = df.orchestrator(function* (context) {
       reason: delivered.reason,
     });
 
-    // 4. TODO: future feature for response to commands
+    // 5. Listen for NewReturnMessage if a response if specified
     // TODO: add grace time for response?
-    if (responseFeatureEnabled &&
-      delivered.success &&
-      input.data.completion.response) {
-      const { resCodecServiceId, resCodecMessageId } =
+    if (!responseFeatureEnabled) {
+      context.log.warn('Response capture disabled');
+    } else if (delivered.success &&
+        input.data.completion.response) {
+      const { codecServiceId, codecMessageId } =
           input.data.completion.response;
       if (!context.df.isReplaying) {
         context.log.verbose(`${activityResponse} awaiting NewReturnMessage` +
-            ` (codecServiceId:${resCodecServiceId}` +
-            ` | codecMessageId:${resCodecMessageId})`);
+            ` (codecServiceId|SIN:${codecServiceId}` +
+            ` | codecMessageId|MIN:${codecMessageId})`);
         context.df.setCustomStatus({
           state: 'awaitingResponse',
           mobileId: mobileId,
-          codecServiceId: resCodecServiceId,
-          codecMessageId: resCodecMessageId,
+          codecServiceId: codecServiceId,
+          codecMessageId: codecMessageId,
         });
       }
       const responseTask = context.df.waitForExternalEvent('ResponseReceived');
@@ -128,43 +128,57 @@ module.exports = df.orchestrator(function* (context) {
       if (winner === timeoutTask) {
         return handleTimeout(context, activityResponse, outputs);
       }
-      const { response } = responseTask.result;
-      outputs.push({ response: response });
+      const response = responseTask.result;
       if (!context.df.isReplaying) {
         context.log.verbose(`Received response to ${otaCommandId}:` +
             ` ${JSON.stringify(response)}`);
       }
+      outputs.push({ response: response });
+      
+      // 6. Publish response event to EventGrid
       const responseMeta = {
         response: response,
         commandMeta: input.data,
       };
       const responseEventTask =
           context.df.callActivity(activityResponseEvent, responseMeta);
-      const { id: responseEventId } = responseEventTask.result;
-      if (!context.df.isReplaying) {
-        context.log.verbose(`Published event ${responseEventId} to EventGrid`);
+      winner = yield context.df.Task.any([responseEventTask, timeoutTask]);
+      if (winner === timeoutTask) {
+        return handleTimeout(context, activityResponseEvent, outputs);
       }
-      outputs.push({ responseEventId: responseEventId });
+      const { eventType: responseEventType, id: responseEventId } =
+          responseEventTask.result;
+      if (!context.df.isReplaying) {
+        context.log.verbose(`Published ${responseEventType} to EventGrid` +
+            ` (${responseEventId})`);
+      }
+      outputs.push({
+        responseEventType: responseEventType,
+        responseEventId: responseEventId
+      });
     }
   
-  // 5. ForwardMessageStateChange/completion captured by OtaCommandDelivery
+  // 7. Publish completion event to EventGrid
   const completionMeta = {
       delivered: delivered,
       commandMeta: input.data,
     };
-    // const completionEventId =
-    //     yield context.df.callActivity(activityCompletionEvent, completionMeta);
     const completionEventTask =
         context.df.callActivity(activityCompletionEvent, completionMeta);
     winner = yield context.df.Task.any([completionEventTask, timeoutTask]);
     if (winner === timeoutTask) {
       return handleTimeout(context, activityCompletionEvent, outputs);
     }
-    const { id: completionEventId } = completionEventTask.result;
+    const { eventType: completionEventType, id: completionEventId } =
+        completionEventTask.result;
     if (!context.df.isReplaying) {
-      context.log.verbose(`Published event ${completionEventId} to EventGrid`);
+      context.log.verbose(`Published ${completionEventType} to EventGrid` +
+          ` (${completionEventId})`);
     }
-    outputs.push({ completionEventId: completionEventId });
+    outputs.push({
+      completionEvent: completionEventType,
+      completionEventId: completionEventId
+    });
   
     timeoutTask.cancel();
     context.log.verbose(`${funcName} outputs: ${JSON.stringify(outputs)}`);
