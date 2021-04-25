@@ -15,9 +15,8 @@ const funcName = 'OtaCommandOrchestrator';
 const activitySubmit = 'OtaCommand2Submit';
 const activitySending = 'OtaCommand3Sending';
 const activityDelivery = 'OtaCommand4Delivery';
-const activityCompletionEvent = 'OtaCommand7CompletionEvent';
 const activityResponse = 'OtaCommand5Response';
-const activityResponseEvent = 'OtaCommand6ResponseEvent';
+const activityCompletionEvent = 'OtaCommand6Completion';
 const responseFeatureEnabled = true;
 
 module.exports = df.orchestrator(function* (context) {
@@ -91,6 +90,9 @@ module.exports = df.orchestrator(function* (context) {
     if (!context.df.isReplaying) {
       context.log.verbose(`${funcName} received CommandDelivered` +
           ` with ${JSON.stringify(delivered)}`);
+      if (!delivered.success) {
+        context.log.warn(`${otaCommandId} failed (${delivered.reason})`);
+      }
       context.df.setCustomStatus({
         state: delivered.success ? 'delivered' : 'notDelivered',
         reason: delivered.reason,
@@ -106,6 +108,7 @@ module.exports = df.orchestrator(function* (context) {
 
     // 5. Listen for NewReturnMessage if a response if specified
     // TODO: add grace time for response?
+    let response;
     if (!responseFeatureEnabled) {
       context.log.warn('Response capture disabled');
     } else if (delivered.success &&
@@ -114,8 +117,8 @@ module.exports = df.orchestrator(function* (context) {
           input.data.completion.response;
       if (!context.df.isReplaying) {
         context.log.verbose(`${activityResponse} awaiting NewReturnMessage` +
-            ` (codecServiceId|SIN:${codecServiceId}` +
-            ` | codecMessageId|MIN:${codecMessageId})`);
+            ` [codecServiceId: ${codecServiceId},` +
+            ` codecMessageId: ${codecMessageId}, ...]`);
         context.df.setCustomStatus({
           state: 'awaitingResponse',
           mobileId: mobileId,
@@ -128,40 +131,19 @@ module.exports = df.orchestrator(function* (context) {
       if (winner === timeoutTask) {
         return handleTimeout(context, activityResponse, outputs);
       }
-      const response = responseTask.result;
+      response = responseTask.result;
       if (!context.df.isReplaying) {
         context.log.verbose(`Received response to ${otaCommandId}:` +
             ` ${JSON.stringify(response)}`);
       }
       outputs.push({ response: response });
-      
-      // 6. Publish response event to EventGrid
-      const responseMeta = {
-        response: response,
-        commandMeta: input.data,
-      };
-      const responseEventTask =
-          context.df.callActivity(activityResponseEvent, responseMeta);
-      winner = yield context.df.Task.any([responseEventTask, timeoutTask]);
-      if (winner === timeoutTask) {
-        return handleTimeout(context, activityResponseEvent, outputs);
-      }
-      const { eventType: responseEventType, id: responseEventId } =
-          responseEventTask.result;
-      if (!context.df.isReplaying) {
-        context.log.verbose(`Published ${responseEventType} to EventGrid` +
-            ` (${responseEventId})`);
-      }
-      outputs.push({
-        responseEventType: responseEventType,
-        responseEventId: responseEventId
-      });
     }
   
-  // 7. Publish completion event to EventGrid
-  const completionMeta = {
+    // 6. Publish completion event to EventGrid (for Device Bridge)
+    const completionMeta = {
       delivered: delivered,
       commandMeta: input.data,
+      response: response, 
     };
     const completionEventTask =
         context.df.callActivity(activityCompletionEvent, completionMeta);

@@ -18,7 +18,8 @@ module.exports = async function (context, eventGridEvent) {
   try {
     //const funcName = getFunctionName(__filename);
     if (eventGridEvent.eventType === 'ForwardMessageStateChange') {
-      const { messageId, newState, reason } = eventGridEvent.data;
+      const { messageId, newState, reason, stateTimeUtc } = eventGridEvent.data;
+      const { referenceNumber } = eventGridEvent.data;
       if (completedStates.includes(newState)) {
         context.log.verbose(`${funcName} received forward message ${messageId}`
             + ` with state ${newState}`);
@@ -36,8 +37,8 @@ module.exports = async function (context, eventGridEvent) {
             const eventData = {
               success: successStates.includes(newState) ? true : false,
               reason: reason,
-              deliveryTime: eventGridEvent.data.stateTimeUtc,
-              referenceNumber: eventGridEvent.data.referenceNumber,
+              deliveryTime: stateTimeUtc,
+              referenceNumber: referenceNumber,
             };
             context.log.verbose(`${funcName} raising event CommandDelivered` +
                 ` with ${JSON.stringify(eventData)}`);

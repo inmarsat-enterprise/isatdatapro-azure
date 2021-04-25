@@ -1,31 +1,31 @@
 const uuid = require('uuid').v4;
 
 const testMode = process.env.testMode;
-const funcName = 'OtaCommand5Completion';
+const funcName = 'OtaCommand6Completion';
 
 module.exports = async function(context, eventData) {
   if (!eventData.delivered) throw new Error(`${funcName} missing delivered`);
   if (!eventData.commandMeta) throw new Error(`${funcName} missing commandMeta`);
-  const { delivered, commandMeta } = eventData;
-  const { otaCommandId } = commandMeta;
+  const { delivered, commandMeta, response } = eventData;
+  const { otaCommandId, mobileId, completion } = commandMeta;
   try {
     const event = {
       id: uuid(),
       dataVersion: '2.0',
-      data: Object.assign({}, commandMeta),
       eventType: 'OtaCommandComplete',
-      eventTime: delivered.deliveryTime,
+      subject: `OtaCommand ${otaCommandId} to ${mobileId}` +
+          ` ${delivered.success ? 'delivered' : 'failed'}` +
+          `${response ? ' with response' : ''}`,
+      data: {
+        otaCommandId: otaCommandId,
+        mobileId: mobileId,
+        completion: completion,
+        delivered: delivered,
+        response: response,
+      },
+      eventTime: response ? response.mailboxTimeUtc : delivered.deliveryTime,
     };
-    delete event.data.command;
-    if (delivered.success) {
-      context.log.verbose(`Command ${otaCommandId} delivered`);
-      event.subject = `Command delivered: ${otaCommandId}`;
-      event.data.commandDeliveredTime = delivered.deliveryTime;
-    } else {
-      context.log.warn(`Command ${otaCommandId} failed`)
-      event.subject = `Command failed: ${otaCommandId}`;
-      event.data.commandFailedTime = delivered.deliveryTime;
-    }
+    delete event.data.completion.response;   //redundant
     if (!testMode) {
       context.log.info(`${funcName} publishing to EventGrid` +
           ` ${JSON.stringify(event)} for Device Bridge`);
