@@ -1,5 +1,6 @@
 /**
  * Submits `forward` messsages on the IsatData Pro service
+ * Publishes events to EventGrid
  * @module MessageForwardSubmit
  */
 'use strict';
@@ -8,6 +9,8 @@ const idp = require('isatdatapro-microservices');
 const submitForwardMessage = idp.submitForwardMessages;
 const eventHandler = idp.eventHandler.emitter;
 const { eventGrid, getFunctionName } = require('../SharedCode');
+
+const funcName = 'MessageForwardSubmit';
 
 /**
  * A new forward message submission
@@ -29,34 +32,48 @@ const { eventGrid, getFunctionName } = require('../SharedCode');
  */
 module.exports = async function (context, eventGridEvent) {
   if (eventGridEvent.eventType === 'NewForwardSubmission') {
-    const funcName = getFunctionName(__filename);
-    context.log.verbose(`${funcName} triggered with`
-        + ` ${JSON.stringify(eventGridEvent.data)}`);
+    // const funcName = getFunctionName(__filename);
+    context.log.verbose(`${funcName} triggered with` +
+        ` ${JSON.stringify(eventGridEvent.data)}`);
     context.bindings.outputEvent = [];
-    let { mobileId, message, submissionId } = eventGridEvent.data;
+    const { mobileId, message, submissionId } = eventGridEvent.data;
     if (!submissionId) submissionId = null;
   
+    /**
+     * Publishes a `NewForwardMessage` to EventGrid
+     * @param {Object} message A `ForwardMessage` object
+     */
     function onNewForwardMessage(message) {
       const eventType = 'NewForwardMessage';
-      const subject = `New forward message ${message.messageId}`
-          + ` to ${message.mobileId}`;
+      const subject = `New forward message ${message.messageId}` +
+          ` to ${message.mobileId}`;
       const data = Object.assign({ submissionId: submissionId }, message);
       const eventTime = message.mailboxTimeUtc;
       const event = new eventGrid.Event(eventType, subject, data, eventTime);
-      context.log.verbose(`${funcName} publishing NewForwardMessage`
-          + ` ${JSON.stringify(event)}`);
+      context.log.verbose(`${funcName} publishing NewForwardMessage` +
+          ` ${JSON.stringify(event)}`);
       context.bindings.outputEvent.push(event);
     }
   
+    /**
+     * Publishes an ApiOutage to EventGrid
+     * @param {string} satelliteGateway The satellite message gateway name
+     * @param {string} timestamp An ISO UTC timestamp of the event
+     */
     function onApiOutage(satelliteGateway, timestamp) {
       const event = eventGrid.ApiOutageEvent(satelliteGateway, timestamp);
-      context.log.warn(`Satellite API outage detected`);
+      context.log.warn(`Satellite API outage detected for ${satelliteGateway}`);
       context.bindings.outputEvent.push(event);
     }
   
-    function onApiRecovery(satelliteGateway, timestamp) {
+    /**
+     * Publishes an ApiRecovery to EventGrid
+     * @param {string} satelliteGateway The satellite message gateway name
+     * @param {string} timestamp An ISO UTC timestamp of the event
+     */
+     function onApiRecovery(satelliteGateway, timestamp) {
       const event = eventGrid.ApiRecoveryEvent(satelliteGateway, timestamp);
-      context.log(`Satellite API recovery detected`);
+      context.log.info(`Satellite API recovered for ${satelliteGateway}`);
       context.bindings.outputEvent.push(event);
     }
   

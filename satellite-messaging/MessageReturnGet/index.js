@@ -9,14 +9,16 @@ const getReturnMessages = idp.getReturnMessages;
 const eventHandler = idp.eventHandler.emitter;
 const { eventGrid, getFunctionName } = require('../SharedCode');
 
+const funcName = 'MessageReturnGet';
+
 /**
  * Periodically retrieves messages from the satellite network API
  * @param {Object} context The Azure function app context
  * @param {Object} timer The function app timer
  */
 module.exports = async function (context, timer) {
-  const funcName = getFunctionName(__filename);
-  const callTime = new Date().toISOString();
+  // const funcName = getFunctionName(__filename);
+  // const callTime = new Date().toISOString();
   context.bindings.outputEvent = [];
   
   function onNewReturnMessage(message) {

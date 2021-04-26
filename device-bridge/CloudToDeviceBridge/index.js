@@ -11,32 +11,17 @@ const { templates } = require('../lib/deviceTemplates');
 const manufacturerCodes = ['SKY', 'HON'];
 
 /**
- * Returns the Mobile ID from a provisioned device ID
- * @private
- * @param {string} deviceId Unique provisioned device ID containing Mobile ID
- * @returns {string} mobileId
+ * Periodically checks the IoT Hub for new offline commands or properties
+ * @param {Object} context The Azure Function context
+ * @param {Object} timer An Azure Function Timer trigger
  */
-function extractMobileId(deviceId) {
-  let mobileId;
-  for (let m=0; m < manufacturerCodes.length; m++) {
-    if (deviceId.includes(manufacturerCodes[m])) {
-      const index = deviceId.search(manufacturerCodes[m]);
-      mobileId = deviceId.substring(index - 8, index + 7);
-      break;
-    }
-  }
-  return mobileId;
-}
-
 module.exports = async function (context, timer) {
-  const thisFunction = { name: __filename };
   const callTime = new Date().toISOString();
   try {
     if (timer.IsPastDue) {
-      context.log.warn(`${thisFunction.name} timer past due!`);
+      context.log.warn(`${__filename} timer past due!`);
     }
-    context.log.verbose(`${thisFunction.name} >>>> entry`
-        + ` (timer) at ${callTime}`);
+    context.log.verbose(`${__filename} >>>> entry (timer) at ${callTime}`);
     // TODO: check templates in library and push any new ones/versions
     await updateDeviceTemplates(context);
     const provisionedDevices = await getDevices();
@@ -63,3 +48,21 @@ module.exports = async function (context, timer) {
     context.log.verbose(`${__filename} <<<< exit (runtime: ${runTime})`);
   }
 };
+
+/**
+ * Returns the Mobile ID from a provisioned device ID
+ * @private
+ * @param {string} deviceId Unique provisioned device ID containing Mobile ID
+ * @returns {string} mobileId
+ */
+ function extractMobileId(deviceId) {
+  let mobileId;
+  for (let m=0; m < manufacturerCodes.length; m++) {
+    if (deviceId.includes(manufacturerCodes[m])) {
+      const index = deviceId.search(manufacturerCodes[m]);
+      mobileId = deviceId.substring(index - 8, index + 7);
+      break;
+    }
+  }
+  return mobileId;
+}

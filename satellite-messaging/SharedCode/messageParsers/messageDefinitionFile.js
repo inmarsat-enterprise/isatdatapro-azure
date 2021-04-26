@@ -9,8 +9,8 @@ function parse(context, message) {
   } else {
     parsedMessage = parser.commonMessageFormat.parse(message);
   }
-  context.log(`Parsed return message ${message.messageId}: `
-      + `${JSON.stringify(parsedMessage, null, 2)}`);
+  context.log(`Parsed return message ${message.messageId}: ` +
+      `${JSON.stringify(parsedMessage, null, 2)}`);
   return true;
 }
 

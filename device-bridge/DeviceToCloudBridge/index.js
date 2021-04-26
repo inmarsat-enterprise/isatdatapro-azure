@@ -12,39 +12,14 @@ const defaultDeviceIdFormat =
     process.env.IOTC_DFLT_DEVICE_ID_FORMAT || 'idp-${mobileId}';
 
 /**
- * Looks up the provisioned device template for a device based on the 
- * IDP mobile ID to map to a device model
- * @param {string} identifier Unique satellite modem ID
- * @returns {{ id: string, model: string, mobileId: string }}
- */
-async function getDeviceMeta(identifier) {
-  const provisionedDevices = await getDevices();
-  const device = {};
-  for (let d=0; d < provisionedDevices.length; d++) {
-    if (provisionedDevices[d].id.includes(identifier)) {
-      for (let template in templates) {
-        if (templates[template].id === provisionedDevices[d].instanceOf) {
-          device.id = provisionedDevices[d].id;
-          device.model = template;
-          break;
-        }
-      }
-    }
-    if (device.model) break;
-  }
-  return device;
-}
-
-/**
  * Processes standard mobile-originated messages and OTA command completion.
  * @param {object} context Azure Function context for logging, etc
  * @param {object} eventGridEvent The triggering Event
  */
 module.exports = async function (context, eventGridEvent) {
-  const thisFunction = { name: __filename };
   const callTime = new Date().toISOString();
-  context.log.verbose(`${thisFunction.name} >>>> entry triggered`
-      + ` by ${JSON.stringify(eventGridEvent.eventType)}`);
+  context.log.verbose(`${__filename} >>>> entry triggered` +
+      ` by ${JSON.stringify(eventGridEvent.eventType)}`);
   let device;
   try {
     const { data, eventType } = eventGridEvent;
@@ -79,6 +54,8 @@ module.exports = async function (context, eventGridEvent) {
           let ad = 'completed'
           if ('reason' in data) {
             switch (data.reason) {
+              case 'NO_ERROR':
+                break;
               case 'ERROR':
                 ac = 500;
                 break;
@@ -97,7 +74,7 @@ module.exports = async function (context, eventGridEvent) {
           };
 
         } else {
-          context.log.verbose(`No completion data available`)
+          context.log.warn(`No completion data available`)
           // TODO something special for offline command completion?
         }
         break;
@@ -136,3 +113,27 @@ module.exports = async function (context, eventGridEvent) {
     context.log.verbose(`${__filename} <<<< exit (runtime: ${runTime})`);
   }
 };
+
+/**
+ * Looks up the provisioned device template for a device based on the 
+ * IDP mobile ID to map to a device model
+ * @param {string} identifier Unique satellite modem ID
+ * @returns {{ id: string, model: string, mobileId: string }}
+ */
+ async function getDeviceMeta(identifier) {
+  const provisionedDevices = await getDevices();
+  const device = {};
+  for (let d=0; d < provisionedDevices.length; d++) {
+    if (provisionedDevices[d].id.includes(identifier)) {
+      for (let template in templates) {
+        if (templates[template].id === provisionedDevices[d].instanceOf) {
+          device.id = provisionedDevices[d].id;
+          device.model = template;
+          break;
+        }
+      }
+    }
+    if (device.model) break;
+  }
+  return device;
+}

@@ -1,7 +1,7 @@
 {
   "bindings": [
     {
-      "name": "timerGetReturnMessages",
+      "name": "timer",
       "type": "timerTrigger",
       "direction": "in",
       "schedule": "*/12 * * * * *"
