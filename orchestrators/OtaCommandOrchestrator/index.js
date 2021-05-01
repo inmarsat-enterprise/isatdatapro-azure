@@ -16,7 +16,7 @@ const activitySubmit = 'OtaCommand2Submit';
 const activitySending = 'OtaCommand3Sending';
 const activityDelivery = 'OtaCommand4Delivery';
 const activityResponse = 'OtaCommand5Response';
-const activityCompletionEvent = 'OtaCommand6Completion';
+const activityCompletion = 'OtaCommand6Completion';
 const responseFeatureEnabled = true;
 
 module.exports = df.orchestrator(function* (context) {
@@ -26,24 +26,26 @@ module.exports = df.orchestrator(function* (context) {
     const input = context.df.getInput();
     if (!input || !input.data) throw new Error('Missing input data');
     if (!input.id) throw new Error('Missing input.id');
+    const { mobileId } = input.data;
+    const otaCommandId = input.id;
+    input.data.otaCommandId = otaCommandId;
     // Timeout setup
     const expiration =
         moment.utc(context.df.currentUtcDateTime).add(timeout, "s");
     const timeoutTask = context.df.createTimer(expiration.toDate());
+    const timeoutMeta = { commandMeta: input.data };
     let winner;  // for timeout management
-    const { mobileId } = input.data;
-    const otaCommandId = input.id;
-    input.data.otaCommandId = otaCommandId;
     if (!context.df.isReplaying) {
       context.log.verbose(`${funcName} orchestrating command:` +
-          ` ${JSON.stringify(input.data)}`);
+          ` ${JSON.stringify(input.data)} (timeout: ${timeoutMeta} s)`);
     }
     
     // 2. Submit command as OTA message
     const submitTask = context.df.callActivity(activitySubmit, input.data);
     winner = yield context.df.Task.any([submitTask, timeoutTask]);
     if (winner === timeoutTask) {
-      return handleTimeout(context, activitySubmit, outputs);
+      timeoutMeta.stage = activitySubmit;
+      return handleTimeout(context, timeoutMeta, outputs);
     }
     const { eventType: submitEvent, id: submitId } = submitTask.result;
     if (!context.df.isReplaying) {
@@ -66,7 +68,8 @@ module.exports = df.orchestrator(function* (context) {
     const sendingTask = context.df.waitForExternalEvent('CommandSending');
     winner = yield context.df.Task.any([sendingTask, timeoutTask]);
     if (winner === timeoutTask) {
-      return handleTimeout(context, activitySending, outputs);
+      timeoutMeta.stage = activitySending;
+      return handleTimeout(context, timeoutMeta, outputs);
     }
     const { messageId } = sendingTask.result;
     if (!context.df.isReplaying) {
@@ -84,7 +87,8 @@ module.exports = df.orchestrator(function* (context) {
     const deliveryTask = context.df.waitForExternalEvent('CommandDelivered');
     winner = yield context.df.Task.any([deliveryTask, timeoutTask]);
     if (winner === timeoutTask) {
-      return handleTimeout(context, activityDelivery, outputs);
+      timeoutMeta.stage = activityDelivery;
+      return handleTimeout(context, timeoutMeta, outputs);
     }
     const delivered = deliveryTask.result;
     if (!context.df.isReplaying) {
@@ -129,7 +133,8 @@ module.exports = df.orchestrator(function* (context) {
       const responseTask = context.df.waitForExternalEvent('ResponseReceived');
       winner = yield context.df.Task.any([responseTask, timeoutTask]);
       if (winner === timeoutTask) {
-        return handleTimeout(context, activityResponse, outputs);
+        timeoutMeta.stage = activityResponse;
+        return handleTimeout(context, timeoutMeta, outputs);
       }
       response = responseTask.result;
       if (!context.df.isReplaying) {
@@ -146,10 +151,11 @@ module.exports = df.orchestrator(function* (context) {
       response: response, 
     };
     const completionEventTask =
-        context.df.callActivity(activityCompletionEvent, completionMeta);
+        context.df.callActivity(activityCompletion, completionMeta);
     winner = yield context.df.Task.any([completionEventTask, timeoutTask]);
     if (winner === timeoutTask) {
-      return handleTimeout(context, activityCompletionEvent, outputs);
+      timeoutMeta.stage = activityCompletion;
+      return handleTimeout(context, timeoutMeta, outputs);
     }
     const { eventType: completionEventType, id: completionEventId } =
         completionEventTask.result;
@@ -179,7 +185,16 @@ module.exports = df.orchestrator(function* (context) {
   }
 });
 
-function handleTimeout(context, stage, outputs) {
-  context.log.warn(`Timed out at stage ${stage}`);
-  return outputs.push({ timeout: stage });
+async function handleTimeout(context, timeoutMeta, outputs) {
+  const { otaCommandId } = timeoutMeta.commandMeta;
+  context.log.warn(`${otaCommandId} timed out at stage ${timeoutMeta.stage}`);
+  const completionMeta = {
+    delivered: {
+      success: false,
+      reason: "ORCHESTRATION_TIMEOUT",
+    },
+    commandMeta: timeoutMeta.commandMeta,
+  };
+  await context.df.callActivity(activityCompletion, completionMeta);
+  return outputs.push({ timeout: timeoutMeta.stage });
 }
