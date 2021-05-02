@@ -27,9 +27,9 @@ module.exports = async function (context, eventGridEvent) {
         }
         if (customStatus.submissionId &&
             customStatus.submissionId === submissionId) {
-          const eventData = { messageId: messageId };
-          context.log.verbose(`${funcName} raising CommandSending with`
-              + ` ${JSON.stringify(eventData)}`);
+          const eventData = eventGridEvent.data;
+          context.log.verbose(`${funcName} raising CommandSending with` +
+              ` ${JSON.stringify(eventData)}`);
           await client.raiseEvent(instanceId, 'CommandSending', eventData);
           break;
         }
