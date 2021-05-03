@@ -6,8 +6,8 @@
   },
   "logging": {
     "logLevel": {
-      "Function.CloudToDeviceBridge": "Trace",
-      "Function.DeviceToCloudBridge": "Trace",
+      "Function.CloudToDeviceBridge": "Information",
+      "Function.DeviceToCloudBridge": "Information",
       "default": "Information"
     }
   }
