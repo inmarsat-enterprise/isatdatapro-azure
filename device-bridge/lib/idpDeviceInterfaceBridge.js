@@ -21,6 +21,8 @@ const groupSasKey = process.env.IOTC_GROUP_ENROLL_SAS_KEY;
 const deviceCache = {};
 let hubClient;
 
+const testMode = process.env.testMode;
+
 /**
  * Computes a derived device key using the primary key.
  * @param {string} deviceId The unique device ID
@@ -61,9 +63,14 @@ async function sendTelemetry(context, device, schema) {
   }
   if (schema) message.properties.add('iothub-message-schema', schema);
   try {
-    const res = await hubClient.sendEvent(message)
-    context.log(`Sent ${device.id} telemetry: ${message.getData()}`
-        + (res ? `; status: ${res.constructor.name}` : ``));
+    if (testMode) {
+      context.log.warn(`Test mode enabled not sending telemetry` +
+          ` ${message.getData()}`);
+    } else {
+      const res = await hubClient.sendEvent(message)
+      context.log(`Sent ${device.id} telemetry: ${message.getData()}` +
+          (res ? `; status: ${res.constructor.name}` : ``));
+    }
   } catch (e) {
     context.log.error(`Failed to send telemetry: ${e.stack}`);
   }
@@ -84,8 +91,13 @@ function commandRequest(context, otaCommand, subject) {
     data: otaCommand,
     eventTime: new Date().toISOString()
   };
-  context.log.info(`Publishing ${JSON.stringify(event)} to EventGrid`);
-  context.bindings.outputEvent.push(event);
+  if (testMode) {
+    context.log.warn(`Test mode enabled, not publishing to EventGrid: ` +
+        + ` ${JSON.stringify(event)}`);
+  } else {
+    context.log.info(`Publishing ${JSON.stringify(event)} to EventGrid`);
+    context.bindings.outputEvent.push(event);
+  }
 }
 
 /**
@@ -242,9 +254,14 @@ async function updateDevice(context, device, twin) {
       }
     }
     if (!_.isEmpty(update)) {
-      const err = await twin.properties.reported.update(update);
-      context.log(`Sent ${device.id} properties: ${JSON.stringify(update)}` +
-          (err ? `; error: ${err.toString()}` : ` status: success`));
+      if (testMode) {
+        context.log.warn(`Test mode enabled not updating properties:` +
+            ` ${JSON.stringify(update)}`);
+      } else {
+        const err = await twin.properties.reported.update(update);
+        context.log(`Sent ${device.id} properties: ${JSON.stringify(update)}` +
+            (err ? `; error: ${err.toString()}` : ` status: success`));
+      }
     }
   }
 }

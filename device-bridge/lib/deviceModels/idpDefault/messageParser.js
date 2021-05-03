@@ -250,7 +250,7 @@ function parseGenericIdp(context, message) {
           reportedProperties.idpFirmwareVersion =
               `${telemetry.firmwareMajorVersion}` +
               `.${telemetry.firmwareMinorVersion}`;
-          reportedProperties.idpProductId = telemetry.productId;
+          reportedProperties.idpProductId = telemetry.product;
           reportedProperties.idpWakeupPeriod =
               telemetry.wakeupPeriod.toLowerCase();
           reportedProperties.idpLastResetReason = telemetry.lastResetReason;
@@ -258,10 +258,11 @@ function parseGenericIdp(context, message) {
               telemetry.operatorTxState;
           reportedProperties.idpUserTxState =
               telemetry.userTxState === 0 ? false : true;
-          reportedProperties.idpBroadcastIdCount = telemetry.broadcastIdCount;
-          if (codecMessageId !== 97) {
+          reportedProperties.idpBroadcastIdCount =
+              telemetry.broadcastIdCount || telemetry.broadcastIDCount;
+          if (message.codecMessageId !== 97) {
             reportedProperties.idpLastRegistrationTime =
-                telemetry.receiveTimeUtc;
+                message.receiveTimeUtc;
           }
           telemetry = undefined;
           break;
@@ -277,13 +278,22 @@ function parseGenericIdp(context, message) {
         case 72:
           // Location response to request
           telemetry.idpLatitude = round(telemetry.latitude / 60000, 6);
+          delete telemetry.latitude;
           telemetry.idpLongitude = round(telemetry.longitude / 60000, 6);
+          delete telemetry.longitude;
+          telemetry.idpAltitude = telemetry.altitude;
+          delete telemetry.altitude;
           reportedProperties.idpLocation = {
             lat: telemetry.idpLatitude,
             lon: telemetry.idpLongitude,
             alt: telemetry.idpAltitude,
           }
           telemetry.idpHeading = telemetry.heading * 2;
+          delete telemetry.heading;
+          telemetry.idpSpeed = telemetry.speed;
+          delete telemetry.speed;
+          telemetry.idpGnssFixStatus = telemetry.fixStatus;
+          delete telemetry.fixStatus;
           const { dayOfMonth, minuteOfDay } = telemetry;
           delete telemetry.dayOfMonth;
           delete telemetry.minuteOfDay;
@@ -310,13 +320,17 @@ function parseGenericIdp(context, message) {
         case 115:
           // List broadcast IDs response to request
           reportedProperties.idpBroadcastIds = {};
+          const broadcastIds = telemetry.broadcastIds || telemetry.broadcastIDs;
           for (let i=0; i < 16; i++) {
             const index = `index${i}`;
-            const broadcastId = telemetry.broadcastIds[i][0].value;
-            reportedProperties.idpBroadcastIds[index] = broadcastId
+            const broadcastId = broadcastIds[i][0].value;
+            reportedProperties.idpBroadcastIds[index] = broadcastId;
           }
           telemetry = undefined;
           break;
+        default:
+          context.log.warn(`Azure IOT parsing not defined` +
+              ` for modem codecMessageId ${message.codecMessageId}`);
       }
     }
   }
