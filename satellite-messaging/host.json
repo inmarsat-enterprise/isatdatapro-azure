@@ -6,13 +6,13 @@
   },
   "logging": {
     "logLevel": {
-      "Function.MessageReturnGet": "Trace",
-      "Function.MessageForwardSubmit": "Trace",
-      "Function.MessageForwardStatusGet": "Trace",
-      "Function.MessageForwardGet": "Trace",
-      "Function.MobileGet": "Trace",
-      "Function.MailboxUpdate": "Trace",
-      "Function.SatelliteGatewayUpdate": "Trace",
+      "Function.MessageReturnGet": "Information",
+      "Function.MessageForwardSubmit": "Information",
+      "Function.MessageForwardStatusGet": "Information",
+      "Function.MessageForwardGet": "Information",
+      "Function.MobileGet": "Information",
+      "Function.MailboxUpdate": "Information",
+      "Function.SatelliteGatewayUpdate": "Information",
       "default": "Information"
     }
   }
