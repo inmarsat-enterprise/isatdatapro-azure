@@ -10,9 +10,6 @@ products:
 - azure-cosmos-db
 - azure-storage
 - azure-app-service
-page_type: sample
-description: "This architecture walks you through the process involved in 
-developing IsatData Pro satellite IoT connectivity for Azure."
 ---
 
 # Satellite IoT Messaging Microservice
