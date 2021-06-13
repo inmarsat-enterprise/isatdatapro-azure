@@ -1,0 +1,2054 @@
+{
+	"info": {
+		"_postman_id": "d2c5728f-d6f8-474b-bf9e-80f0e13699f1",
+		"name": "isatdatapro-azure",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Device Bridge",
+			"item": [
+				{
+					"name": "SatelliteGatewayQuery",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\":\"4ab6b9c8-6f57-415f-b0c2-476bf04b52d4\",\n    \"subject\":\"Satellite Gateway query for Inmarsat\",\n    \"dataVersion\":\"2.0\",\n    \"eventType\":\"SatelliteGatewayQuery\",\n    \"data\":{\n        \"category\":\"satellite_gateway\",\n        \"name\":\"Inmarsat\",\n        \"url\":\"https://api.inmarsat.com/v1/idp/gateway/rest/\",\n        \"alive\":true,\n        \"aliveChangeTimeUtc\":\"2020-09-03T11:55:07.937Z\",\n        \"id\":\"a92225cd-3277-4ecc-b702-29105ec2768c\"\n    },\n    \"eventTime\":\"2020-10-24T20:46:21.505Z\",\n    \"topic\": \"/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/enterprise-iot-poc/providers/Microsoft.EventGrid/topics/IdpExternalizations\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MailboxQuery",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\":\"94606c4a-3b0e-4d8d-8f36-7e51b88450f9\",\n    \"subject\":\"Mailbox query for 590\",\n    \"dataVersion\":\"2.0\",\n    \"eventType\":\"MailboxQuery\",\n    \"data\":{\n        \"category\":\"mailbox\",\n        \"mailboxId\":\"590\",\n        \"name\":\"ISOL Demo\",\n        \"accessId\":\"MB590\",\n        \"encryptedPassword\":\"WAGsvBUiSdvW8MNYFKLJDw==:py8jwljXoFQ=\",\n        \"satelliteGatewayName\":\"Inmarsat\",\n        \"enabled\":true,\n        \"id\":\"14504120-9209-4137-a0b6-9b043690f40b\"\n    },\n    \"eventTime\":\"2020-10-24T20:50:48.486Z\",\n    \"topic\": \"/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/enterprise-iot-poc/providers/Microsoft.EventGrid/topics/IdpExternalizations\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Location (EventGridEvent)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"0b4c6be5-8a82-4028-954a-86e9cf0da630\",\n  \"subject\": \"New return message 48998565 from 01459438SKYFEE3\",\n  \"data\": {\n    \"category\": \"message_return\",\n    \"messageId\": 48998565,\n    \"mobileId\": \"01459438SKYFEE3\",\n    \"mailboxId\": \"590\",\n    \"codecServiceId\": 0,\n    \"codecMessageId\": 72,\n    \"payloadRaw\": [\n      0,\n      72,\n      1,\n      41,\n      117,\n      180,\n      221,\n      71,\n      126,\n      128,\n      80,\n      1,\n      0,\n      48,\n      51\n    ],\n    \"payloadJson\": {\n      \"name\": \"position\",\n      \"codecServiceId\": 0,\n      \"codecMessageId\": 72,\n      \"fields\": [\n        {\n          \"name\": \"fixStatus\",\n          \"stringValue\": \"1\",\n          \"dataType\": \"unsignedint\"\n        },\n        {\n          \"name\": \"latitude\",\n          \"stringValue\": \"2717108\",\n          \"dataType\": \"signedint\"\n        },\n        {\n          \"name\": \"longitude\",\n          \"stringValue\": \"-4550915\",\n          \"dataType\": \"signedint\"\n        },\n        {\n          \"name\": \"altitude\",\n          \"stringValue\": \"80\",\n          \"dataType\": \"signedint\"\n        },\n        {\n          \"name\": \"speed\",\n          \"stringValue\": \"1\",\n          \"dataType\": \"unsignedint\"\n        },\n        {\n          \"name\": \"heading\",\n          \"stringValue\": \"0\",\n          \"dataType\": \"unsignedint\"\n        },\n        {\n          \"name\": \"dayOfMonth\",\n          \"stringValue\": \"6\",\n          \"dataType\": \"unsignedint\"\n        },\n        {\n          \"name\": \"minuteOfDay\",\n          \"stringValue\": \"51\",\n          \"dataType\": \"unsignedint\"\n        }\n      ]\n    },\n    \"mailboxTimeUtc\": \"2020-10-06T00:51:07Z\",\n    \"size\": 15,\n    \"ttl\": 7776000,\n    \"subcategory\": \"return\",\n    \"receiveTimeUtc\": \"2020-10-06T00:51:07Z\",\n    \"satelliteRegion\": \"AMERRB16\"\n  },\n  \"eventType\": \"NewReturnMessage\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"2020-10-06T00:52:53.926Z\",\n  \"topic\": \"/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/enterprise-iot-poc/providers/Microsoft.EventGrid/topics/IdpExternalizations\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "modemRegistration (NewReturnMessage EventGridEvent)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"modemRegistrationTestUuid\",\n  \"subject\": \"New return message {{returnMessageId}} from {{mobileId}}\",\n  \"data\": {\n    \"category\": \"message_return\",\n    \"messageId\": {{returnMessageId}},\n    \"mobileId\": \"{{mobileId}}\",\n    \"mailboxId\": \"{{mailboxId}}\",\n    \"codecServiceId\": 0,\n    \"codecMessageId\": 0,\n    \"payloadJson\": {\n        \"name\": \"modemRegistration\",\n        \"codecServiceId\": 0,\n        \"codecMessageId\": 0,\n        \"fields\": [\n            {\n                \"name\": \"hardwareMajorVersion\",\n                \"stringValue\": \"2\",\n                \"dataType\": \"unsignedint\"\n            },\n            {\n                \"name\": \"hardwareMinorVersion\",\n                \"stringValue\": \"0\",\n                \"dataType\": \"unsignedint\"\n            },\n            {\n                \"name\": \"softwareMajorVersion\",\n                \"stringValue\": \"3\",\n                \"dataType\": \"unsignedint\"\n            },\n            {\n                \"name\": \"softwareMinorVersion\",\n                \"stringValue\": \"5\",\n                \"dataType\": \"unsignedint\"\n            },\n            {\n                \"name\": \"product\",\n                \"stringValue\": \"7\",\n                \"dataType\": \"unsignedint\"\n            },\n            {\n                \"name\": \"wakeupPeriod\",\n                \"stringValue\": \"None\",\n                \"dataType\": \"enum\"\n            },\n            {\n                \"name\": \"lastResetReason\",\n                \"stringValue\": \"LowVoltage\",\n                \"dataType\": \"enum\"\n            },\n            {\n                \"name\": \"virtualCarrier\",\n                \"stringValue\": \"101\",\n                \"dataType\": \"unsignedint\"\n            },\n            {\n                \"name\": \"beam\",\n                \"stringValue\": \"4\",\n                \"dataType\": \"unsignedint\"\n            },\n            {\n                \"name\": \"vain\",\n                \"stringValue\": \"0\",\n                \"dataType\": \"unsignedint\"\n            },\n            {\n                \"name\": \"operatorTxState\",\n                \"stringValue\": \"0\",\n                \"dataType\": \"unsignedint\"\n            },\n            {\n                \"name\": \"userTxState\",\n                \"stringValue\": \"0\",\n                \"dataType\": \"unsignedint\"\n            },\n            {\n                \"name\": \"broadcastIDCount\",\n                \"stringValue\": \"1\",\n                \"dataType\": \"unsignedint\"\n            }\n        ]\n    },\n    \"payloadRaw\": [\n        0,\n        0,\n        2,\n        0,\n        3,\n        5,\n        7,\n        0,\n        5,\n        6,\n        84,\n        0,\n        0,\n        0,\n        1\n    ],\n    \"mailboxTimeUtc\": \"{{returnMessageTime}}\",\n    \"size\": 15,\n    \"ttl\": 7776000,\n    \"subcategory\": \"return\",\n    \"receiveTimeUtc\": \"{{returnMessageTime}}\",\n    \"satelliteRegion\": \"AMERRB16\"\n  },\n  \"eventType\": \"NewReturnMessage\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "wakeupPeriod (NewReturnMessage EventGridEvent)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"wakeupPeriodTestUuid\",\n  \"subject\": \"New return message {{returnMessageId}} from {{mobileId}}\",\n  \"data\": {\n    \"category\": \"message_return\",\n    \"messageId\": {{returnMessageId}},\n    \"mobileId\": \"{{mobileId}}\",\n    \"mailboxId\": \"{{mailboxId}}\",\n    \"codecServiceId\": 0,\n    \"codecMessageId\": 70,\n    \"payloadJson\": {\n        \"name\": \"sleepSchedule\",\n        \"codecServiceId\": 0,\n        \"codecMessageId\": 70,\n        \"fields\": [\n            {\n                \"name\": \"wakeupPeriod\",\n                \"stringValue\": \"None\",\n                \"dataType\": \"enum\"\n            },\n            {\n                \"name\": \"mobileInitiated\",\n                \"stringValue\": \"False\",\n                \"dataType\": \"boolean\"\n            },\n            {\n                \"name\": \"messageReference\",\n                \"stringValue\": \"268\",\n                \"dataType\": \"unsignedint\"\n            }\n        ]\n    },\n    \"payloadRaw\": [\n        0,\n        70,\n        0,\n        16,\n        192\n    ],\n    \"mailboxTimeUtc\": \"{{returnMessageTime}}\",\n    \"size\": 5,\n    \"ttl\": 7776000,\n    \"subcategory\": \"return\",\n    \"receiveTimeUtc\": \"{{returnMessageTime}}\",\n    \"satelliteRegion\": \"AMERRB16\"\n  },\n  \"eventType\": \"NewReturnMessage\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "modemLocation (NewReturnMessage EventGridEvent)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"modemLocationTestUuid\",\n  \"subject\": \"New return message {{returnMessageId}} from {{mobileId}}\",\n  \"data\": {\n    \"category\": \"message_return\",\n    \"messageId\": {{returnMessageId}},\n    \"mobileId\": \"{{mobileId}}\",\n    \"mailboxId\": \"{{mailboxId}}\",\n    \"codecServiceId\": 0,\n    \"codecMessageId\": 72,\n    \"payloadRaw\": [\n      0,\n      72,\n      1,\n      41,\n      117,\n      180,\n      221,\n      71,\n      126,\n      128,\n      80,\n      1,\n      0,\n      48,\n      51\n    ],\n    \"payloadJson\": {\n      \"name\": \"position\",\n      \"codecServiceId\": 0,\n      \"codecMessageId\": 72,\n      \"fields\": [\n        {\n          \"name\": \"fixStatus\",\n          \"stringValue\": \"1\",\n          \"dataType\": \"unsignedint\"\n        },\n        {\n          \"name\": \"latitude\",\n          \"stringValue\": \"2717108\",\n          \"dataType\": \"signedint\"\n        },\n        {\n          \"name\": \"longitude\",\n          \"stringValue\": \"-4550915\",\n          \"dataType\": \"signedint\"\n        },\n        {\n          \"name\": \"altitude\",\n          \"stringValue\": \"80\",\n          \"dataType\": \"signedint\"\n        },\n        {\n          \"name\": \"speed\",\n          \"stringValue\": \"1\",\n          \"dataType\": \"unsignedint\"\n        },\n        {\n          \"name\": \"heading\",\n          \"stringValue\": \"0\",\n          \"dataType\": \"unsignedint\"\n        },\n        {\n          \"name\": \"dayOfMonth\",\n          \"stringValue\": \"6\",\n          \"dataType\": \"unsignedint\"\n        },\n        {\n          \"name\": \"minuteOfDay\",\n          \"stringValue\": \"51\",\n          \"dataType\": \"unsignedint\"\n        }\n      ]\n    },\n    \"mailboxTimeUtc\": \"{{returnMessageTime}}\",\n    \"size\": 15,\n    \"ttl\": 7776000,\n    \"subcategory\": \"return\",\n    \"receiveTimeUtc\": \"{{returnMessageTime}}\",\n    \"satelliteRegion\": \"AMERRB16\"\n  },\n  \"eventType\": \"NewReturnMessage\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "pingResponse (NewReturnMessage EventGridEvent)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"pingResponseTestUuid\",\n  \"subject\": \"New return message {{returnMessageId}} from {{mobileId}}\",\n  \"data\": {\n    \"category\": \"message_return\",\n    \"messageId\": {{returnMessageId}},\n    \"mobileId\": \"{{mobileId}}\",\n    \"mailboxId\": \"{{mailboxId}}\",\n    \"codecServiceId\": 0,\n    \"codecMessageId\": 112,\n    \"payloadRaw\": [0,112,44,98,44,94],\n    \"payloadJson\": {\n        \"name\": \"mobilePing\",\n        \"codecServiceId\": 0,\n        \"codecMessageId\": 112,\n        \"fields\":[\n            {\n                \"name\": \"requestTime\",\n                \"stringValue\": \"7129\",\n                \"dataType\":\"unsignedint\"\n            },\n            {\n                \"name\": \"responseTime\",\n                \"stringValue\": \"7134\",\n                \"dataType\": \"unsignedint\"\n            }\n        ]\n    },\n    \"mailboxTimeUtc\": \"{{returnMessageTime}}\",\n    \"size\": 6,\n    \"ttl\": 7776000,\n    \"subcategory\": \"return\",\n    \"receiveTimeUtc\": \"{{returnMessageTime}}\",\n    \"satelliteRegion\": \"AMERRB16\"\n  },\n  \"eventType\": \"NewReturnMessage\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "broadcastIds (NewReturnMessage EventGridEvent)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"broadcastIdsTestUuid\",\n  \"subject\": \"New return message {{returnMessageId}} from {{mobileId}}\",\n  \"data\": {\n    \"category\": \"message_return\",\n    \"messageId\": {{returnMessageId}},\n    \"mobileId\": \"{{mobileId}}\",\n    \"mailboxId\": \"{{mailboxId}}\",\n    \"codecServiceId\": 0,\n    \"codecMessageId\": 115,\n    \"payloadJson\": {\n        \"name\": \"broadcastIDs\",\n        \"codecServiceId\": 0,\n        \"codecMessageId\": 115,\n        \"fields\": [\n            {\n                \"name\": \"broadcastIDs\",\n                \"dataType\": \"array\",\n                \"arrayElements\": [\n                    {\n                        \"index\": 0,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"16777074\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 1,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 2,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 3,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 4,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 5,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 6,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 7,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 8,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 9,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 10,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 11,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 12,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 13,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 14,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    },\n                    {\n                        \"index\": 15,\n                        \"fields\": [\n                            {\n                                \"name\": \"id\",\n                                \"stringValue\": \"0\",\n                                \"dataType\": \"unsignedint\"\n                            }\n                        ]\n                    }\n                ]\n            }\n        ]\n    },\n    \"payloadRaw\": [\n        0,\n        115,\n        255,\n        255,\n        114,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0,\n        0\n    ],\n    \"mailboxTimeUtc\": \"{{returnMessageTime}}\",\n    \"size\": 50,\n    \"ttl\": 7776000,\n    \"subcategory\": \"return\",\n    \"receiveTimeUtc\": \"{{returnMessageTime}}\",\n    \"satelliteRegion\": \"AMERRB16\"\n  },\n  \"eventType\": \"NewReturnMessage\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "NewReturnMessage BroadcastIDs",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const eventTime = new Date().toISOString();",
+									"pm.environment.set('eventtime', eventTime);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"0b4c6be5-8a82-4028-954a-86e9cf0da630\",\n    \"subject\": \"New return message 48998565 from 01459438SKYFEE3\",\n    \"data\": {\n        \"category\": \"message_return\",\n        \"messageId\": 49272436,\n        \"mobileId\": \"01174907SKYFDA4\",\n        \"mailboxId\": \"590\",\n        \"codecServiceId\": 0,\n        \"codecMessageId\": 115,\n        \"payloadRaw\": [\n            0,\n            115,\n            255,\n            255,\n            114,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0,\n            0\n        ],\n        \"payloadJson\": {\n            \"name\": \"broadcastIDs\",\n            \"codecServiceId\": 0,\n            \"codecMessageId\": 115,\n            \"fields\": [\n                {\n                    \"name\": \"broadcastIds\",\n                    \"dataType\": \"array\",\n                    \"arrayElements\": [\n                        {\n                            \"index\": 0,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"16777074\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 1,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 2,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 3,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 4,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 5,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 6,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 7,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 8,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 9,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 10,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 11,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 12,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 13,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 14,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        },\n                        {\n                            \"index\": 15,\n                            \"fields\": [\n                                {\n                                    \"name\": \"id\",\n                                    \"stringValue\": \"0\",\n                                    \"dataType\": \"unsignedint\"\n                                }\n                            ]\n                        }\n                    ]\n                }\n            ]\n        },\n        \"mailboxTimeUtc\": \"2020-10-09T19:02:47Z\",\n        \"size\": 50,\n        \"ttl\": 7776000,\n        \"subcategory\": \"return\",\n        \"receiveTimeUtc\": \"{{eventtime}}\",\n        \"satelliteRegion\": \"AMERRB16\"\n    },\n    \"eventType\": \"NewReturnMessage\",\n    \"dataVersion\": \"2.0\",\n    \"metadataVersion\": \"1\",\n    \"eventTime\": \"{{eventtime}}\",\n    \"topic\": \"/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/enterprise-iot-poc/providers/Microsoft.EventGrid/topics/IdpExternalizations\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "NewReturnMessage-PnP periodicReport",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const eventTime = new Date().toISOString();",
+									"pm.environment.set('eventtime', eventTime);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"0b4c6be5-8a82-4028-954a-86e9cf0da630\",\n    \"subject\": \"New return message 48998565 from 01459438SKYFEE3\",\n    \"data\": {\n        \"category\": \"message_return\",\n        \"messageId\": 49272436,\n        \"mobileId\": \"01174907SKYFDA4\",\n        \"mailboxId\": \"590\",\n        \"codecServiceId\": 255,\n        \"codecMessageId\": 1,\n        \"payloadRaw\": [255,1,95,128,235,253,41,117,179,221,71,136,0,43,0,0,35,240,2],\n        \"payloadJson\": {\n            \"name\":\"periodicReport\",\n            \"codecServiceId\":255,\n            \"codecMessageId\":1,\n            \"fields\":[\n                {\n                    \"name\":\"timestamp\",\n                    \"stringValue\":\"1602284541\",\n                    \"dataType\":\"unsignedint\"\n                },\n                {\n                    \"name\":\"latitude\",\n                    \"stringValue\":\"2717107\",\n                    \"dataType\":\"signedint\"\n                },\n                {\n                    \"name\":\"longitude\",\n                    \"stringValue\":\"-4550896\",\n                    \"dataType\":\"signedint\"\n                },\n                {\n                    \"name\":\"altitude\",\n                    \"stringValue\":\"86\",\n                    \"dataType\":\"signedint\"\n                },\n                {\n                    \"name\":\"speed\",\n                    \"stringValue\":\"0\",\n                    \"dataType\":\"unsignedint\"\n                },\n                {\n                    \"name\":\"heading\",\n                    \"stringValue\":\"0\",\n                    \"dataType\":\"unsignedint\"\n                },\n                {\n                    \"name\":\"satellites\",\n                    \"stringValue\":\"8\",\n                    \"dataType\":\"unsignedint\"\n                },\n                {\n                    \"name\":\"pdop\",\n                    \"stringValue\":\"2\",\n                    \"dataType\":\"unsignedint\"\n                },\n                {\n                    \"name\":\"snr\",\n                    \"stringValue\":\"480\",\n                    \"dataType\":\"unsignedint\"\n                }\n            ]\n        },\n        \"mailboxTimeUtc\": \"{{eventtime}}\",\n        \"size\": 19,\n        \"ttl\": 7776000,\n        \"subcategory\": \"return\",\n        \"receiveTimeUtc\": \"{{eventtime}}\",\n        \"satelliteRegion\": \"AMERRB16\"\n    },\n    \"eventType\": \"NewReturnMessage\",\n    \"dataVersion\": \"2.0\",\n    \"metadataVersion\": \"1\",\n    \"eventTime\": \"{{eventtime}}\",\n    \"topic\": \"/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/enterprise-iot-poc/providers/Microsoft.EventGrid/topics/IdpExternalizations\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "NewReturnMessage-PnP periodicReport Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const eventTime = new Date().toISOString();",
+									"pm.environment.set('eventtime', eventTime);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"0b4c6be5-8a82-4028-954a-86e9cf0da630\",\n    \"subject\": \"New return message 48998565 from 01459438SKYFEE3\",\n    \"data\": {\n        \"category\": \"message_return\",\n        \"messageId\": 49272436,\n        \"mobileId\": \"01174907SKYFDA4\",\n        \"mailboxId\": \"590\",\n        \"codecServiceId\": 255,\n        \"codecMessageId\": 3,\n        \"payloadJson\": {\n            \"name\":\"textMobileOriginated\",\n            \"codecServiceId\":255,\n            \"codecMessageId\":3,\n            \"fields\":[\n                {\n                    \"name\":\"text\",\n                    \"stringValue\":\"Test MO text\",\n                    \"dataType\":\"string\"\n                }\n            ]\n        },\n        \"mailboxTimeUtc\": \"2020-10-09T19:02:47Z\",\n        \"size\": 19,\n        \"ttl\": 7776000,\n        \"subcategory\": \"return\",\n        \"receiveTimeUtc\": \"{{eventtime}}\",\n        \"satelliteRegion\": \"AMERRB16\"\n    },\n    \"eventType\": \"NewReturnMessage\",\n    \"dataVersion\": \"2.0\",\n    \"metadataVersion\": \"1\",\n    \"eventTime\": \"{{eventtime}}\",\n    \"topic\": \"/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/enterprise-iot-poc/providers/Microsoft.EventGrid/topics/IdpExternalizations\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CommandResponse (pingReply) Event",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"0b4c6be5-8a82-4028-954a-86e9cf0da630\",\n  \"subject\": \"New return message 48998565 from 01174907SKYFDA4\",\n  \"data\": {\n    \"category\": \"message_return\",\n    \"messageId\": 47821250,\n    \"mobileId\": \"01174907SKYFDA4\",\n    \"mailboxId\": \"590\",\n    \"codecServiceId\": 0,\n    \"codecMessageId\": 112,\n    \"payloadRaw\": [0,112,44,98,44,94],\n    \"payloadJson\": {\n        \"name\": \"mobilePing\",\n        \"codecServiceId\": 0,\n        \"codecMessageId\": 112,\n        \"fields\":[\n            {\n                \"name\": \"requestTime\",\n                \"stringValue\": \"7129\",\n                \"dataType\":\"unsignedint\"\n            },\n            {\n                \"name\": \"responseTime\",\n                \"stringValue\": \"7134\",\n                \"dataType\": \"unsignedint\"\n            }\n        ]\n    },\n    \"mailboxTimeUtc\": \"2020-10-25T01:59:07Z\",\n    \"size\": 6,\n    \"ttl\": 7776000,\n    \"subcategory\": \"return\",\n    \"receiveTimeUtc\": \"2020-10-25T01:59:07Z\",\n    \"satelliteRegion\": \"AMERRB16\",\n    \"completion\": {\n        \"codecServiceId\": 0,\n        \"codecMessageId\": 112,\n        \"property\": \"commandPingModem\",\n        \"resetValue\": false\n    }\n  },\n  \"eventType\": \"OtaCommandResponse\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"2020-10-12T09:52:53.926Z\",\n  \"topic\": \"/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/enterprise-iot-poc/providers/Microsoft.EventGrid/topics/IdpExternalizations\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CommandCompletion (mtText) Event",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\":\"9b055f90-42d7-4eda-b4f8-8d49309cc9b7\",\n    \"dataVersion\":\"2.0\",\n    \"data\": {\n        \"mobileId\":\"01174907SKYFDA4\",\n        \"command\": {\n            \"payloadJson\": {\n                \"codecServiceId\":255,\n                \"codecMessageId\":3,\n                \"fields\": [\n                    {\n                        \"name\":\"text\",\n                        \"stringValue\":\"this is a test from iotc\"\n                    }\n                ]\n            }\n        },\n        \"completion\": {\n            \"property\": \"textMobileTerminated\",\n            \"av\": 5,\n            \"value\": \"this is a test from iotc\"\n        },\n        \"commandVersion\":3,\n        \"commandDeliveredTime\":\"2021-03-15T22:00:45.648Z\"\n    },\n    \"subject\":\"Command delivered: IOTC Desired property textMobileTerminated=this is a test from iotc for idp-01459438SKYFEE3\",\n    \"eventType\":\"OtaCommandComplete\",\n    \"eventTime\":\"2021-03-15T22:00:45.648Z\",\n    \"topic\": \"/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/enterprise-iot-poc/providers/Microsoft.EventGrid/topics/IdpExternalizations\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CommandCompletion (pingModem))",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\":\"9b055f90-42d7-4eda-b4f8-8d49309cc9b7\",\n    \"dataVersion\":\"2.0\",\n    \"data\": {\n        \"mobileId\":\"01174907SKYFDA4\",\n        \"command\": {\n            \"payloadJson\": {\n                \"codecServiceId\":0,\n                \"codecMessageId\":112,\n                \"fields\": [\n                ]\n            }\n        },\n        \"completion\": {\n            \"property\": \"idpCommandPingModem\",\n            \"av\": 6,\n            \"value\": true,\n            \"resetValue\": false\n        },\n        \"commandVersion\":3,\n        \"commandDeliveredTime\":\"2021-03-15T22:00:45.648Z\"\n    },\n    \"subject\":\"Command delivered: IOTC Desired property textMobileTerminated=this is a test from iotc for idp-01459438SKYFEE3\",\n    \"eventType\":\"OtaCommandComplete\",\n    \"eventTime\":\"2021-03-15T22:00:45.648Z\",\n    \"topic\": \"/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/enterprise-iot-poc/providers/Microsoft.EventGrid/topics/IdpExternalizations\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7073",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "DeviceToCloudBridge"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Orchestrator",
+			"item": [
+				{
+					"name": "OtaCommand w Response (wakeupPeriod)",
+					"item": [
+						{
+							"name": "OtaCommandRequest (wakeupPeriod)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set(\"eventtime\", new Date().toISOString());",
+											"pm.environment.set(\"eventuuid\", uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"{{otaCommandUuid}}\",\n  \"subject\": \"IOTC Desired property wakeupPeriod=0 for {{mobileId}}\",\n  \"data\": {\n    \"mobileId\": \"{{mobileId}}\",\n    \"command\": {\n      \"payloadJson\": {\n        \"codecServiceId\": 0,\n        \"codecMessageId\": 70,\n        \"fields\": [\n          {\n            \"name\": \"wakeupPeriod\",\n            \"stringValue\": \"0\"\n          }\n        ]\n      }\n    },\n    \"completion\": {\n        \"property\": \"idpWakeupPeriod\",\n        \"av\": {{otaCommandPropertyVersion}},\n        \"value\": 0,\n        \"response\": {\n            \"codecServiceId\": 0,\n            \"codecMessageId\": 70\n        }\n    }\n  },\n  \"eventType\": \"OtaCommandRequest\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommand1Start",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7074",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "OtaCommand1Start"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PUB NewForwardSubmission (wakeupPeriod)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set(\"eventtime\", new Date().toISOString());",
+											"pm.environment.set(\"eventuuid\", uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"Submit forward message {{otaCommandUuid}} to {{mobileId}}\",\n  \"data\": {\n    \"submissionId\": \"{{otaCommandUuid}}\",\n    \"mobileId\": \"{{mobileId}}\",\n    \"message\": {\n        \"payloadJson\": {\n            \"codecServiceId\": 0,\n            \"codecMessageId\": 70,\n            \"fields\": [\n                {\n                    \"name\": \"wakeupPeriod\",\n                    \"stringValue\": \"0\"\n                }\n            ]\n        }\n    }\n  },\n  \"eventType\": \"NewForwardSubmission\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7071/runtime/webhooks/eventgrid?functionName=MessageForwardSubmit",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7071",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "MessageForwardSubmit"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "NewForwardMessage (wakeupPeriod)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set(\"eventtime\", new Date().toISOString());",
+											"pm.environment.set(\"eventuuid\", uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"New forward message {{forwardMessageId}} to {{mobileId}}\",\n  \"data\": {\n    \"submissionId\": \"{{otaCommandUuid}}\",\n    \"mobileId\": \"{{mobileId}}\",\n    \"messageId\": {{forwardMessageId}},\n    \"payloadJson\": {\n        \"codecServiceId\": 0,\n        \"codecMessageId\": 70,\n        \"fields\": [\n            {\n            \"name\": \"wakeupPeriod\",\n            \"stringValue\": \"0\"\n            }\n        ]\n    },\n    \"scheduledSendTimeUtc\": \"\",\n    \"size\": 3\n  },\n  \"eventType\": \"NewForwardMessage\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommand3Sending",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7074",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "OtaCommand3Sending"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ForwardMessageStateChange success (wakeupPeriod)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set(\"eventtime\", new Date().toISOString());",
+											"pm.environment.set(\"eventuuid\", uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"Forward message {{forwardMessageId}} state changed: DELIVERED\",\n  \"data\": {\n    \"messageId\": {{forwardMessageId}},\n    \"newState\": \"DELIVERED\",\n    \"reason\": \"NO_ERROR\",\n    \"stateTimeUtc\": \"{{eventtime}}\",\n    \"referenceNumber\": {{forwardStatusReferenceNumber}}\n  },\n  \"eventType\": \"ForwardMessageStateChange\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommand4Delivery",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7074",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "OtaCommand4Delivery"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ForwardMessageStateChange failure (wakeupPeriod)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set(\"eventtime\", new Date().toISOString());",
+											"pm.environment.set(\"eventuuid\", uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"Forward message {{forwardMessageId}} state changed: FAILED_DELIVERY\",\n  \"data\": {\n    \"messageId\": {{forwardMessageId}},\n    \"newState\": \"FAILED_DELIVERY\",\n    \"reason\": \"TIMED_OUT\",\n    \"stateTimeUtc\": \"{{eventtime}}\",\n    \"referenceNumber\": {{forwardStatusReferenceNumber}}\n  },\n  \"eventType\": \"ForwardMessageStateChange\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommand4Delivery",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7074",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "OtaCommand4Delivery"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "NewReturnMessage (wakeupPeriod)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set('returnMessageTime', new Date().toISOString());",
+											"pm.environment.set('eventtime', new Date().toISOString());",
+											"pm.environment.set('eventuuid', uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"New return message {{returnMessageId}} from {{mobileId}}\",\n  \"data\": {\n    \"category\": \"message_return\",\n    \"messageId\": {{returnMessageId}},\n    \"mobileId\": \"{{mobileId}}\",\n    \"mailboxId\": \"{{mailboxId}}\",\n    \"codecServiceId\": 0,\n    \"codecMessageId\": 70,\n    \"payloadRaw\": [0,70,0,28,96],\n    \"payloadJson\": {\n        \"name\":\"sleepSchedule\",\n        \"codecServiceId\":0,\n        \"codecMessageId\":70,\n        \"fields\":[\n            {\n                \"name\":\"wakeupPeriod\",\n                \"stringValue\":\"none\",\n                \"dataType\":\"enum\"\n            },\n            {\n                \"name\":\"mobileInitiated\",\n                \"stringValue\":\"False\",\n                \"dataType\":\"boolean\"\n            },\n            {\n                \"name\": \"messageReference\",\n                \"stringValue\": \"454\",\n                \"dataType\": \"unsignedint\"\n            }\n        ]\n    },\n    \"mailboxTimeUtc\": \"{{returnMessageTime}}\",\n    \"size\": 5,\n    \"subcategory\": \"return\",\n    \"receiveTimeUtc\": \"{{returnMessageTime}}\",\n    \"satelliteRegion\": \"AMERRB16\"\n  },\n  \"eventType\": \"NewReturnMessage\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommand5Response",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7074",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "OtaCommand5Response"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PUB OtaCommandComplete (wakeupPeriod)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set(\"eventtime\", new Date().toISOString());",
+											"pm.environment.set(\"eventuuid\", uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\":\"{{eventuuid}}\",\n    \"dataVersion\":\"2.0\",\n    \"eventType\":\"OtaCommandComplete\",\n    \"subject\":\"OtaCommand {{otaCommandUuid}} to {{mobileId}} delivered with response\",\n    \"data\": {\n        \"otaCommandId\":\"{{otaCommandUuid}}\",\n        \"mobileId\":\"{{mobileId}}\",\n        \"completion\": {\n            \"property\":\"idpWakeupPeriod\",\n            \"av\":{{otaCommandPropertyVersion}},\n            \"value\":0\n        },\n        \"delivered\": {\n            \"success\":true,\n            \"reason\":\"NO_ERROR\",\n            \"deliveryTime\":\"{{eventtime}}\",\n            \"referenceNumber\":454\n        },\n        \"response\": {\n            \"category\":\"message_return\",\n            \"messageId\":{{returnMessageId}},\n            \"mobileId\":\"{{mobileId}}\",\n            \"mailboxId\":\"{{mailboxId}}\",\n            \"codecServiceId\":0,\n            \"codecMessageId\":70,\n            \"payloadRaw\":[0,70,0,28,96],\n            \"payloadJson\":{\n                \"name\":\"sleepSchedule\",\n                \"codecServiceId\":0,\n                \"codecMessageId\":70,\n                \"fields\":[\n                    {\n                        \"name\":\"wakeupPeriod\",\n                        \"stringValue\":\"none\",\n                        \"dataType\":\"enum\"\n                    },\n                    {\n                        \"name\":\"mobileInitiated\",\n                        \"stringValue\":\"False\",\n                        \"dataType\":\"boolean\"\n                    },\n                    {\n                        \"name\":\"messageReference\",\n                        \"stringValue\":\"454\",\n                        \"dataType\":\"unsignedint\"\n                    }\n                ]\n            },\n            \"mailboxTimeUtc\":\"{{eventtime}}\",\n            \"size\":5,\n            \"subcategory\":\"return\",\n            \"receiveTimeUtc\":\"{{eventtime}}\",\n            \"satelliteRegion\":\"SIMULATOR\"\n        }\n    },\n    \"eventTime\":\"{{eventtime}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7073",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "DeviceToCloudBridge"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "OtaCommand (textMobileTerminated)",
+					"item": [
+						{
+							"name": "OtaCommandRequest (textMobileTerminated)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set(\"eventtime\", new Date().toISOString());",
+											"pm.environment.set(\"eventuuid\", uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"{{otaCommandUuid}}\",\n  \"subject\": \"IOTC Desired property textMobileTerminated='{{forwardText}}' for {{mobileId}}\",\n  \"data\": {\n    \"mobileId\": \"{{mobileId}}\",\n    \"command\": {\n      \"payloadJson\": {\n        \"codecServiceId\": 255,\n        \"codecMessageId\": 3,\n        \"fields\": [\n            {\n                \"name\": \"text\",\n                \"stringValue\": \"{{forwardText}}\"\n            }\n        ]\n      }\n    },\n    \"completion\": {\n        \"property\": \"textMobileTerminated\",\n        \"av\": {{otaCommandPropertyVersion}},\n        \"value\": \"{{forwardText}}\"\n    }\n  },\n  \"eventType\": \"OtaCommandRequest\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommand1Start",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7074",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "OtaCommand1Start"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PUB NewForwardSubmission (textMobileTerminated)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set(\"eventtime\", new Date().toISOString());",
+											"pm.environment.set(\"eventuuid\", uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"Submit forward message {{otaCommandUuid}} to {{mobileId}}\",\n  \"data\": {\n    \"submissionId\": \"{{otaCommandUuid}}\",\n    \"mobileId\": \"{{mobileId}}\",\n    \"message\": {\n        \"payloadJson\": {\n            \"codecServiceId\": 255,\n            \"codecMessageId\": 3,\n            \"fields\": [\n                {\n                    \"name\": \"text\",\n                    \"stringValue\": \"{{forwardText}}\"\n                }\n            ]\n        }\n    }\n  },\n  \"eventType\": \"NewForwardSubmission\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7071/runtime/webhooks/eventgrid?functionName=MessageForwardSubmit",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7071",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "MessageForwardSubmit"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "NewForwardMessage (textMobileTerminated)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set(\"eventtime\", new Date().toISOString());",
+											"pm.environment.set(\"eventuuid\", uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"New forward message {{forwardMessageId}} to {{mobileId}}\",\n  \"data\": {\n    \"submissionId\": \"{{otaCommandUuid}}\",\n    \"mobileId\": \"{{mobileId}}\",\n    \"messageId\": {{forwardMessageId}},\n    \"payloadJson\": {\n        \"codecServiceId\": 255,\n        \"codecMessageId\": 3,\n        \"fields\": [\n            {\n                \"name\": \"text\",\n                \"stringValue\": \"{{forwardText}}\"\n            }\n        ]\n    }\n  },\n  \"eventType\": \"NewForwardMessage\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommand3Sending",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7074",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "OtaCommand3Sending"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ForwardMessageStateChange success (textMobileTerminated)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set(\"eventtime\", new Date().toISOString());",
+											"pm.environment.set(\"eventuuid\", uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"Forward message {{forwardMessageId}} state changed: DELIVERED\",\n  \"data\": {\n    \"messageId\": {{forwardMessageId}},\n    \"newState\": \"DELIVERED\",\n    \"reason\": \"NO_ERROR\",\n    \"stateTimeUtc\": \"{{eventtime}}\",\n    \"referenceNumber\": {{forwardStatusReferenceNumber}}\n  },\n  \"eventType\": \"ForwardMessageStateChange\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommand4Delivery",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7074",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "OtaCommand4Delivery"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "PUB OtaCommandComplete (textMobileTerminated)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set(\"eventtime\", new Date().toISOString());",
+											"pm.environment.set(\"eventuuid\", uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\":\"{{eventuuid}}\",\n    \"dataVersion\":\"2.0\",\n    \"eventType\":\"OtaCommandComplete\",\n    \"subject\":\"OtaCommand {{otaCommandUuid}} to {{mobileId}} delivered\",\n    \"data\": {\n        \"otaCommandId\":\"{{otaCommandUuid}}\",\n        \"mobileId\":\"{{mobileId}}\",\n        \"completion\": {\n            \"property\": \"textMobileTerminated\",\n            \"av\": {{otaCommandPropertyVersion}},\n            \"value\": \"{{forwardText}}\"\n        },\n        \"delivered\": {\n            \"success\":true,\n            \"reason\":\"NO_ERROR\",\n            \"deliveryTime\":\"{{eventtime}}\",\n            \"referenceNumber\":454\n        }\n    },\n    \"eventTime\":\"{{eventtime}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7073/runtime/webhooks/eventgrid?functionName=DeviceToCloudBridge",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7073",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "DeviceToCloudBridge"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "pnpReportInterval",
+					"item": [
+						{
+							"name": "CommandRequestWithResponse (commandGetReport)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const uuid = require('uuid').v4;",
+											"pm.environment.set(\"eventtime\", new Date().toISOString());",
+											"pm.environment.set(\"eventuuid\", uuid());"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "aeg-event-type",
+										"type": "text",
+										"value": "Notification"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"IOTC Desired property commandPingModem=true for {{deviceId}}\",\n  \"data\": {\n    \"mobileId\": \"{{mobileId}}\",\n    \"command\": {\n      \"payloadJson\": {\n        \"codecServiceId\": 255,\n        \"codecMessageId\": 1\n      }\n    },\n    \"completion\": {\n      \"codecServiceId\": 255,\n      \"codecMessageId\": 1,\n      \"property\": \"commandGetReport\",\n      \"resetValue\": false\n    },\n    \"commandVersion\": {{commandVersion}}\n  },\n  \"eventType\": \"CommandRequest\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommandStart",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "7074",
+									"path": [
+										"runtime",
+										"webhooks",
+										"eventgrid"
+									],
+									"query": [
+										{
+											"key": "functionName",
+											"value": "OtaCommandStart"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "CommandRequestWithResponse (ping)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const uuid = require('uuid').v4;",
+									"pm.environment.set(\"eventtime\", new Date().toISOString());",
+									"pm.environment.set(\"eventuuid\", uuid());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"IOTC Desired property commandPingModem=true for {{deviceId}}\",\n  \"data\": {\n    \"mobileId\": \"{{mobileId}}\",\n    \"command\": {\n      \"modemCommand\": {\n        \"command\": \"ping\",\n        \"codecServiceId\": 0,\n        \"codecMessageId\": 112\n      }\n    },\n    \"completion\": {\n      \"codecServiceId\": 0,\n      \"codecMessageId\": 112,\n      \"property\": \"commandPingModem\",\n      \"resetValue\": false\n    },\n    \"commandVersion\": {{commandVersion}}\n  },\n  \"eventType\": \"CommandRequest\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommandStart",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7074",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "OtaCommandStart"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "NewForwardSubmission (ping)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const uuid = require('uuid').v4;",
+									"pm.environment.set(\"eventtime\", new Date().toISOString());",
+									"pm.environment.set(\"eventuuid\", uuid());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"Submit forward message 1 to {{mobileId}}\",\n  \"data\": {\n    \"submissionId\": 1,\n    \"mobileId\": \"{{mobileId}}\",\n    \"message\": {\n        \"modemCommand\": {\n            \"command\": \"ping\",\n            \"codecServiceId\": 0,\n            \"codecMessageId\": 112\n        }\n    }\n  },\n  \"eventType\": \"NewForwardSubmission\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7071/runtime/webhooks/eventgrid?functionName=MessageForwardSubmit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "MessageForwardSubmit"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "NewForwardMessage (ping)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const uuid = require('uuid').v4;",
+									"pm.environment.set(\"eventtime\", new Date().toISOString());",
+									"pm.environment.set(\"eventuuid\", uuid());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"New forward message 1234 to {{mobileId}}\",\n  \"data\": {\n    \"submissionId\": 1,\n    \"mobileId\": \"{{mobileId}}\",\n    \"messageId\": 1234,\n    \"payloadJson\": {\n        \"codecServiceId\": 0,\n        \"codecMessageId\": 112,\n        \"fields\": []\n    }\n  },\n  \"eventType\": \"NewForwardMessage\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommandSending",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7074",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "OtaCommandSending"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ForwardMessageStateChange",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const uuid = require('uuid').v4;",
+									"pm.environment.set(\"eventtime\", new Date().toISOString());",
+									"pm.environment.set(\"eventuuid\", uuid());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"Forward message 1234 state changed: DELIVERED\",\n  \"data\": {\n    \"messageId\": 1234,\n    \"newState\": \"DELIVERED\",\n    \"stateTimeUtc\": \"2020-09-19T21:21:00Z\"\n  },\n  \"eventType\": \"ForwardMessageStateChange\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommandDelivery",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7074",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "OtaCommandDelivery"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ForwardMessageStateChange Failed",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const uuid = require('uuid').v4;",
+									"pm.environment.set(\"eventtime\", new Date().toISOString());",
+									"pm.environment.set(\"eventuuid\", uuid());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"Forward message 1234 state changed: FAILED_DELIVERY\",\n  \"data\": {\n    \"messageId\": 1234,\n    \"newState\": \"FAILED_DELIVERY\",\n    \"stateTimeUtc\": \"2020-09-19T21:21:00Z\"\n  },\n  \"eventType\": \"ForwardMessageStateChange\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommandDelivery",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7074",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "OtaCommandDelivery"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "NewReturnMessage Response (pingReply)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const uuid = require('uuid').v4;",
+									"pm.environment.set(\"eventtime\", new Date().toISOString());",
+									"pm.environment.set(\"eventuuid\", uuid());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"New return message 5678 from {{mobileId}}\",\n  \"data\": {\n    \"category\": \"message_return\",\n    \"messageId\": 5678,\n    \"mobileId\": \"{{mobileId}}\",\n    \"mailboxId\": \"{{mailboxId}}\",\n    \"codecServiceId\": 0,\n    \"codecMessageId\": 112,\n    \"payloadRaw\": [0,112,44,98,44,94],\n    \"payloadJson\": {\n        \"name\":\"mobilePing\",\n        \"codecServiceId\":0,\n        \"codecMessageId\":112,\n        \"fields\":[\n            {\n                \"name\":\"requestTime\",\n                \"stringValue\":\"10000\",\n                \"dataType\":\"unsignedint\"\n            },\n            {\n                \"name\":\"responseTime\",\n                \"stringValue\":\"10005\",\n                \"dataType\":\"unsignedint\"\n            }\n        ]\n    },\n    \"mailboxTimeUtc\": \"2020-09-19T21:21:47Z\",\n    \"size\": 6,\n    \"subcategory\": \"return\",\n    \"receiveTimeUtc\": \"2020-09-19T21:21:47Z\",\n    \"satelliteRegion\": \"AMERRB16\"\n  },\n  \"eventType\": \"NewReturnMessage\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7074/runtime/webhooks/eventgrid?functionName=OtaCommandResponse",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7074",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "OtaCommandResponse"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Satellite Messaging",
+			"item": [
+				{
+					"name": "NewForwardSubmission",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const uuid = require('uuid').v4;",
+									"pm.environment.set(\"eventtime\", new Date().toISOString());",
+									"pm.environment.set(\"eventuuid\", uuid());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"Submit forward message 1 to {{mobileId}}\",\n  \"data\": {\n    \"submissionId\": 1,\n    \"mobileId\": \"{{mobileId}}\",\n    \"message\": {\n        \"payloadJson\": {\n            \"codecServiceId\": 0,\n            \"codecMessageId\": 112,\n            \"fields\": [\n            ]\n        }\n    }\n  },\n  \"eventType\": \"NewForwardSubmission\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7071/runtime/webhooks/eventgrid?functionName=MessageForwardSubmit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "MessageForwardSubmit"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MailboxUpdate",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const uuid = require('uuid').v4;",
+									"pm.environment.set(\"eventtime\", new Date().toISOString());",
+									"pm.environment.set(\"eventuuid\", uuid());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"Mailbox data for ${twin.properties.desired.mailboxId}\",\n  \"data\": {\n    \"satelliteGatewayName\": \"Inmarsat\",\n    \"mailboxId\": \"590\",\n    \"accessId\": \"MB590\",\n    \"password\": \"4ARC4Kdr\"\n  },\n  \"eventType\": \"MailboxUpdate\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7071/runtime/webhooks/eventgrid?functionName=MailboxUpdate",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "MailboxUpdate"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SatelliteGatewayUpdate",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const uuid = require('uuid').v4;",
+									"pm.environment.set(\"eventtime\", new Date().toISOString());",
+									"pm.environment.set(\"eventuuid\", uuid());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "aeg-event-type",
+								"type": "text",
+								"value": "Notification"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"{{eventuuid}}\",\n  \"subject\": \"Satellite Gateway update for Inmarsat\",\n  \"data\": {\n    \"name\": \"Inmarsat\",\n    \"url\": \"https://api.inmarsat.com/v1/idp/gateway/rest/\"\n  },\n  \"eventType\": \"SatelliteGatewayUpdate\",\n  \"dataVersion\": \"2.0\",\n  \"metadataVersion\": \"1\",\n  \"eventTime\": \"{{eventtime}}\",\n  \"topic\": \"/subscriptions/{{eventgridsubuuid}}/resourceGroups/{{resourcegroupname}}/providers/Microsoft.EventGrid/topics/{{eventgridtopic}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7071/runtime/webhooks/eventgrid?functionName=SatelliteGatewayUpdate",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7071",
+							"path": [
+								"runtime",
+								"webhooks",
+								"eventgrid"
+							],
+							"query": [
+								{
+									"key": "functionName",
+									"value": "SatelliteGatewayUpdate"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
