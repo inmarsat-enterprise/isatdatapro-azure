@@ -1,7 +1,9 @@
 'use strict';
 
+// samplePayloadRaw = [48, 0, 2, 151, 91, 93, 212, 120, 32, 4, 140, 61, 112]
+
 const idpDefault = require('../idpDefault/messageParser');
-const { round } = require('../../utilities');
+const { round, bytesToBin, uintToInt } = require('../../utilities');
 
 function initialize(mobileId) {
   const patch = {
@@ -59,39 +61,26 @@ function otaCommand(commandName, data) {
 }
 
 function parseLuaQos(context, message) {
-  //context.log.verbose(`Parsing PNP Devkit fields: ${JSON.stringify(message)}`);
+  //context.log.verbose(`Parsing SAT-IDP QoS data`);
   const messageIsJson = (message.payloadJson && message.payloadJson !== null)
   let {telemetry, reportedProperties, timestamp } =
       idpDefault.parse(context, message);
   if (message.codecServiceId === 48) {
-    switch(message.payloadJson.codecMessageId) {
-      case 1:
+    const payloadBinary = bytesToBin(message.payloadRaw);
+    const codecMessageId = message.payloadRaw[1];
+    const controlWord = parseInt(payloadBinary.substr(16, 4));
+    switch(controlWord) {
+      case 0:   // custom 80-bit message
         telemetry.tracking = {
-          lat: round(telemetry.latitude/60000, 6),
-          lon: round(telemetry.longitude/60000, 6),
-          alt: round(telemetry.altitude, 0)
+          lat: round(uintToInt(parseInt(payloadBinary.substr(16 + 4, 24), 2), 24) / 60000, 6),
+          lon: round(uintToInt(parseInt(payloadBinary.substr(16 + 28, 25), 2), 25) / 60000, 6),
+          // alt:
         };
-        delete telemetry.latitude;
-        delete telemetry.longitude;
-        delete telemetry.altitude;
-        telemetry.satelliteSnr = round(telemetry.snr / 10, 1);
-        delete telemetry.snr;
+        telemetry.speed = parseInt(payloadBinary.substr(16 + 53, 8), 2);
+        telemetry.heading = parseInt(payloadBinary.substr(16 + 61, 9), 2);
+        telemetry.hdop = parseInt(payloadBinary.substr(16 + 70, 5));
+        telemetry.satelliteSnr = round(parseInt(payloadBinary.substr(16 + 75, 9), 2) / 10, 1);
         reportedProperties.location = Object.assign({}, telemetry.tracking);
-        break;
-      case 2:
-      case 4:
-        if (telemetry.reportInterval) {
-          reportedProperties.reportInterval = telemetry.reportInterval;
-          delete telemetry.reportInterval;
-        }
-        if (telemetry.qosInterval) {
-          reportedProperties.qosInterval = telemetry.qosInterval;
-          delete telemetry.qosInterval;
-        }
-        break;
-      // Other cases pass through from idpDefault parser
-      case 3:
-        reportedProperties.textMobileOriginated = telemetry.text;
         break;
       default:
         context.log.warn(`Unrecognized message` +
