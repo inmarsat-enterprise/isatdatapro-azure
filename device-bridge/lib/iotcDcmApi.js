@@ -187,6 +187,7 @@ async function updateDeviceTemplates(context) {
     }
   }
   for (const templateName in templatesInRepo) {
+    // let t = buildTemplate(templatesInRepo[templateName]);
     await setDeviceTemplate(templatesInRepo[templateName]);
     context.log(`Updated device template ${templateName}`);
   }

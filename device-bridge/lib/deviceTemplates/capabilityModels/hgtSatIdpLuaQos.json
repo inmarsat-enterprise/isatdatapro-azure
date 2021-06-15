@@ -1,37 +1,28 @@
 {
   "@id": "urn:inmarsat:idp:capabilityModel:hgtSatIdpLuaQos:1",
-  "@type": [
-    "CapabilityModel"
-  ],
+  "@type": "CapabilityModel",
   "@context": "http://azureiot.com/v1/contexts/IoTModel.json",
   "displayName": {
-    "en": "Honeywell Global Tracking Lua QoS Capability Model"
+      "en": "Honeywell Global Tracking Lua QoS Capability Model"
   },
-  "comment": "GatewayModel; DTDL v1-preview",
   "implements": [
     {
       "@id": "urn:inmarsat:idp:devKit:iotGateway:1",
-      "@type": [
-        "InterfaceInstance"
-      ],
+      "@type": "InterfaceInstance",
       "name": "deviceInformation",
       "displayName": {
-        "en": "Device Information"
+          "en": "Device Information"
       },
       "schema": {
         "@id": "urn:azureiot:DeviceManagement:DeviceInformation:1",
-        "@type": [
-          "Interface"
-        ],
+        "@type": "Interface",
         "displayName": {
-          "en": "Device Information"
+            "en": "Device Information"
         },
         "contents": [
           {
             "@id": "urn:azureiot:DeviceManagement:DeviceInformation:manufacturer:1",
-            "@type": [
-              "Property"
-            ],
+            "@type": "Property",
             "comment": "Company name of the device manufacturer. This could be the same as the name of the original equipment manufacturer (OEM). Ex. Contoso.",
             "displayName": {
               "en": "Manufacturer"
@@ -41,9 +32,7 @@
           },
           {
             "@id": "urn:azureiot:DeviceManagement:DeviceInformation:model:1",
-            "@type": [
-              "Property"
-            ],
+            "@type": "Property",
             "comment": "Device model name or ID. Ex. Surface Book 2.",
             "displayName": {
               "en": "Device model"
@@ -53,9 +42,7 @@
           },
           {
             "@id": "urn:azureiot:DeviceManagement:DeviceInformation:swVersion:1",
-            "@type": [
-              "Property"
-            ],
+            "@type": "Property",
             "comment": "Version of the software on your device. This could be the version of your firmware. Ex. 1.3.45",
             "displayName": {
               "en": "Software version"
@@ -65,9 +52,7 @@
           },
           {
             "@id": "urn:azureiot:DeviceManagement:DeviceInformation:osName:1",
-            "@type": [
-              "Property"
-            ],
+            "@type": "Property",
             "comment": "Name of the operating system on the device. Ex. Windows 10 IoT Core.",
             "displayName": {
               "en": "Operating system name"
@@ -77,9 +62,7 @@
           },
           {
             "@id": "urn:azureiot:DeviceManagement:DeviceInformation:processorArchitecture:1",
-            "@type": [
-              "Property"
-            ],
+            "@type": "Property",
             "comment": "Architecture of the processor on the device. Ex. x64 or ARM.",
             "displayName":  {
               "en": "Processor architecture"
@@ -89,9 +72,7 @@
           },
           {
             "@id": "urn:azureiot:DeviceManagement:DeviceInformation:processorManufacturer:1",
-            "@type": [
-              "Property"
-            ],
+            "@type": "Property",
             "comment": "Name of the manufacturer of the processor on the device. Ex. Intel.",
             "displayName": {
               "en": "Processor manufacturer"
@@ -101,28 +82,28 @@
           },
           {
             "@id": "urn:azureiot:DeviceManagement:DeviceInformation:totalStorage:1",
-            "@type": [
-              "Property"
-            ],
+            "@type": "Property",
             "comment": "Total available storage on the device in kilobytes. Ex. 2048000 kilobytes.",
             "displayName": {
               "en": "Total storage"
             },
             "name": "totalStorage",
-            "displayUnit": "kilobytes",
+            "displayUnit": {
+                "en": "kilobytes"
+            },
             "schema": "long"
           },
           {
             "@id": "urn:azureiot:DeviceManagement:DeviceInformation:totalMemory:1",
-            "@type": [
-              "Property"
-            ],
+            "@type": "Property",
             "comment": "Total available memory on the device in kilobytes. Ex. 256000 kilobytes.",
             "displayName": {
               "en": "Total memory"
             },
             "name": "totalMemory",
-            "displayUnit": "kilobytes",
+            "displayUnit": {
+                "en": "kilobytes"
+            },
             "schema": "long"
           }
         ]
@@ -130,9 +111,7 @@
     },
     {
       "@id": "urn:inmarsat:idp:devKit:satelliteModem:1",
-      "@type": [
-        "InterfaceInstance"
-      ],
+      "@type": "InterfaceInstance",
       "name": "satelliteModem",
       "displayName": {
         "en": "Satellite Modem"
@@ -140,25 +119,19 @@
       "schema": {
         "comment": "retrieve from interfaces folder",
         "@id": "urn:inmarsat:idp:ut:1",
-        "@type": [
-          "Interface"
-        ]
+        "@type": "Interface"
       }
     },
     {
       "@id": "urn:inmarsat:idp:satIdp:luaQos:1",
-      "@type": [
-        "InterfaceInstance"
-      ],
+      "@type": "InterfaceInstance",
       "name": "satIdp",
       "displayName": {
         "en": "SAT-IDP"
       },
       "schema": {
         "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:1",
-        "@type": [
-          "Interface"
-        ],
+        "@type": "Interface",
         "displayName": {
           "en": "Satellite Over-The-Air Interface"
         },
@@ -166,9 +139,7 @@
         "contents": [
           {
             "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:properties:version:1",
-            "@type": [
-              "Property"
-            ],
+            "@type": "Property",
             "displayName": {
               "en": "App Version"
             },
@@ -177,9 +148,7 @@
           },
           {
             "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:properties:reportInterval:1",
-            "@type": [
-              "Property"
-            ],
+            "@type": "Property",
             "displayName": {
               "en": "Reporting Interval"
             },
@@ -187,14 +156,16 @@
             "unit": "second",
             "writable": false,
             "comment": "Set using *Set Properties* command",
-            "description": "Valid range [0..86400] seconds.",
+            "description": {
+                "en": "Valid range [0..86400] seconds."
+            },
             "schema": "integer"
           },
           {
             "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:properties:location:1",
             "@type": [
               "Property",
-              "Location"
+              "SemanticType/Location"
             ],
             "displayName": {
               "en": "Location"
@@ -206,7 +177,7 @@
             "@id": "urn:inmarsat:idp:devKit:feuIdp:satelliteOta:telemetry:tracking:1",
             "@type": [
               "Telemetry",
-              "Location"
+              "SemanticType/Location"
             ],
             "displayName": {
               "en": "Tracking"
@@ -269,7 +240,9 @@
               "en": "Satellite (Rx) SNR"
             },
             "name": "satelliteSnr",
-            "displayUnit": "dB-Hz",
+            "displayUnit": {
+                "en": "dB-Hz"
+            },
             "schema": "double"
           },
           {
@@ -281,11 +254,15 @@
             "displayName": {
               "en": "Set Properties"
             },
-            "description": "Allows configuration of application settings.",
+            "description": {
+                "en": "Allows configuration of application settings."
+            },
             "request": {
               "@type": "CommandPayload",
               "name": "configProperties",
-              "displayName": "Configuration Properties",
+              "displayName": {
+                  "en": "Configuration Properties"
+              },
               "comment": "Interval valid range [0..86400] seconds.",
               "schema": {
                 "@id": "urn:inmarsat:idp:devKit:feuIdp:commands:configSet:configProperties:1",
