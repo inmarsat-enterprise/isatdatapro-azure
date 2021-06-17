@@ -121,7 +121,7 @@ module.exports = async function (context, eventGridEvent) {
  * @returns {{ id: string, model: string, mobileId: string }}
  */
  async function getDeviceMeta(identifier) {
-  const provisionedDevices = await getDevices();
+  const provisionedDevices = await listDevices();
   const device = {};
   for (let d=0; d < provisionedDevices.length; d++) {
     if (provisionedDevices[d].id.includes(identifier)) {

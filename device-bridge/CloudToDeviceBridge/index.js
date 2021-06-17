@@ -24,7 +24,7 @@ module.exports = async function (context, timer) {
     context.log.verbose(`${__filename} >>>> entry (timer) at ${callTime}`);
     // TODO: check templates in library and push any new ones/versions
     await updateDeviceTemplates(context);
-    const provisionedDevices = await getDevices();
+    const provisionedDevices = await listDevices();
     for (let d=0; d < provisionedDevices.length; d++) {
       const device = {};
       for (let template in templates) {

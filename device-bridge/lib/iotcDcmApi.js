@@ -16,8 +16,9 @@ if (!process.env.IOTC_APPLICATION_URL) {
 
 const apiHost = process.env.IOTC_APPLICATION_URL || tempEnv.IOTC_APPLICATION_URL;
 const apiKey = process.env.IOTC_BUILDER_TOKEN || tempEnv.IOTC_BUILDER_TOKEN;
-const deviceApiPath = '/api/preview/devices';
-const deviceTemplateApiPath = '/api/preview/deviceTemplates';
+const deviceApiPath = '/api/devices';
+const deviceTemplateApiPath = '/api/deviceTemplates';
+const apiVersion = '1.0';
 
 /**
  * Intefaces to the IoT Central REST API
@@ -28,6 +29,7 @@ const deviceTemplateApiPath = '/api/preview/deviceTemplates';
  */
 const api = (options, reqBody) => new Promise((resolve, reject) => {
   let postData;
+  options.path += `?api-version=${apiVersion}`;
   options.hostname = `${apiHost}`;
   options.headers = {
     'Content-Type': 'application/json',
@@ -51,7 +53,7 @@ const api = (options, reqBody) => new Promise((resolve, reject) => {
  * Retrieves all devices from the application
  * @returns {Object[]} A list of devices
  */
-async function getDevices() {
+async function listDevices() {
   const deviceOptions = {
     path: `${deviceApiPath}`,
     method: 'GET',
@@ -99,29 +101,32 @@ function prettyName(uglyName) {
  * @returns {Object} the template wrapper to send to the API
  */
 function buildTemplate(template) {
-  if (template.capabilityModel.comment &&
-      template.capabilityModel.comment.includes(
-          'retrieve from deviceCapabilityModels')) {
-    for (let model in capabilityModels) {
-      if (template.capabilityModel['@id'] === capabilityModels[model]['@id']) {
-        template.capabilityModel = capabilityModels[model];
-        break;
-      }
-    }
+  if (!template.capabilityModel) {
+    throw new Error('Template missing capabilityModel');
   }
-  for (let i=0; i < template.capabilityModel.implements.length; i++) {
-    let interface = template.capabilityModel.implements[i];
-    if (interface.schema.comment &&
-        interface.schema.comment.includes('retrieve from interfaces')) {
-      for (const t in interfaces) {
-        if (interface.schema['@id'] === interfaces[t].schema['@id']) {
-          template.capabilityModel.implements[i].schema = interfaces[t].schema;
+  if (!template['@id'] || !template['@id'].includes('modelDefinition')) {
+    throw new Error('Template missing unique @id for modelDefinition');
+  }
+  if (!template.displayName) {
+    throw new Error('Template missing displayName');
+  }
+  const capabilityModel = template.capabilityModel;
+  if (capabilityModel['@type'] !== 'Interface') {
+    throw new Error('Template capabilityModel missing parent Interface');
+  }
+  for (let c=0; c < capabilityModel.contents.length; c++) {
+    let component = capabilityModel.contents[c];
+    // TODO: validate @id, @type, name, displayName, schema
+    if (component['@type'] === 'Component') {
+      for (const interfaceName in interfaces) {
+        const interface = interfaces[interfaceName];
+        if (component.schema === interface['@id']) {
+          template.capabilityModel.contents[c].schema = interface;
           break;
         }
       }
     }
   }
-  if (!template.id) template.id = `urn:example:api:deviceTemplate:1`;
   return template;
 }
 
@@ -131,16 +136,19 @@ function buildTemplate(template) {
  * @returns {string} template ID
  */
 async function setDeviceTemplate(template) {
-  const builtTemplate = buildTemplate(template);
+  const extendedTemplate = buildTemplate(template);
+  const capabilityModelId = extendedTemplate['@id'];
+  const templateId =
+      capabilityModelId.replace('CapabilityModel', 'DeviceTemplate');
   const setOptions = {
-    path: `${deviceTemplateApiPath}/${builtTemplate.id}`,
+    path: `${deviceTemplateApiPath}/${templateId}`,
     method: 'PUT',
   };
-  const res = JSON.parse(await api(setOptions, builtTemplate));
+  const res = JSON.parse(await api(setOptions, extendedTemplate));
   if (res.error) {
     throw new Error(res.error.message);
   }
-  return res.id;
+  return res.etag;
 }
 
 /**
@@ -194,7 +202,7 @@ async function updateDeviceTemplates(context) {
 }
 
 module.exports = {
-  getDevices,
+  listDevices,
   getDeviceProperties,
   listDeviceTemplates,
   setDeviceTemplate,
@@ -202,14 +210,3 @@ module.exports = {
   buildTemplate,
   updateDeviceTemplates,
 };
-
-/* Comment this line to test
-(async () => {
-  try {
-    await updateDeviceTemplates(console);
-    console.log(await listDeviceTemplates());
-  } catch (e) {
-    console.log(e.stack);
-  }
-})();
-// */

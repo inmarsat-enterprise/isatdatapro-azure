@@ -1,753 +1,745 @@
 {
-  "@id": "urn:yourCompany:yourProject:yourDevice:1",
-  "@type": "InterfaceInstance",
+  "@id": "dtmi:inmarsat:idp:ut;2",
+  "@type": "Interface",
+  "@context": "dtmi:dtdl:context;2",
   "displayName": {
     "en": "IsatData Pro Modem"
   },
   "name": "idpModem",
-  "schema": {
-    "comment": "DTDL v1",
-    "@id": "urn:inmarsat:idp:ut:1",
-    "@type": "Interface",
-    "displayName": {
-      "en": "Satellite Modem"
+  "contents": [
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpMobileId;2",
+      "@type": "Property",
+      "displayName": {
+        "en": "Mobile ID"
+      },
+      "name": "idpMobileId",
+      "schema": "string"
     },
-    "@context": "http://azureiot.com/v1/contexts/IoTModel.json",
-    "contents": [
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpMobileId:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "Mobile ID"
-        },
-        "name": "idpMobileId",
-        "schema": "string"
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpModemManufacturer;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Modem Manufacturer"
       },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpModemManufacturer:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "Modem Manufacturer"
-        },
-        "name": "idpModemManufacturer",
-        "schema": "string"
+      "name": "idpModemManufacturer",
+      "schema": "string"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpHardwareVersion;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Hardware Version"
       },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpHardwareVersion:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "Hardware Version"
-        },
-        "name": "idpHardwareVersion",
-        "schema": "string"
+      "name": "idpHardwareVersion",
+      "schema": "string"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpFirmwareVersion;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Firmware Version"
       },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpFirmwareVersion:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "Firmware Version"
-        },
-        "name": "idpFirmwareVersion",
-        "schema": "string"
+      "name": "idpFirmwareVersion",
+      "schema": "string"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpProductId;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Product ID"
       },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpProductId:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "Product ID"
-        },
-        "name": "idpProductId",
-        "schema": "integer"
+      "name": "idpProductId",
+      "schema": "integer"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIdCount;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Broadcast Groups Subscribed Count"
       },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIdCount:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "Broadcast Groups Subscribed Count"
-        },
-        "name": "idpBroadcastIdCount",
-        "schema": "integer"
+      "name": "idpBroadcastIdCount",
+      "schema": "integer"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpLocation;2",
+      "@type": ["Property", "Location"],
+      "displayName": {
+        "en": "Location"
       },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpLocation:1",
-        "@type": ["Property", "SemanticType/Location"],
-        "displayName": {
-          "en": "Location"
-        },
-        "name": "idpLocation",
-        "schema": "geopoint"
+      "name": "idpLocation",
+      "schema": "geopoint"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Wakeup Period"
       },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:1",
-        "@type": ["Property"],
+      "name": "idpWakeupPeriod",
+      "writable": true,
+      "schema": {
+        "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod:enum;2",
+        "@type": ["Enum"],
         "displayName": {
-          "en": "Wakeup Period"
+          "en": "Wakeup periods"
         },
-        "name": "idpWakeupPeriod",
-        "writable": true,
-        "schema": {
-          "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:1",
-          "@type": ["Enum"],
-          "displayName": {
-            "en": "Wakeup periods"
+        "valueSchema": "integer",
+        "enumValues": [
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:none;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "None"
+            },
+            "enumValue": 0,
+            "name": "none"
           },
-          "valueSchema": "integer",
-          "enumValues": [
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:none:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "None"
-              },
-              "enumValue": 0,
-              "name": "none"
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:seconds30;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "30 seconds"
             },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:seconds30:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "30 seconds"
-              },
-              "enumValue": 1,
-              "name": "seconds30"
+            "enumValue": 1,
+            "name": "seconds30"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:seconds60;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "1 minute"
             },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:seconds60:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "1 minute"
-              },
-              "enumValue": 2,
-              "name": "seconds60"
+            "enumValue": 2,
+            "name": "seconds60"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes3;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "3 minutes"
             },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes3:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "3 minutes"
-              },
-              "enumValue": 3,
-              "name": "minutes3"
+            "enumValue": 3,
+            "name": "minutes3"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes10;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "10 minutes"
             },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes10:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "10 minutes"
-              },
-              "enumValue": 4,
-              "name": "minutes10"
+            "enumValue": 4,
+            "name": "minutes10"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes30;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "30 minutes"
             },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes30:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "30 minutes"
-              },
-              "enumValue": 5,
-              "name": "minutes30"
+            "enumValue": 5,
+            "name": "minutes30"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes60;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "1 hour"
             },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes60:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "1 hour"
-              },
-              "enumValue": 6,
-              "name": "minutes60"
+            "enumValue": 6,
+            "name": "minutes60"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes2;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "2 minutes"
             },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes2:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "2 minutes"
-              },
-              "enumValue": 7,
-              "name": "minutes2"
+            "enumValue": 7,
+            "name": "minutes2"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes5;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "5 minutes"
             },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes5:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "5 minutes"
-              },
-              "enumValue": 8,
-              "name": "minutes5"
+            "enumValue": 8,
+            "name": "minutes5"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes15;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "15 minutes"
             },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes15:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "15 minutes"
-              },
-              "enumValue": 9,
-              "name": "minutes15"
+            "enumValue": 9,
+            "name": "minutes15"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes20;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "20 minutes"
             },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpWakeupPeriod:enum:minutes20:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "20 minutes"
-              },
-              "enumValue": 10,
-              "name": "minutes20"
-            }
-          ]
-        }
+            "enumValue": 10,
+            "name": "minutes20"
+          }
+        ]
+      }
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Last Reset Reason"
       },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:1",
-        "@type": ["Property"],
+      "name": "idpLastResetReason",
+      "schema": {
+        "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum;2",
+        "@type": ["Enum"],
         "displayName": {
-          "en": "Last Reset Reason"
+          "en": "Enum"
         },
-        "name": "idpLastResetReason",
+        "valueSchema": "integer",
+        "enumValues": [
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:unknown;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "Unknown"
+            },
+            "enumValue": 0,
+            "name": "unknown"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:powerOn;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "Power On"
+            },
+            "enumValue": 1,
+            "name": "powerOn"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:newTrafficChannel;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "New Traffic Channel"
+            },
+            "enumValue": 2,
+            "name": "newTrafficChannel"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:localExternal;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "Local External"
+            },
+            "enumValue": 3,
+            "name": "localExternal"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:otaCommand;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "Remote Command"
+            },
+            "enumValue": 4,
+            "name": "otaCommand"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:brownout;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "Brownout"
+            },
+            "enumValue": 5,
+            "name": "brownout"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:watchdog;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "Watchdog"
+            },
+            "enumValue": 6,
+            "name": "watchdog"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:software;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "Software"
+            },
+            "enumValue": 7,
+            "name": "software"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:reserved;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "Reserved"
+            },
+            "enumValue": 8,
+            "name": "reserved"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:dspError1;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "DSP Error (1)"
+            },
+            "enumValue": 9,
+            "name": "dspError1"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:dspError2;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "DSP Error (2)"
+            },
+            "enumValue": 10,
+            "name": "dspError2"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:dspError3;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "DSP Error (3)"
+            },
+            "enumValue": 11,
+            "name": "dspError3"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpLastResetReason:enum:dspError4;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "DSP Error (4)"
+            },
+            "enumValue": 12,
+            "name": "dspError4"
+          }
+        ]
+      }
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Broadcast Groups"
+      },
+      "name": "idpBroadcastIds",
+      "comment": "Should be Array type but not supported in IOT Central",
+      "writable": true,
+      "schema": {
+        "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object;2",
+        "@type": ["Object"],
+        "displayName": {
+          "en": "Object"
+        },
+        "fields": [
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index0;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 1"
+            },
+            "name": "index0",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index1;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 2"
+            },
+            "name": "index1",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index2;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 3"
+            },
+            "name": "index2",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index3;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 4"
+            },
+            "name": "index3",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index4;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 5"
+            },
+            "name": "index4",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index5;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 6"
+            },
+            "name": "index5",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index6;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 7"
+            },
+            "name": "index6",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index7;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 8"
+            },
+            "name": "index7",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index8;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 9"
+            },
+            "name": "index8",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index9;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 10"
+            },
+            "name": "index9",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index10;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 11"
+            },
+            "name": "index10",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index11;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 12"
+            },
+            "name": "index11",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index12;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 13"
+            },
+            "name": "index12",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index13;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 14"
+            },
+            "name": "index13",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index14;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 15"
+            },
+            "name": "index14",
+            "schema": "integer"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpBroadcastIds:object:index15;2",
+            "@type": ["SchemaField"],
+            "displayName": {
+              "en": "Group 16"
+            },
+            "name": "index15",
+            "schema": "integer"
+          }
+        ]
+      }
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpTxMute;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Transmitter mute"
+      },
+      "name": "idpTxMute",
+      "writable": true,
+      "schema": "boolean"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpOperatorAccessLevel;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Operator Access Level"
+      },
+      "name": "idpOperatorAccessLevel",
+      "schema": "integer"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpUserAccessLevel;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "User Access Level"
+      },
+      "name": "idpUserAccessLevel",
+      "schema": "integer"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpLastRxMsgTime;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Last Message Received Time"
+      },
+      "name": "idpLastRxMsgTime",
+      "schema": "dateTime"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpLastRegistrationTime;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Last Modem Registration Time"
+      },
+      "name": "idpLastRegistrationTime",
+      "schema": "dateTime"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:properties:idpSatelliteRegion;2",
+      "@type": ["Property"],
+      "displayName": {
+        "en": "Satellite Region"
+      },
+      "name": "idpSatelliteRegion",
+      "schema": "string"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:telemetry:idpWakeupPeriodChangeSource;2",
+      "@type": ["Telemetry"],
+      "displayName": {
+        "en": "Wakeup period change source"
+      },
+      "name": "idpWakeupPeriodChangeSource",
+      "schema": "string"
+    },
+    {
+      "comment": "Reported in thousandths minutes",
+      "@id": "dtmi:inmarsat:idp:ut:telemetry:idpLatitude;2",
+      "@type": ["Telemetry"],
+      "displayName": {
+        "en": "Latitude"
+      },
+      "name": "idpLatitude",
+      "unit": "degreeOfArc",
+      "schema": "double"
+    },
+    {
+      "comment": "Reported in thousandths minutes",
+      "@id": "dtmi:inmarsat:idp:ut:telemetry:idpLongitude;2",
+      "@type": ["Telemetry"],
+      "displayName": {
+        "en": "Longitude"
+      },
+      "name": "idpLongitude",
+      "unit": "degreeOfArc",
+      "schema": "double"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:telemetry:idpAltitude;2",
+      "@type": ["Telemetry"],
+      "displayName": {
+        "en": "Altitude"
+      },
+      "name": "idpAltitude",
+      "unit": "metre",
+      "schema": "double"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:telemetry:idpSpeed;2",
+      "@type": ["Telemetry"],
+      "displayName": {
+        "en": "Speed"
+      },
+      "name": "idpSpeed",
+      "schema": "double",
+      "unit": "kilometrePerHour"
+    },
+    {
+      "comment": "Reported in 2-degree increments",
+      "@id": "dtmi:inmarsat:idp:ut:telemetry:idpHeading;2",
+      "@type": ["Telemetry"],
+      "displayName": {
+        "en": "Heading"
+      },
+      "name": "idpHeading",
+      "unit": "degreeOfArc",
+      "schema": "double"
+    },
+    {
+      "@id": "dtmi:inmarsat:idp:ut:telemetry:idpGnssFixStatus;2",
+      "@type": ["Telemetry"],
+      "displayName": {
+        "en": "GNSS Fix Status"
+      },
+      "name": "idpGnssFixStatus",
+      "schema": "integer"
+    },
+    {
+      "comment": "Reported as DayOfMonth and MinuteOfDay",
+      "@id": "dtmi:inmarsat:idp:ut:telemetry:idpGnssFixTime;2",
+      "@type": ["Telemetry"],
+      "displayName": {
+        "en": "GNSS Fix Time"
+      },
+      "name": "gnssFixTime",
+      "schema": "dateTime"
+    },
+    {
+      "comment": "Offline command",
+      "@id": "dtmi:inmarsat:idp:ut:commands:reset;2",
+      "@type": "Command",
+      "durable": true,
+      "name": "idpCommandReset",
+      "displayName": {
+        "en": "Reset IDP Modem"
+      },
+      "description": {
+        "en": "Resets the satellite modem and/or asserts external reset output"
+      },
+      "request": {
+        "@type": "CommandPayload",
+        "name": "resetType",
+        "displayName": {
+          "en": "Reset Type"
+        },
+        "description": "Preserve or Flush transmit queue; Modem and/or External (Terminal)",
         "schema": {
-          "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:1",
-          "@type": ["Enum"],
+          "@id": "dtmi:inmarsat:idp:ut:commands:reset:request:resetType;2",
+          "@type": "Enum",
           "displayName": {
             "en": "Enum"
           },
           "valueSchema": "integer",
           "enumValues": [
             {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:unknown:1",
+              "@id": "dtmi:inmarsat:idp:ut:commands:reset:request:resetType:enum:modemPreserve;2",
               "@type": ["EnumValue"],
               "displayName": {
-                "en": "Unknown"
+                "en": "Modem Preserve"
               },
               "enumValue": 0,
-              "name": "unknown"
+              "name": "modemPreserve"
             },
             {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:powerOn:1",
+              "@id": "dtmi:inmarsat:idp:ut:commands:reset:request:resetType:enum:modemFlush;2",
               "@type": ["EnumValue"],
               "displayName": {
-                "en": "Power On"
+                "en": "Modem Flush"
               },
               "enumValue": 1,
-              "name": "powerOn"
+              "name": "modemFlush"
             },
             {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:newTrafficChannel:1",
+              "@id": "dtmi:inmarsat:idp:ut:commands:reset:request:resetType:enum:terminalModemPreserve;2",
               "@type": ["EnumValue"],
               "displayName": {
-                "en": "New Traffic Channel"
+                "en": "Terminal"
               },
               "enumValue": 2,
-              "name": "newTrafficChannel"
+              "name": "terminalModemPreserve"
             },
             {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:localExternal:1",
+              "@id": "dtmi:inmarsat:idp:ut:commands:reset:request:resetType:enum:terminalModemFlush;2",
               "@type": ["EnumValue"],
               "displayName": {
-                "en": "Local External"
+                "en": "Terminal and Modem Flush"
               },
               "enumValue": 3,
-              "name": "localExternal"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:otaCommand:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "Remote Command"
-              },
-              "enumValue": 4,
-              "name": "otaCommand"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:brownout:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "Brownout"
-              },
-              "enumValue": 5,
-              "name": "brownout"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:watchdog:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "Watchdog"
-              },
-              "enumValue": 6,
-              "name": "watchdog"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:software:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "Software"
-              },
-              "enumValue": 7,
-              "name": "software"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:reserved:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "Reserved"
-              },
-              "enumValue": 8,
-              "name": "reserved"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:dspError1:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "DSP Error (1)"
-              },
-              "enumValue": 9,
-              "name": "dspError1"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:dspError2:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "DSP Error (2)"
-              },
-              "enumValue": 10,
-              "name": "dspError2"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:dspError3:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "DSP Error (3)"
-              },
-              "enumValue": 11,
-              "name": "dspError3"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpLastResetReason:enum:dspError4:1",
-              "@type": ["EnumValue"],
-              "displayName": {
-                "en": "DSP Error (4)"
-              },
-              "enumValue": 12,
-              "name": "dspError4"
+              "name": "terminalModemFlush"
             }
           ]
-        }
-      },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "Broadcast Groups"
-        },
-        "name": "idpBroadcastIds",
-        "comment": "Should be Array type but not supported in IOT Central",
-        "writable": true,
-        "schema": {
-          "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:1",
-          "@type": ["Object"],
-          "displayName": {
-            "en": "Object"
-          },
-          "fields": [
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index0:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 1"
-              },
-              "name": "index0",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index1:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 2"
-              },
-              "name": "index1",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index2:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 3"
-              },
-              "name": "index2",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index3:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 4"
-              },
-              "name": "index3",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index4:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 5"
-              },
-              "name": "index4",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index5:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 6"
-              },
-              "name": "index5",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index6:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 7"
-              },
-              "name": "index6",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index7:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 8"
-              },
-              "name": "index7",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index8:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 9"
-              },
-              "name": "index8",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index9:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 10"
-              },
-              "name": "index9",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index10:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 11"
-              },
-              "name": "index10",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index11:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 12"
-              },
-              "name": "index11",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index12:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 13"
-              },
-              "name": "index12",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index13:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 14"
-              },
-              "name": "index13",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index14:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 15"
-              },
-              "name": "index14",
-              "schema": "integer"
-            },
-            {
-              "@id": "urn:inmarsat:idp:ut:properties:idpBroadcastIds:object:index15:1",
-              "@type": ["SchemaField"],
-              "displayName": {
-                "en": "Group 16"
-              },
-              "name": "index15",
-              "schema": "integer"
-            }
-          ]
-        }
-      },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpTxMute:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "Transmitter mute"
-        },
-        "name": "idpTxMute",
-        "writable": true,
-        "schema": "boolean"
-      },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpOperatorAccessLevel:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "Operator Access Level"
-        },
-        "name": "idpOperatorAccessLevel",
-        "schema": "integer"
-      },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpUserAccessLevel:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "User Access Level"
-        },
-        "name": "idpUserAccessLevel",
-        "schema": "integer"
-      },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpLastRxMsgTime:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "Last Message Received Time"
-        },
-        "name": "idpLastRxMsgTime",
-        "schema": "dateTime"
-      },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpLastRegistrationTime:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "Last Modem Registration Time"
-        },
-        "name": "idpLastRegistrationTime",
-        "schema": "dateTime"
-      },
-      {
-        "@id": "urn:inmarsat:idp:ut:properties:idpSatelliteRegion:1",
-        "@type": ["Property"],
-        "displayName": {
-          "en": "Satellite Region"
-        },
-        "name": "idpSatelliteRegion",
-        "schema": "string"
-      },
-      {
-        "@id": "urn:inmarsat:idp:ut:telemetry:idpWakeupPeriodChangeSource:1",
-        "@type": ["Telemetry"],
-        "displayName": {
-          "en": "Wakeup period change source"
-        },
-        "name": "idpWakeupPeriodChangeSource",
-        "schema": "string"
-      },
-      {
-        "comment": "Reported in thousandths minutes",
-        "@id": "urn:inmarsat:idp:ut:telemetry:idpLatitude:1",
-        "@type": ["Telemetry"],
-        "displayName": {
-          "en": "Latitude"
-        },
-        "name": "idpLatitude",
-        "unit": "degreeOfArc",
-        "schema": "double"
-      },
-      {
-        "comment": "Reported in thousandths minutes",
-        "@id": "urn:inmarsat:idp:ut:telemetry:idpLongitude:1",
-        "@type": ["Telemetry"],
-        "displayName": {
-          "en": "Longitude"
-        },
-        "name": "idpLongitude",
-        "unit": "degreeOfArc",
-        "schema": "double"
-      },
-      {
-        "@id": "urn:inmarsat:idp:ut:telemetry:idpAltitude:1",
-        "@type": ["Telemetry"],
-        "displayName": {
-          "en": "Altitude"
-        },
-        "name": "idpAltitude",
-        "unit": "metre",
-        "schema": "double"
-      },
-      {
-        "@id": "urn:inmarsat:idp:ut:telemetry:idpSpeed:1",
-        "@type": ["Telemetry"],
-        "displayName": {
-          "en": "Speed"
-        },
-        "name": "idpSpeed",
-        "schema": "double",
-        "unit": "kilometrePerHour"
-      },
-      {
-        "comment": "Reported in 2-degree increments",
-        "@id": "urn:inmarsat:idp:ut:telemetry:idpHeading:1",
-        "@type": ["Telemetry"],
-        "displayName": {
-          "en": "Heading"
-        },
-        "name": "idpHeading",
-        "unit": "degreeOfArc",
-        "schema": "double"
-      },
-      {
-        "@id": "urn:inmarsat:idp:ut:telemetry:idpGnssFixStatus:1",
-        "@type": ["Telemetry"],
-        "displayName": {
-          "en": "GNSS Fix Status"
-        },
-        "name": "idpGnssFixStatus",
-        "schema": "integer"
-      },
-      {
-        "comment": "Reported as DayOfMonth and MinuteOfDay",
-        "@id": "urn:inmarsat:idp:ut:telemetry:idpGnssFixTime:1",
-        "@type": ["Telemetry"],
-        "displayName": {
-          "en": "GNSS Fix Time"
-        },
-        "name": "gnssFixTime",
-        "schema": "dateTime"
-      },
-      {
-        "comment": "Offline command",
-        "@id": "urn:inmarsat:idp:ut:commands:reset:1",
-        "@type": "Command",
-        "durable": true,
-        "name": "idpCommandReset",
-        "displayName": {
-          "en": "Reset IDP Modem"
-        },
-        "description": {
-          "en": "Resets the satellite modem and/or asserts external reset output"
-        },
-        "request": {
-          "@type": "CommandPayload",
-          "name": "resetType",
-          "displayName": {
-            "en": "Reset Type"
-          },
-          "description": "Preserve or Flush transmit queue; Modem and/or External (Terminal)",
-          "schema": {
-            "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:1",
-            "@type": "Enum",
-            "displayName": {
-              "en": "Enum"
-            },
-            "valueSchema": "integer",
-            "enumValues": [
-              {
-                "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:modemPreserve:1",
-                "@type": ["EnumValue"],
-                "displayName": {
-                  "en": "Modem Preserve"
-                },
-                "enumValue": 0,
-                "name": "modemPreserve"
-              },
-              {
-                "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:modemFlush:1",
-                "@type": ["EnumValue"],
-                "displayName": {
-                  "en": "Modem Flush"
-                },
-                "enumValue": 1,
-                "name": "modemFlush"
-              },
-              {
-                "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:terminalModemPreserve:1",
-                "@type": ["EnumValue"],
-                "displayName": {
-                  "en": "Terminal"
-                },
-                "enumValue": 2,
-                "name": "terminalModemPreserve"
-              },
-              {
-                "@id": "urn:inmarsat:idp:ut:commands:reset:request:resetType:enum:terminalModemFlush:1",
-                "@type": ["EnumValue"],
-                "displayName": {
-                  "en": "Terminal and Modem Flush"
-                },
-                "enumValue": 3,
-                "name": "terminalModemFlush"
-              }
-            ]
-          }
-        }
-      },
-      {
-        "comment": "Offline command",
-        "@id": "urn:inmarsat:idp:ut:commands:pingModem:1",
-        "@type": "Command",
-        "durable": true,
-        "name": "idpCommandPingModem",
-        "displayName": {
-          "en": "Ping IDP Modem"
-        },
-        "description": {
-          "en": "Sends a simple command to solicit a response with latency information."
-        }
-      },
-      {
-        "comment": "Offline command",
-        "@id": "urn:inmarsat:idp:ut:commands:getLocation:1",
-        "@type": "Command",
-        "durable": true,
-        "name": "idpCommandGetLocation",
-        "displayName": {
-          "en": "Get IDP Modem Location"
-        },
-        "description": {
-          "en": "Solicits the modem's location using its built-in GNSS."
-        }
-      },
-      {
-        "comment": "Offline command",
-        "@id": "urn:inmarsat:idp:ut:commands:getBroadcastIds:1",
-        "@type": "Command",
-        "durable": true,
-        "name": "idpCommandGetBroadcastIds",
-        "displayName": {
-          "en": "List IDP Modem Broadcast Groups"
-        },
-        "description": {
-          "en": "Queries the modem's subscribed broadcast IDs."
-        }
-      },
-      {
-        "comment": "Offline command",
-        "@id": "urn:inmarsat:idp:ut:commands:getConfiguration:1",
-        "@type": "Command",
-        "durable": true,
-        "name": "idpCommandGetConfiguration",
-        "displayName": {
-          "en": "Get IDP Modem Configuration"
-        },
-        "description": {
-          "en": "Queries the modem's current configuration set."
         }
       }
-    ]
-  }
+    },
+    {
+      "comment": "Offline command",
+      "@id": "dtmi:inmarsat:idp:ut:commands:pingModem;2",
+      "@type": "Command",
+      "durable": true,
+      "name": "idpCommandPingModem",
+      "displayName": {
+        "en": "Ping IDP Modem"
+      },
+      "description": {
+        "en": "Sends a simple command to solicit a response with latency information."
+      }
+    },
+    {
+      "comment": "Offline command",
+      "@id": "dtmi:inmarsat:idp:ut:commands:getLocation;2",
+      "@type": "Command",
+      "durable": true,
+      "name": "idpCommandGetLocation",
+      "displayName": {
+        "en": "Get IDP Modem Location"
+      },
+      "description": {
+        "en": "Solicits the modem's location using its built-in GNSS."
+      }
+    },
+    {
+      "comment": "Offline command",
+      "@id": "dtmi:inmarsat:idp:ut:commands:getBroadcastIds;2",
+      "@type": "Command",
+      "durable": true,
+      "name": "idpCommandGetBroadcastIds",
+      "displayName": {
+        "en": "List IDP Modem Broadcast Groups"
+      },
+      "description": {
+        "en": "Queries the modem's subscribed broadcast IDs."
+      }
+    },
+    {
+      "comment": "Offline command",
+      "@id": "dtmi:inmarsat:idp:ut:commands:getConfiguration;2",
+      "@type": "Command",
+      "durable": true,
+      "name": "idpCommandGetConfiguration",
+      "displayName": {
+        "en": "Get IDP Modem Configuration"
+      },
+      "description": {
+        "en": "Queries the modem's current configuration set."
+      }
+    }
+  ]
 }
