@@ -137,7 +137,7 @@ function buildTemplate(template) {
  */
 async function setDeviceTemplate(template) {
   const extendedTemplate = buildTemplate(template);
-  const capabilityModelId = extendedTemplate['@id'];
+  const capabilityModelId = extendedTemplate['@id'] || extendedTemplate.capabilityModel['@id'];
   const templateId =
       capabilityModelId.replace('CapabilityModel', 'DeviceTemplate');
   const setOptions = {
@@ -184,19 +184,26 @@ async function listDeviceTemplates() {
 }
 
 async function updateDeviceTemplates(context) {
-  const templatesInRepo = Object.assign({}, templates);
-  const templatesInCentral = await listDeviceTemplates();
-  for (const templateName in templatesInRepo) {
-    for (let i=0; i < templatesInCentral.length; i++) {
-      if (templatesInRepo[templateName].id === templatesInCentral[i].id) {
-        delete templatesInRepo[templateName];
+  const repoTemplates = Object.assign({}, templates);
+  const centralTemplates = await listDeviceTemplates();
+  for (const templateName in repoTemplates) {
+    const repoTemplate = repoTemplates[templateName];
+    for (let i=0; i < centralTemplates.length; i++) {
+      const centralTemplate = centralTemplates[i];
+      if (repoTemplate.id) {
+        // context.log.warn(`${templateName} is old DTDLv1`);
+        if (repoTemplate.id === centralTemplate['@id']) {
+          delete repoTemplates[templateName];
+        }
+      }
+      if (repoTemplate['@id'] === centralTemplate['@id']) {
+        delete repoTemplates[templateName];
         break;
       }
     }
   }
-  for (const templateName in templatesInRepo) {
-    // let t = buildTemplate(templatesInRepo[templateName]);
-    await setDeviceTemplate(templatesInRepo[templateName]);
+  for (const templateName in repoTemplates) {
+    await setDeviceTemplate(repoTemplates[templateName]);
     context.log(`Updated device template ${templateName}`);
   }
 }

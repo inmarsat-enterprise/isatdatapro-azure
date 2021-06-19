@@ -1,0 +1,228 @@
+{
+  "@id": "dtmi:inmarsat:fieldEdge:feuIdp;1",
+  "@type": "Interface",
+  "@context": "dtmi:dtdl:context;2",
+  "displayName": {
+    "en": "feuidp Microservice"
+  },
+  "name": "feuIdp",
+  "contents": [
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:properties:version;1",
+      "@type": [
+        "Property"
+      ],
+      "displayName": {
+        "en": "App Version"
+      },
+      "name": "appVersion",
+      "schema": "string"
+    },
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:properties:reportInterval;1",
+      "@type": [
+        "Property"
+      ],
+      "displayName": {
+        "en": "Reporting Interval"
+      },
+      "name": "reportInterval",
+      "unit": "second",
+      "writable": false,
+      "comment": "Set using *Set Properties* command",
+      "description": "Valid range [0..86400] seconds.",
+      "schema": "integer"
+    },
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:properties:qosInterval;1",
+      "@type": [
+        "Property"
+      ],
+      "displayName": {
+        "en": "QoS Measurement Interval"
+      },
+      "name": "qosInterval",
+      "comment": "Set using *Set Properties* command",
+      "description": "Valid range [0..86400] seconds.",
+      "unit": "second",
+      "writable": false,
+      "schema": "integer"
+    },
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:properties:textMobileOriginated;1",
+      "@type": [
+        "Property"
+      ],
+      "displayName": {
+        "en": "Last Mobile-Originated Text"
+      },
+      "name": "textMobileOriginated",
+      "writable": false,
+      "schema": "string"
+    },
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:properties:textMobileTerminated;1",
+      "@type": [
+        "Property"
+      ],
+      "displayName": {
+        "en": "Last Mobile-Terminated Text"
+      },
+      "name": "textMobileTerminated",
+      "writable": true,
+      "schema": "string"
+    },
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:properties:location;1",
+      "@type": [
+        "Property",
+        "Location"
+      ],
+      "displayName": {
+        "en": "Location"
+      },
+      "name": "location",
+      "schema": "geopoint"
+    },
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:telemetry:trackingTimestamp;1",
+      "@type": [
+        "Telemetry"
+      ],
+      "displayName": {
+        "en": "Tracking Timestamp"
+      },
+      "name": "trackingTimestamp",
+      "unit": "second",
+      "schema": "integer"
+    },
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:telemetry:tracking;1",
+      "@type": [
+        "Telemetry",
+        "Location"
+      ],
+      "displayName": {
+        "en": "Tracking"
+      },
+      "name": "tracking",
+      "schema": "geopoint"
+    },
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:telemetry:speed;1",
+      "@type": [
+        "Telemetry"
+      ],
+      "displayName": {
+        "en": "Speed"
+      },
+      "name": "speed",
+      "unit": "kilometrePerHour",
+      "schema": "integer"
+    },
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:telemetry:heading;1",
+      "@type": [
+        "Telemetry"
+      ],
+      "displayName": {
+        "en": "Heading"
+      },
+      "name": "heading",
+      "unit": "degreeOfArc",
+      "schema": "integer"
+    },
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:telemetry:gnssSatellites;1",
+      "@type": [
+        "Telemetry"
+      ],
+      "displayName": {
+        "en": "GNSS satellites used for fix"
+      },
+      "name": "gnssSatellites",
+      "schema": "integer"
+    },
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:telemetry:pdop;1",
+      "@type": [
+        "Telemetry"
+      ],
+      "displayName": {
+        "en": "Fix Probability Dilution of Precision"
+      },
+      "name": "pdop",
+      "schema": "double"
+    },
+    {
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:telemetry:satelliteSnr;1",
+      "@type": [
+        "Telemetry"
+      ],
+      "displayName": {
+        "en": "Satellite (Rx) SNR"
+      },
+      "name": "satelliteSnr",
+      "displayUnit": "dB-Hz",
+      "schema": "double"
+    },
+    {
+      "comment": "Offline command",
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:offlineCommands:reportGet;1",
+      "@type": "Command",
+      "durable": true,
+      "name": "commandReportGet",
+      "displayName": {
+        "en": "Get Report"
+      },
+      "description": "Queries a location/SNR report and restarts the timer."
+    },
+    {
+      "comment": "Offline command",
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:offlineCommands:configSet;1",
+      "@type": "Command",
+      "durable": true,
+      "name": "configSet",
+      "displayName": {
+        "en": "Set Properties"
+      },
+      "description": "Allows configuration of application settings.",
+      "request": {
+        "@type": "CommandPayload",
+        "name": "configProperties",
+        "displayName": "Configuration Properties",
+        "comment": "Interval valid range [0..86400] seconds.",
+        "schema": {
+          "@id": "dtmi:inmarsat:fieldEdge:feuIdp:offlineCommands:configSet:configProperties;1",
+          "@type": "Object",
+          "displayName": "Object",
+          "fields": [
+            {
+              "@id": "dtmi:inmarsat:fieldEdge:feuIdp:offlineCommands:configSet:configProperties:reportInterval;1",
+              "name": "reportInterval",
+              "displayName": "Reporting Interval",
+              "schema": "integer"
+            },
+            {
+              "@id": "dtmi:inmarsat:fieldEdge:feuIdp:offlineCommands:configSet:configProperties:qosInterval;1",
+              "name": "qosInterval",
+              "displayName": "QoS Measurement Interval",
+              "schema": "integer"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "comment": "Offline command",
+      "@id": "dtmi:inmarsat:fieldEdge:feuIdp:offlineCommands:configGet;1",
+      "@type": "Command",
+      "durable": true,
+      "name": "configGet",
+      "displayName": {
+        "en": "Get Config"
+      },
+      "description": "Queries the current application configuration."
+    }
+  ]
+}

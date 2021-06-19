@@ -1,21 +1,95 @@
 {
-  "displayName": "Inmarsat PNP Developer Kit",
-  "id": "urn:inmarsat:idp:template:inmarsatPnpDevKit:1",
-  "types": [
+  "@id": "dtmi:modelDefinition:inmarsat:idp:pnpDevKit;2",
+  "@type": [
+    "ModelDefinition",
     "DeviceModel"
   ],
+  "@context": ["dtmi:iotcentral:context;2", "dtmi:dtdl:context;2"],
+  "displayName": "Inmarsat Plug-n-Play Developer Kit",
   "capabilityModel": {
-    "comment": "retrieve from deviceCapabilityModels folder",
-    "@id": "urn:inmarsat:idp:capabilityModel:inmarsatPnpDevKit:1"
+    "@id": "dtmi:inmarsat:capabilityModel:inmarsatPnpDevKit;2",
+    "@type": "Interface",
+    "comment": "default interface",
+    "displayName": "Device Information",
+    "contents": [
+      {
+        "@id": "dtmi:inmarsat:capabilityModel:inmarsatPnpDevKit:edgePlatform;1",
+        "@type": "Property",
+        "comment": "The hardware platform used",
+        "name": "edgePlatform",
+        "displayName": {
+          "en": "Edge Platform"
+        },
+        "schema": "string"
+      },
+      {
+        "@id": "dtmi:inmarsat:capabilityModel:inmarsatPnpDevKit:edgeProcessor;1",
+        "@type": "Property",
+        "comment": "The processor architecture",
+        "name": "edgeProcessor",
+        "displayName": {
+          "en": "Edge Processor Architecture"
+        },
+        "schema": "string"
+      },
+      {
+        "@id": "dtmi:inmarsat:capabilityModel:inmarsatPnpDevKit:edgeOs;1",
+        "@type": "Property",
+        "comment": "The operating system",
+        "name": "edgeOs",
+        "displayName": {
+          "en": "Edge OS"
+        },
+        "schema": "string"
+      },
+      {
+        "@id": "dtmi:inmarsat:capabilityModel:inmarsatPnpDevKit:edgeStorage;1",
+        "@type": "Property",
+        "comment": "The disk storage capacity",
+        "name": "edgeStorage",
+        "displayName": {
+          "en": "Storage Capacity (MB)"
+        },
+        "schema": "integer"
+      },
+      {
+        "@id": "dtmi:inmarsat:capabilityModel:inmarsatPnpDevKit:dockerVersion;1",
+        "@type": "Property",
+        "comment": "The Docker version",
+        "name": "dockerVersion",
+        "displayName": {
+          "en": "Docker Version"
+        },
+        "schema": "string"
+      },
+      {
+        "@id": "dtmi:inmarsat:capabilityModel:inmarsatPnpDevKit:idpModem;1",
+        "@type": "Component",
+        "name": "idpModem",
+        "displayName": {
+          "en": "IDP modem"
+        },
+        "schema": "dtmi:inmarsat:idp:ut;2"
+      },
+      {
+        "@id": "dtmi:inmarsat:capabilityModel:inmarsatPnpDevKit:feuIdp;1",
+        "@type": "Component",
+        "name": "feuIdp",
+        "displayName": {
+          "en": "FieldEdge Ultralite IDP Microservice"
+        },
+        "schema": "dtmi:inmarsat:fieldEdge:feuIdp;1"
+      }
+    ]
   },
   "solutionModel": {
-    "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:1",
+    "@id": "dtmi:inmarsat:solutionModel:inmarsatPnpDevKit;1",
     "@type": [
       "SolutionModel"
     ],
     "cloudProperties": [
       {
-        "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:customer:1",
+        "@id": "dtmi:inmarsat:solutionModel:inmarsatPnpDevKit:customer;1",
         "@type": [
           "CloudProperty"
         ],
@@ -23,14 +97,14 @@
         "name": "customer",
         "schema": "string",
         "valueDetail": {
-          "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:customer:valueDetail:1",
+          "@id": "dtmi:inmarsat:solutionModel:inmarsatPnpDevKit:customer:valueDetail;1",
           "@type": [
             "ValueDetail/StringValueDetail"
           ]
         }
       },
       {
-        "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:feuModel:1",
+        "@id": "dtmi:inmarsat:solutionModel:inmarsatPnpDevKit:feuModel;1",
         "@type": [
           "CloudProperty"
         ],
@@ -38,14 +112,14 @@
         "name": "feuModel",
         "schema": "string",
         "valueDetail": {
-          "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:feuModel:valueDetail:1",
+          "@id": "dtmi:inmarsat:solutionModel:inmarsatPnpDevKit:feuModel:valueDetail;1",
           "@type": [
             "ValueDetail/StringValueDetail"
           ]
         }
       },
       {
-        "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:satelliteModemModel:1",
+        "@id": "dtmi:inmarsat:solutionModel:inmarsatPnpDevKit:satelliteModemModel;1",
         "@type": [
           "CloudProperty"
         ],
@@ -53,14 +127,14 @@
         "name": "satelliteModemModel",
         "schema": "string",
         "valueDetail": {
-          "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:satelliteModemModel:valueDetail:1",
+          "@id": "dtmi:inmarsat:solutionModel:inmarsatPnpDevKit:satelliteModemModel:valueDetail;1",
           "@type": [
             "ValueDetail/StringValueDetail"
           ]
         }
       },
       {
-        "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:satelliteModemPartNumber:1",
+        "@id": "dtmi:inmarsat:solutionModel:inmarsatPnpDevKit:satelliteModemPartNumber;1",
         "@type": [
           "CloudProperty"
         ],
@@ -68,7 +142,7 @@
         "name": "satelliteModemPartNumber",
         "schema": "string",
         "valueDetail": {
-          "@id": "urn:inmarsat:idp:solutionModel:inmarsatPnpDevKit:satelliteModemPartNumber:valueDetail:1",
+          "@id": "dtmi:inmarsat:solutionModel:inmarsatPnpDevKit:satelliteModemPartNumber:valueDetail;1",
           "@type": [
             "ValueDetail/StringValueDetail"
           ]
