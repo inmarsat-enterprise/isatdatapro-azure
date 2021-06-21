@@ -230,13 +230,23 @@ async function updateDevice(context, device, twin) {
             ` in twin.properties.reported`);
       }
       const reported = twin.properties.reported[propName];
-      if (reported.ac === 202) {
-        context.log.info(`${device.id} ${propName} pending` +
-            ` value: ${delta[propName]} version: ${delta.$version}`);
-        continue;
-      }
       if (reported.value === delta[propName]) {
         context.log.verbose(`${device.id} ${propName} reported matches desired`);
+        if (reported.ac === 202) {
+          context.log.warn(`${device.id} ${propName} pending - completing`);
+          if (!patch[propName]) {
+            patch[propName] = {
+              value: reported.value,
+              ac: 200,
+              ad: 'presumed closed independently',
+              av: delta.version,
+            };
+          }
+        }
+        continue;
+      } else if (reported.ac === 202) {
+        context.log.info(`${device.id} ${propName} pending` +
+            ` value: ${delta[propName]} version: ${delta.$version}`);
         continue;
       }
       const writePatch = otaWriteProperty(context, device,
