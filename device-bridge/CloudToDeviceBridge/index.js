@@ -5,7 +5,7 @@
  * few minutes
  */
 const checkDesiredPropertiesCommands = require('../lib/idpDeviceInterfaceBridge');
-const { getDevices, updateDeviceTemplates } = require('../lib/iotcDcmApi');
+const { listDevices, updateDeviceTemplates } = require('../lib/iotcDcmApi');
 const { templates } = require('../lib/deviceTemplates');
 
 const manufacturerCodes = ['SKY', 'HON'];

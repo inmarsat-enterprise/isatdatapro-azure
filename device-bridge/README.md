@@ -48,10 +48,6 @@ and/or devices to the project directories:
   | | |
   | | +-+ {deviceName}.json
   | |
-  | +-+ capabilityModels
-  | | |
-  | | +-+ {deviceName}.json
-  | |
   | +-+ interfaces
   |   |
   |   +-+ idpmodem.json
@@ -67,10 +63,10 @@ and/or devices to the project directories:
 
 ### Device Capability Model Templates
 
-Device Capability Models follow the Azure Device Twin Definition Language v1 
-where a *template* contains a *capabilityModel* which in turn contains 
-*interfaces*.  These elements can be merged together into a device template 
-based on the examples provided in `/lib/deviceTemplates`.
+Device Capability Models follow the Azure Device Twin Definition Language v2 
+where a *template* contains a *capabilityModel* which specifies a default 
+*Interface* with optional *Component*s.  These elements can be merged together
+into a device template based on the examples provided in `/lib/deviceTemplates`.
 
 ### Device Models
 

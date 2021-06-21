@@ -3,7 +3,7 @@
  * data into telemetry and reported properties.
  */
 const handleEvent = require('../lib/idpDeviceInterfaceBridge');
-const { getDevices } = require('../lib/iotcDcmApi');
+const { listDevices } = require('../lib/iotcDcmApi');
 const deviceModels = require('../lib/deviceModels');
 const { templates } = require('../lib/deviceTemplates');
 const _ = require('lodash');

@@ -2,7 +2,7 @@
 
 // Get templates, compare against this lib; upload new from lib
 const https = require('https')
-const { capabilityModels, interfaces, templates } = require('./deviceTemplates');
+const { interfaces, templates } = require('./deviceTemplates');
 
 let tempEnv;
 if (!process.env.IOTC_APPLICATION_URL) {
