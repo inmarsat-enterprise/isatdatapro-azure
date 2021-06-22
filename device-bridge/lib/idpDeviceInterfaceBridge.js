@@ -21,7 +21,7 @@ const groupSasKey = process.env.IOTC_GROUP_ENROLL_SAS_KEY;
 const deviceCache = {};
 let hubClient;
 
-const testMode = process.env.testMode;
+const testMode = (process.env.testMode === 'true');
 
 /**
  * Computes a derived device key using the primary key.
@@ -233,7 +233,8 @@ async function updateDevice(context, device, twin) {
       if (reported.value === delta[propName]) {
         context.log.verbose(`${device.id} ${propName} reported matches desired`);
         if (reported.ac === 202) {
-          context.log.warn(`${device.id} ${propName} pending - completing`);
+          context.log.warn(`${device.id} ${propName} pending == reported` +
+              ` - completing`);
           if (!patch[propName]) {
             patch[propName] = {
               value: reported.value,

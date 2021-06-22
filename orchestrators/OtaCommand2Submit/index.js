@@ -2,7 +2,7 @@
 const uuid = require('uuid').v4;
 //const { getFunctionName } = require('../SharedCode');
 
-const testMode = process.env.testMode;
+const testMode = (process.env.testMode === 'true');
 const funcName = 'OtaCommand2Submit';
 
 module.exports = async function (context, commandMeta) {

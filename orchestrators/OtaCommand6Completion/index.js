@@ -1,6 +1,6 @@
 const uuid = require('uuid').v4;
 
-const testMode = process.env.testMode;
+const testMode = (process.env.testMode === 'true');
 const funcName = 'OtaCommand6Completion';
 
 module.exports = async function(context, eventData) {

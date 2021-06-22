@@ -5,7 +5,7 @@
 const df = require('durable-functions');
 const { clientGetStatusAll, getFunctionName, getCodecIds, instanceCleanup } = require('../SharedCode');
 
-const testMode = process.env.testMode;
+const testMode = (process.env.testMode === 'true');
 const funcName = 'OtaCommand1Start';
 
 module.exports = async function (context, eventGridEvent) {
