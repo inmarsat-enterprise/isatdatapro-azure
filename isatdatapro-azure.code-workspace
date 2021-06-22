@@ -1,12 +1,15 @@
 {
 	"folders": [
 		{
-			"name": "data-transformer",
-			"path": "data-transformer"
+			"path": "arm"
 		},
 		{
 			"name": "device-bridge",
 			"path": "device-bridge"
+		},
+		{
+			"name": "docs",
+			"path": "docs"
 		},
 		{
 			"name": "notifications",
@@ -21,14 +24,7 @@
 			"path": "satellite-messaging"
 		},
 		{
-			"name": "docs",
-			"path": "docs"
-		},
-		{
 			"path": "web"
-		},
-		{
-			"path": "arm"
 		}
 	],
 	"settings": {
