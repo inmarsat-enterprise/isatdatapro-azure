@@ -1,0 +1,22 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "<yourWebJobsStorage>",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "NODE_ENV": "production",
+    "DB_TYPE": "azureCosmos",
+    "COSMOS_DB_HOST": "<yourAzureCosmosUrl>",
+    "COSMOS_DB_PASS": "<yourAzureCosmosPassword>",
+    "COSMOS_DB_NAME": "IsatDataPro",
+    "COSMOS_DB_CONTAINER": "Main",
+    "COSMOS_DB_PARTITION": "category",
+    "COSMOS_DB_THROUGHPUT": "400",
+    "MAILBOX_SECRET": "<yourMailboxSecret>",
+    "EVENTGRID_TOPIC_KEY": "<yourTopicKey>",
+    "EVENTGRID_TOPIC_ENDPOINT": "<yourTopicEndpoint>",
+    "AzureWebJobs.MessageReturnGet.Disabled": "false",
+    "AzureWebJobs.MessageForwardStatusGet.Disabled": "false",
+    "AzureWebJobs.MessageForwardSubmit.Disabled": "false",
+    "testMode": "true"
+  }
+}
