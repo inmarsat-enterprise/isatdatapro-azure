@@ -126,7 +126,7 @@ module.exports = async function (context, eventGridEvent) {
   for (let d=0; d < provisionedDevices.length; d++) {
     if (provisionedDevices[d].id.includes(identifier)) {
       for (let template in templates) {
-        if (templates[template].id === provisionedDevices[d].instanceOf) {
+        if (templates[template]['@id'] === provisionedDevices[d].template) {
           device.id = provisionedDevices[d].id;
           device.model = template;
           break;

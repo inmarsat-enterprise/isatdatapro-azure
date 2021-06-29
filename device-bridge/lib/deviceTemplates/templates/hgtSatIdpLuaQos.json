@@ -22,10 +22,23 @@
         "@id": "dtmi:inmarsat:idp:capabilityModel:hgtSatIdpLuaQos:snr;1",
         "@type": "Telemetry",
         "displayName": {
-          "en": "SNR"
+          "en": "Satellite (Rx) SNR"
         },
-        "name": "snr",
+        "name": "satelliteSnr",
+        "displayUnit": "dB-Hz",
         "schema": "double"
+      },
+      {
+        "@id": "dtmi:inmarsat:idp:capabilityModel:hgtSatIdpLuaQos:tracking;1",
+        "@type": [
+          "Telemetry",
+          "Location"
+        ],
+        "displayName": {
+          "en": "Tracking"
+        },
+        "name": "tracking",
+        "schema": "geopoint"
       },
       {
         "@id": "dtmi:inmarsat:idp:capabilityModel:hgtSatIdpLuaQos:hdop;1",

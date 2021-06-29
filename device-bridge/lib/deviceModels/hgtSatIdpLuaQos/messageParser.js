@@ -86,6 +86,9 @@ function parseLuaQos(context, message) {
         context.log.warn(`Unrecognized message` +
             ` SIN 255 MIN ${message.payloadJson.codecMessageId}`);
     }
+  } else {
+    context.log.warn(`No parsing defined for ${message.mobileId}` +
+        ` SIN ${message.codecServiceId}`);
   }
   return { telemetry, reportedProperties, timestamp };
 }
