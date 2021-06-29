@@ -114,15 +114,32 @@ function buildTemplate(template) {
   if (capabilityModel['@type'] !== 'Interface') {
     throw new Error('Template capabilityModel missing parent Interface');
   }
-  for (let c=0; c < capabilityModel.contents.length; c++) {
-    let component = capabilityModel.contents[c];
-    // TODO: validate @id, @type, name, displayName, schema
-    if (component['@type'] === 'Component') {
-      for (const interfaceName in interfaces) {
-        const interface = interfaces[interfaceName];
-        if (component.schema === interface['@id']) {
-          template.capabilityModel.contents[c].schema = interface;
-          break;
+  if (capabilityModel.extends) {
+    for (let e = 0; e < capabilityModel.extends.length; e++) {
+      let component = capabilityModel.extends[e];
+      // TODO: validate @id, @type, name, displayName, schema
+      if (component['@type'] === 'Component') {
+        for (const interfaceName in interfaces) {
+          const interface = interfaces[interfaceName];
+          if (component.schema === interface['@id']) {
+            template.capabilityModel.extends[e].schema = interface;
+            break;
+          }
+        }
+      }
+    }
+  }
+  if (capabilityModel.contents) {
+    for (let c=0; c < capabilityModel.contents.length; c++) {
+      let component = capabilityModel.contents[c];
+      // TODO: validate @id, @type, name, displayName, schema
+      if (component['@type'] === 'Component') {
+        for (const interfaceName in interfaces) {
+          const interface = interfaces[interfaceName];
+          if (component.schema === interface['@id']) {
+            template.capabilityModel.contents[c].schema = interface;
+            break;
+          }
         }
       }
     }

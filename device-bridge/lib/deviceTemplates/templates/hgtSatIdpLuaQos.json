@@ -1,15 +1,26 @@
 {
-  "@id": "dtmi:modelDefinition:inmarsat:idp:hgtSatIdpLuaQos;1",
+  "@id": "dtmi:modelDefinition:inmarsat:idp:hgtSatIdpLuaQos;2",
   "@type": ["ModelDefinition", "DeviceModel"],
   "@context": ["dtmi:iotcentral:context;2", "dtmi:dtdl:context;2"],
-  "displayName": "Honeywell SAT-IDP (Lua QoS)",
+  "displayName": "Honeywell SAT-IDP (Lua QoS script)",
   "capabilityModel": {
-    "@id": "dtmi:inmarsat:idp:capabilityModel:hgtSatIdpLuaQos;1",
+    "@id": "dtmi:inmarsat:idp:capabilityModel:hgtSatIdp:LuaQos;2",
     "@type": "Interface",
+    "comment": "default Interface",
     "displayName": "Lua QoS Script",
     "contents": [
       {
-        "@id": "dtmi:inmarsat:idp:capabilityModel:hgtSatIdpLuaQos:location;1",
+        "@id": "dtmi:inmarsat:idp:hgtSatIdp:LuaQos:version;1",
+        "@type": "Property",
+        "displayName": {
+          "en": "Version"
+        },
+        "name": "scriptVersion",
+        "schema": "string",
+        "writable": false
+      },
+      {
+        "@id": "dtmi:inmarsat:idp:hgtSatIdp:LuaQos:location;1",
         "@type": ["Property", "Location"],
         "displayName": {
           "en": "Location"
@@ -19,7 +30,7 @@
         "writable": false
       },
       {
-        "@id": "dtmi:inmarsat:idp:capabilityModel:hgtSatIdpLuaQos:snr;1",
+        "@id": "dtmi:inmarsat:idp:hgtSatIdp:LuaQos:snr;1",
         "@type": "Telemetry",
         "displayName": {
           "en": "Satellite (Rx) SNR"
@@ -29,7 +40,7 @@
         "schema": "double"
       },
       {
-        "@id": "dtmi:inmarsat:idp:capabilityModel:hgtSatIdpLuaQos:tracking;1",
+        "@id": "dtmi:inmarsat:idp:hgtSatIdp:LuaQos:tracking;1",
         "@type": [
           "Telemetry",
           "Location"
@@ -41,7 +52,7 @@
         "schema": "geopoint"
       },
       {
-        "@id": "dtmi:inmarsat:idp:capabilityModel:hgtSatIdpLuaQos:hdop;1",
+        "@id": "dtmi:inmarsat:idp:hgtSatIdp:LuaQos:hdop;1",
         "@type": "Telemetry",
         "displayName": {
           "en": "HDOP"
@@ -50,7 +61,7 @@
         "schema": "double"
       },
       {
-        "@id": "dtmi:inmarsat:idp:capabilityModel:hgtSatIdpLuaQos:speed;1",
+        "@id": "dtmi:inmarsat:idp:hgtSatIdp:LuaQos:speed;1",
         "@type": ["Telemetry", "Velocity"],
         "displayName": {
           "en": "Speed"
@@ -60,7 +71,7 @@
         "unit": "kilometrePerHour"
       },
       {
-        "@id": "dtmi:inmarsat:idp:capabilityModel:hgtSatIdpLuaQos:heading;1",
+        "@id": "dtmi:inmarsat:idp:hgtSatIdp:LuaQos:heading;1",
         "@type": "Telemetry",
         "displayName": {
           "en": "Heading"
@@ -69,66 +80,42 @@
         "schema": "double"
       },
       {
-        "@id": "dtmi:inmarsat:idp:capabilityModel:hgtSatIdpLuaQos:idpModem;1",
+        "@id": "dtmi:inmarsat:idp:hgtSatIdp:idpModem;1",
         "@type": "Component",
         "name": "idpModem",
         "displayName": {
-          "en": "IDP modem"
+          "en": "Satellite Modem"
         },
         "schema": "dtmi:inmarsat:idp:ut;2"
-      }
-    ]
-  },
-  "solutionModel": {
-    "@id": "dtmi:inmarsat:idp:solutionModel:hgtSatIdpLuaQos;1",
-    "@type": ["SolutionModel"],
-    "cloudProperties": [
+      },
       {
-        "@id": "dtmi:inmarsat:idp:solutionModel:hgtSatIdpLuaQos:customer;1",
-        "@type": ["CloudProperty"],
+        "@id": "dtmi:inmarsat:idp:hgtSatIdp:customer;1",
+        "@type": ["Property", "Cloud"],
         "displayName": "Customer",
         "name": "customer",
-        "schema": "string",
-        "valueDetail": {
-          "@id": "dtmi:inmarsat:idp:solutionModel:hgtSatIdpLuaQos:customer:valueDetail;1",
-          "@type": ["ValueDetail/StringValueDetail"]
-        }
+        "schema": "string"
       },
       {
-        "@id": "dtmi:inmarsat:idp:solutionModel:hgtSatIdpLuaQos:feuModel;1",
-        "@type": ["CloudProperty"],
-        "displayName": "FieldEdge Ultralite Hardware Model",
-        "name": "feuModel",
-        "schema": "string",
-        "valueDetail": {
-          "@id": "dtmi:inmarsat:idp:solutionModel:hgtSatIdpLuaQos:feuModel:valueDetail;1",
-          "@type": ["ValueDetail/StringValueDetail"]
-        }
+        "@id": "dtmi:inmarsat:idp:hgtSatIdp:terminalPartNumber;1",
+        "@type": ["Property", "Cloud"],
+        "displayName": "Terminal Part Number",
+        "name": "terminalPartNumber",
+        "schema": "string"
       },
       {
-        "@id": "dtmi:inmarsat:idp:solutionModel:hgtSatIdpLuaQos:satelliteModemModel;1",
-        "@type": ["CloudProperty"],
-        "displayName": "Satellite Modem Model",
-        "name": "satelliteModemModel",
-        "schema": "string",
-        "valueDetail": {
-          "@id": "dtmi:inmarsat:idp:solutionModel:hgtSatIdpLuaQos:satelliteModemModel:valueDetail;1",
-          "@type": ["ValueDetail/StringValueDetail"]
-        }
+        "@id": "dtmi:inmarsat:idp:hgtSatIdp:terminalSerialNumber;1",
+        "@type": ["Property", "Cloud"],
+        "displayName": "Terminal Serial Number",
+        "name": "terminalSerialNumber",
+        "schema": "string"
       },
       {
-        "@id": "dtmi:inmarsat:idp:solutionModel:hgtSatIdpLuaQos:satelliteModemPartNumber;1",
-        "@type": ["CloudProperty"],
-        "displayName": "Satellite Modem Part Number",
-        "name": "satelliteModemPartNumber",
-        "schema": "string",
-        "valueDetail": {
-          "@id": "dtmi:inmarsat:idp:solutionModel:hgtSatIdpLuaQos:satelliteModemPartNumber:valueDetail;1",
-          "@type": ["ValueDetail/StringValueDetail"]
-        }
+        "@id": "dtmi:inmarsat:idp:hgtSatIdp:terminalHardwareVersion;1",
+        "@type": ["Property", "Cloud"],
+        "displayName": "Terminal Hardware Version",
+        "name": "terminalHardwareVersion",
+        "schema": "string"
       }
-    ],
-    "initialValues": [],
-    "overrides": []
+    ]
   }
 }
