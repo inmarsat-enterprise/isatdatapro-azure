@@ -54,7 +54,7 @@ The project is primarily comprised of three Function Apps written in Javascript
     * `/idpDeviceInterfaceBridge.js` manages the interface to IoT Central using 
     the IoT Hub Device Provisioning Service to push telemetry and reported 
     properties and check for desired properties (including proxy commands)
-    * `/iotcDcmApi.js` interfaces to the IoT Central REST API to manage device 
+    * `/iotcDeviceApi.js` interfaces to the IoT Central REST API to manage device 
     templates and fetch provisioned devices.
     * `/utilities.js` provides various helper functions.
 

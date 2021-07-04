@@ -4,17 +4,23 @@
 'use strict';
 
 const IotHubTransport = require('azure-iot-device-mqtt').Mqtt;
-//const multiplexIotHubTransport = require('azure-iot-device-amqp').Amqp;
 const { Client, Message } = require('azure-iot-device');
 const IotDpsTransport = require('azure-iot-provisioning-device-mqtt').Mqtt;
-//const multiplexProvisioningTransport = require('azure-iot-provisioning-device-amqp').Amqp;
 const SymmetricKeySecurityClient = require('azure-iot-security-symmetric-key').SymmetricKeySecurityClient;
 const ProvisioningDeviceClient = require('azure-iot-provisioning-device').ProvisioningDeviceClient;
 const crypto = require('crypto');
 const _ = require('lodash');
 const uuid = require('uuid').v4;
+const { buildTemplate } = require('./iotcDeviceApi');
+//TODO: Future consideration if more scalable
+//const multiplexIotHubTransport = require('azure-iot-device-amqp').Amqp;
+//const multiplexProvisioningTransport = require('azure-iot-provisioning-device-amqp').Amqp;
 
-const provisioningHost = 'global.azure-devices-provisioning.net';
+const telemetryComponentSubjectProperty = '$.sub';
+const defaultComponentName = 'default';
+
+const provisioningHost = (process.env.IOTHUB_DEVICE_DPS_ENDPOINT ||
+    'global.azure-devices-provisioning.net');
 const idScope = process.env.IOTC_ID_SCOPE;
 const groupSasKey = process.env.IOTC_GROUP_ENROLL_SAS_KEY;
 
@@ -33,11 +39,88 @@ async function getDeviceKey(deviceId) {
     return deviceCache[deviceId].deviceKey;
   }
   const key = crypto.createHmac('SHA256', Buffer.from(groupSasKey, 'base64'))
-    .update(deviceId)
-    .digest()
-    .toString('base64');
-  deviceCache[deviceId] = { deviceKey: key };
+      .update(deviceId)
+      .digest()
+      .toString('base64');
+  if (!deviceCache[deviceId]) deviceCache[deviceId] = {};
+  deviceCache[deviceId].deviceKey = key;
   return key;
+}
+
+/**
+ * Returns the Azure IOT device template
+ * @param {Object} device 
+ * @returns {Object} template
+ */
+function getTemplate(device) {
+  if (!device.modelName || !device.id) {
+    throw new Error(`Device model or id not provided`);
+  }
+  if (deviceCache[device.id] && deviceCache[device.id].template) {
+    return deviceCache[device.id].template;
+  }
+  const template =
+      buildTemplate(require('./deviceTemplates/templates')[device.modelName]);
+  if (!deviceCache[device.id]) deviceCache[device.id] = {};
+  deviceCache[device.id].template = template;
+  return template;
+}
+
+/**
+ * Returns an Object with component tags including a default
+ * @param {Object} context 
+ * @param {Object} device 
+ * @returns 
+ */
+function getComponentModel(context, device) {
+  if (!device.modelName) throw new Error(`Missing device model`);
+  const template = getTemplate(device);
+  const capabilities = template.capabilityModel.contents;
+  if (!capabilities) {
+    throw new Error(`No contents found in ${device.modelName} capabilityModel`);
+  }
+  const components = {};
+  components[defaultComponentName] = {};
+  for (let c = 0; c < capabilities.length; c++) {
+    const capability = capabilities[c];
+    if (capability['@type'] === 'Component') {
+      if (!components[capability.name]) {
+        context.log.verbose(`Found Component ${capability.name}`);
+        components[capability.name] = {};
+      }
+    }
+  }
+  return components;
+}
+
+/**
+ * Returns the component name for a given tag, or the default
+ * @param {Object} template The device template
+ * @param {*} tag The tag name to find
+ * @returns {string}
+ */
+function getComponentName(template, tag) {
+  if (!template) throw new Error(`No device template provided`);
+  if (!template.capabilityModel || !template.capabilityModel.contents) {
+    throw new Error(`Capability model contents not provided`);
+  }
+  const capabilities = template.capabilityModel.contents;
+  for (let c = 0; c < capabilities.length; c++) {
+    const capability = capabilities[c];
+    if (capability['@type'] === 'Component') {
+      if (!capability.schema || !capability.schema.contents) {
+        throw new Error(`Component ${capability.name} schema or contents` +
+            ` undefined`);
+      }
+      for (let cc = 0; cc < capability.schema.contents.length; cc++) {
+        const componentCapability = capability.schema.contents[cc];
+        if (componentCapability.name === tag) {
+          return capability.name;
+        }
+      }
+    }
+  }
+  return defaultComponentName;
 }
 
 /**
@@ -46,33 +129,45 @@ async function getDeviceKey(deviceId) {
  * @param {Object} device Device metadata
  * @param {Object} device.telemetry Telemetry/measurement data
  * @param {string} [device.timestamp] Optional timestamp of telemetry
- * @param {*} schema 
  */
-async function sendTelemetry(context, device, schema) {
+async function sendTelemetry(context, device) {
   if (!device || !device.telemetry) {
     throw new Error(`No telemetry data supplied to send`);
   }
-  let message = new Message(JSON.stringify(device.telemetry));
-  if (device.timestamp) {
-    if (isNaN(Date.parse(device.timestamp))) {
-      throw new Error(`Invalid format: if present, timestamp must be ` +
-          ` ISO format (e.g., YYYY-MM-DDTHH:mm:ss.sssZ)`);
-    } else {
-      message.properties.add('iothub-creation-time-utc', device.timestamp);
-    }
+  const template = getTemplate(device);
+  const componentTelemetry = getComponentModel(context, device);
+  for (const tag in device.telemetry) {
+    const component = getComponentName(template, tag);
+    componentTelemetry[component][tag] = device.telemetry[tag];
   }
-  if (schema) message.properties.add('iothub-message-schema', schema);
-  try {
-    if (testMode) {
-      context.log.warn(`Test mode enabled not sending telemetry` +
-          ` ${message.getData()}`);
-    } else {
-      const res = await hubClient.sendEvent(message)
-      context.log(`Sent ${device.id} telemetry: ${message.getData()}` +
-          (res ? `; status: ${res.constructor.name}` : ``));
+  for (const component in componentTelemetry) {
+    if (_.isEmpty(componentTelemetry[component])) continue;
+    const message = new Message(JSON.stringify(componentTelemetry[component]));
+    message.contentType = 'application/json';
+    message.contentEncoding = 'utf-8';
+    if (component !== defaultComponentName) {
+      message.properties.add(telemetryComponentSubjectProperty, component);
     }
-  } catch (e) {
-    context.log.error(`Failed to send telemetry: ${e.stack}`);
+    if (device.timestamp) {
+      if (isNaN(Date.parse(device.timestamp))) {
+        throw new Error(`Invalid format: if present, timestamp must be ` +
+            ` ISO format (e.g., YYYY-MM-DDTHH:mm:ss.sssZ)`);
+      } else {
+        message.properties.add('iothub-creation-time-utc', device.timestamp);
+      }
+    }
+    try {
+      if (testMode) {
+        context.log.warn(`Test mode enabled - NOT sending telemetry` +
+            ` ${message.getData()}`);
+      } else {
+        const res = await hubClient.sendEvent(message)
+        context.log(`Sent ${device.id} telemetry: ${message.getData()}` +
+            (res ? `; status: ${res.constructor.name}` : ``));
+      }
+    } catch (e) {
+      context.log.error(`Failed to send telemetry: ${e.stack}`);
+    }
   }
 }
 
@@ -92,8 +187,8 @@ function commandRequest(context, otaCommand, subject) {
     eventTime: new Date().toISOString()
   };
   if (testMode) {
-    context.log.warn(`Test mode enabled, not publishing to EventGrid: ` +
-        + ` ${JSON.stringify(event)}`);
+    context.log.warn(`Test mode enabled - NOT publishing to EventGrid: ` +
+        ` ${JSON.stringify(event)}`);
   } else {
     context.log.info(`Publishing ${JSON.stringify(event)} to EventGrid`);
     context.bindings.outputEvent.push(event);
@@ -165,7 +260,7 @@ function otaWriteProperty(context, device, propName, propValue, version) {
     const otaCommand = Object.assign({ mobileId: device.mobileId },
         device.lib.writeProperty(propName, propValue, version));
     context.log.verbose(`Triggering write ${propName} = ${propValue}`);
-    patch[propName] = {
+    patch = {
       value: propValue,
       ad: 'pending OTA write',
       ac: 202,
@@ -176,7 +271,7 @@ function otaWriteProperty(context, device, propName, propValue, version) {
     commandRequest(context, otaCommand, subject);
   } catch (e) {
     context.log.error(e.message);
-    patch[propName] = {
+    patch = {
       value: propValue,
       ac: 400,
       ad: e.message,
@@ -187,86 +282,129 @@ function otaWriteProperty(context, device, propName, propValue, version) {
 }
 
 /**
- * Updates a device with reported properties.
+ * Returns the correct patch based on the reported property value/state
+ * @param {Object} context The Azure Function context for logging
+ * @param {Object} device The device metadata
+ * @param {string} propName The unique name of the property
+ * @param {*} desiredValue The desired value of the property
+ * @param {Object} reported The reported property value
+ * @param {number} version The desired version
+ * @param {Object} [patch] The existing patch parameters
+ * @returns {Object} The updated patch or undefined
+ */
+function getPatch(context, device, propName, desiredValue, reported, version, patch) {
+  let patchValue;
+  if (device.patch && device.patch[propName]) {
+    context.log.verbose(`${device.id} ${propName} will be updated by report`);
+    patchValue = device.patch[propName];
+  } else if (reported.value === desiredValue) {
+    context.log.verbose(`${device.id} ${propName} reported == desired`);
+    if (reported.ac === 202) {
+      context.log.warn(`${deviceId} ${propName} pending -> closed`);
+      patchValue = {
+        value: reported.value,
+        ac: 200,
+        ad: 'presumed closed',
+        av: version,
+      };
+    }
+  } else if (reported.ac === 202) {
+    context.log.verbose(`${device.id} ${propName} already pending`);
+  } else {
+    context.log(`${device.id} ${propName} will be written OTA`);
+    patchValue = otaWriteProperty(context, device, propName, desiredValue, version);
+  }
+  if (patchValue) {
+    if (!patch) {
+      patch = {};
+    }
+    patch[propName] = patchValue;
+  }
+  return patch;
+}
+
+/**
+ * Returns true if the device has reported any properties previously
+ * @param {Object} twin 
+ * @returns 
+ */
+function isTwinInitialized(twin) {
+  const reported = twin.properties.reported;
+  if (reported.$version > 1) return true;
+  for (const key in reported) {
+    if (key === '$version') continue;
+    if (reported[key].$version && reported[key].$version > 1) return true;
+  }
+  return false;
+}
+
+/**
+ * Updates a device twin with reported properties.
  * Checks for desired properties (including proxy commands) and triggers 
- * `CommandRequest` events if applicable
+ * `CommandRequest` events if applicable to writable properties
  * @param {Object} context The app function context (logging)
  * @param {Object} device The device metadata
  * @param {Object} [device.reportedProperties] The set of properties to update
- * @param {Object} twin The digital twin of the device
+ * @param {Object} [device.patch] Writable property patches
  */
-async function updateDevice(context, device, twin) {
+async function updateDeviceTwin(context, device) {
+  if (!device) throw new Error(`No device metadata provided`);
+  context.log.verbose(`Getting IoT Hub Twin for ${device.id}`);
+  let twin;
+  try {
+    twin = await hubClient.getTwin();
+  } catch (err) {
+    context.log.error(`Could not connect to IoT Hub: ${err.toString()}`);
+    throw err;
+  }
   context.log.verbose(`Processing updates for device ${device.id}`);
-  let patch = {};
-  //: If no prior reported properties then initialize
-  if (twin.properties.desired.$version === 1) {
-    if (twin.properties.reported.$version <= 1) {
-      context.log.info(`Initializing ${device.id} as ${device.model}`);
-      patch = device.lib.initialize(device.mobileId);
-    }
-  } else if (twin.properties.desired.$version > 1) {
-    let delta = twin.properties.desired;
-    //: Check for completed desired properties
-    if (device.patch) {
-      for (const propName in device.patch) {
-        if (propName in delta) {
-          patch[propName] = device.patch[propName];
-          if (delta.$version !== device.patch[propName].av) {
-            context.log.warn(`Version mismatch expected ${delta.$version}` +
-                ` got ${device.patch[propName].av}`);
-            patch[propName].av = delta.$version;
-          }
-          //: Remove from desired list to avoid generating a new command
-          delete delta[propName];
-          context.log.info(`Desired property ${propName}` +
-              ` version ${delta.$version} completed`);
+  let patch;
+  const template = getTemplate(device);
+  const componentUpdates = getComponentModel(context, device);
+  const delta = twin.properties.desired;
+  if (!isTwinInitialized(twin)) {
+    context.log.info(`Initializing ${device.id} as ${device.modelName}`);
+    patch = device.lib.initialize(device.mobileId);
+  } else {
+    for (const key in delta) {
+      if (key === '$version') continue;
+      if (key in componentUpdates) {
+        const component = delta[key];
+        for (const propName in component) {
+          if (propName === '__t' || propName === '$version') continue;
+          const desiredValue = component[propName];
+          const version = component.$version;
+          const reported = twin.properties.reported[key][propName];
+          patch = getPatch(context, device, propName, desiredValue, reported, version, patch);
         }
+      } else {   // root interface
+        const propName = key;
+        const desiredValue = delta[key];
+        const version = delta.$version;
+        const reported = twin.properties.reported[propName];
+        patch = getPatch(context, device, propName, desiredValue, reported, version, patch);
       }
-    }
-    for (const propName in delta) {
-      if (propName === '$version') continue;
-      if (!(propName in twin.properties.reported)) {
-        context.log.warn(`${device.id} ${propName} not found` +
-            ` in twin.properties.reported`);
-      }
-      const reported = twin.properties.reported[propName];
-      if (reported.value === delta[propName]) {
-        context.log.verbose(`${device.id} ${propName} reported matches desired`);
-        if (reported.ac === 202) {
-          context.log.warn(`${device.id} ${propName} pending == reported` +
-              ` - completing`);
-          if (!patch[propName]) {
-            patch[propName] = {
-              value: reported.value,
-              ac: 200,
-              ad: 'presumed closed independently',
-              av: delta.version,
-            };
-          }
-        }
-        continue;
-      } else if (reported.ac === 202) {
-        context.log.info(`${device.id} ${propName} pending` +
-            ` value: ${delta[propName]} version: ${delta.$version}`);
-        continue;
-      }
-      const writePatch = otaWriteProperty(context, device,
-          propName, delta[propName], delta.$version);
-      patch = Object.assign(patch, writePatch);
     }
   }
-  //: Update read-only and writable properties
   if (device.reportedProperties || patch) {
-    const update = Object.assign({}, device.reportedProperties, patch);
-    for (const prop in update) {
-      if (update[prop] === null) {
-        context.log.warn(`Removing null value for ${prop}`);
-        delete update[prop];
+    const updates = Object.assign({}, device.reportedProperties, patch);
+    for (const tag in updates) {
+      if (updates[tag]) {
+        const component = getComponentName(template, tag);
+        componentUpdates[component][tag] = updates[tag];
       }
     }
-    if (!_.isEmpty(update)) {
+    for (const component in componentUpdates) {
+      if (_.isEmpty(componentUpdates[component])) continue;
+      let update = {};
+      if (component !== defaultComponentName) {
+        update[component] = componentUpdates[component];
+        update.__t = 'c';
+      } else {   // root interface
+        update = componentUpdates[component];
+      }
       if (testMode) {
-        context.log.warn(`Test mode enabled not updating properties:` +
+        context.log.warn(`Test mode enabled - NOT updating properties:` +
             ` ${JSON.stringify(update)}`);
       } else {
         const err = await twin.properties.reported.update(update);
@@ -278,18 +416,65 @@ async function updateDevice(context, device, twin) {
 }
 
 /**
- * Gets the device twin from IoT Hub and updates it
- * @param {Object} context Azure Function context for logging
- * @param {Object} device Device metadata
+ * Attempts to provision the device and returns a connection string
+ * @param {Object} context 
+ * @param {string} deviceId 
+ * @param {*} payload 
+ * @returns {string} connectionString
  */
-async function handleTwin(context, device) {
-  try {
-    context.log.verbose(`Getting IoT Hub Twin for ${device.id}`);
-    const twin = await hubClient.getTwin();
-    await updateDevice(context, device, twin);
-  } catch (e) {
-    context.log.error(e.stack);
+async function provisionDevice(context, deviceId, payload) {
+  if (deviceCache[deviceId] && deviceCache[deviceId].connectionString) {
+    //: TODO check if this will speed things up or cause problems
+    // return deviceCache[deviceId].connectionString;
   }
+  context.log.verbose(`Getting device ${deviceId} SAS key`);
+  const registrationId = deviceId;
+  const deviceSasKey = await getDeviceKey(registrationId);
+  context.log.verbose(`Getting provisioning security client`);
+  const provisioningSecurityClient =
+      new SymmetricKeySecurityClient(registrationId, deviceSasKey);
+  context.log.verbose(`Creating provisioning device client`);
+  const provisioningClient = await ProvisioningDeviceClient.create(
+      provisioningHost,
+      idScope,
+      new IotDpsTransport(),
+      provisioningSecurityClient);
+  //TODO: unclear why this payload setting doesn't work
+  // if (!!(payload)) {
+  //   provisioningClient.setProvisioningPayload(payload);
+  // }
+  context.log.verbose(`Registering provisioning client`);
+  try {
+    const result = await provisioningClient.register();
+    const connectionString = 
+        `HostName=${result.assignedHub}` +
+        `;DeviceId=${result.deviceId}` +
+        `;SharedAccessKey=${deviceSasKey}`;
+    context.log.verbose(`Registration successful`);
+    deviceCache[deviceId].connectionString = connectionString;
+    return connectionString;
+  } catch (err) {
+    context.log.error(`Device registration: ${err.toString()}`);
+    throw err;
+  }
+}
+
+/**
+ * Listens for offline commands to process upon connection
+ */
+function listenForOfflineCommands() {
+  if (!hubClient) throw new Error(`IOT Hub Client invalid`);
+  hubClient.on('message', function(msg) {
+    context.log.verbose(`Received offline command ${JSON.stringify(msg)}`);
+    const commandResult = offlineCommand(context, device, msg);
+    hubClient.complete(msg, function(err) {
+      if (err) {
+        context.log.error(`Command complete error: ${err.toString()}`);
+      } else {
+        context.log.info('Command ' + commandResult ? 'succeeded' : 'failed');
+      }
+    });
+  });
 }
 
 /**
@@ -297,11 +482,11 @@ async function handleTwin(context, device) {
  * @param {Object} context The function app context (for logging)
  * @param {Object} device The device metadata
  * @param {string} device.id The unique (IoT Hub/Central) ID
- * @param {string} device.model The device model
+ * @param {string} device.modelName The device model
  * @param {string} device.mobileId The unique IDP modem identifier
  * @param {Object} [device.telemetry] A set of telemetry
  * @param {Object} [device.reportedProperties] A set of reported properties
- * @param {Object} [device.patch] Delayed property write updates
+ * @param {Object} [device.patch] Orchestrator-triggered property write updates
  * @param {string} [device.timestamp] ISO8601 compliant timestamp
  */
 async function azureIotDeviceBridge(context, device) {
@@ -314,51 +499,28 @@ async function azureIotDeviceBridge(context, device) {
         ` may contain '-', '.', '_', ':'` +
         ` where the last character must be alphanumeric or hyphen.`);
   }
-  if (!device.model) {
+  if (!device.modelName) {
     throw new Error(`No device model defined for ${device.id}`);
   }
-  context.bindings.outputEvent = [];
-  device.lib = require('./deviceModels')[device.model];
-  const registrationId = device.id;
-  context.log.verbose(`Getting device ${device.id} SAS key`);
-  const deviceSasKey = await getDeviceKey(registrationId);
-  context.log.verbose(`Getting provisioning security client`);
-  const provisioningSecurityClient =
-      new SymmetricKeySecurityClient(registrationId, deviceSasKey);
-  context.log.verbose(`Creating provisioning device client`);
-  const provisioningClient = await ProvisioningDeviceClient.create(
-      provisioningHost,
-      idScope,
-      new IotDpsTransport(),
-      provisioningSecurityClient);
-  context.log.verbose(`Registering provisioning client`);
-  const result = await provisioningClient.register();
-  const connectionString = 
-      `HostName=${result.assignedHub}` +
-      `;DeviceId=${result.deviceId}` +
-      `;SharedAccessKey=${deviceSasKey}`;
-  context.log.verbose(`Connecting to IoT Hub ${result.assignedHub}`);
+  // context.bindings.outputEvent = [];
+  device.modelNameId = getTemplate(device)['@id'];
+  const connectionString = await provisionDevice(context, device.id, device.modelNameId);
+  context.log.verbose(`Connecting to IoT Hub ${connectionString.split(';')[0]}`);
   hubClient = Client.fromConnectionString(connectionString, IotHubTransport);
-  //: Prepare to receive offline commands
-  hubClient.on('message', function(msg) {
-    context.log.verbose(`Received offline command ${JSON.stringify(msg)}`);
-    const commandResult = offlineCommand(context, device, msg);
-    hubClient.complete(msg, function(err) {
-      if (err) {
-        context.log.error(`Command complete error: ${err.toString()}`);
-      } else {
-        context.log.info('Command ' + commandResult ? 'succeeded' : 'failed');
-      }
-    });
-  });
-  //: Automated provisioning if modelId is known
-  // if (device.modelId) {
-  //   hubClient.setOptions({ modelId: device.modelId });
+  listenForOfflineCommands();
+  //TODO: Automated provisioning if modelId is known
+  // if (device.modelNameId) {
+  //   hubClient.setOptions({ modelId: device.modelNameId });
   // }
   await hubClient.open();
+  device.lib = require('./deviceModels')[device.modelName];
   if (device.telemetry) await sendTelemetry(context, device);
-  await handleTwin(context, device);
+  await updateDeviceTwin(context, device);
   await hubClient.close();
 }
 
-module.exports = azureIotDeviceBridge;
+module.exports = {
+  azureIotDeviceBridge,
+  sendTelemetry,
+  updateDeviceTwin,
+};

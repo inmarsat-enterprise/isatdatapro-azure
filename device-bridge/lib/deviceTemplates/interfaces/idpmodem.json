@@ -487,32 +487,104 @@
       }
     },
     {
-      "@id": "dtmi:inmarsat:idp:ut:properties:idpTxMute;2",
-      "@type": ["Property"],
-      "displayName": {
-        "en": "Transmitter mute"
-      },
-      "name": "idpTxMute",
-      "writable": true,
-      "schema": "boolean"
-    },
-    {
       "@id": "dtmi:inmarsat:idp:ut:properties:idpOperatorAccessLevel;2",
       "@type": ["Property"],
       "displayName": {
         "en": "Operator Access Level"
       },
       "name": "idpOperatorAccessLevel",
-      "schema": "integer"
+      "schema": {
+        "@id": "dtmi:inmarsat:idp:ut:properties:idpOperatorAccessLevel:enum;2",
+        "@type": ["Enum"],
+        "displayName": {
+          "en": "Transmit Access Level"
+        },
+        "valueSchema": "integer",
+        "enumValues": [
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpOperatorAccessLevel:enum:all;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "All MO messages"
+            },
+            "enumValue": 0,
+            "name": "all"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpOperatorAccessLevel:enum:highPriority;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "Priority 1-2 Return messages allowed"
+            },
+            "enumValue": 4,
+            "name": "highPriority"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpOperatorAccessLevel:enum:muted;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "Registration, modem internal messages only"
+            },
+            "enumValue": 5,
+            "name": "muted"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpOperatorAccessLevel:enum:barred;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "No Returm messages or acks permitted"
+            },
+            "enumValue": 7,
+            "name": "barred"
+          }
+        ]
+      }
     },
     {
       "@id": "dtmi:inmarsat:idp:ut:properties:idpUserAccessLevel;2",
       "@type": ["Property"],
+      "writable": true,
+      "name": "idpUserAccessLevel",
       "displayName": {
         "en": "User Access Level"
       },
-      "name": "idpUserAccessLevel",
-      "schema": "integer"
+      "schema": {
+        "@id": "dtmi:inmarsat:idp:ut:properties:idpUserAccessLevel:enum;2",
+        "@type": ["Enum"],
+        "displayName": {
+          "en": "Transmit Access Level"
+        },
+        "valueSchema": "integer",
+        "enumValues": [
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpUserAccessLevel:enum:all;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "All MO messages"
+            },
+            "enumValue": 0,
+            "name": "all"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpUserAccessLevel:enum:highPriority;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "Priority 1-2 Return messages"
+            },
+            "enumValue": 4,
+            "name": "highPriority"
+          },
+          {
+            "@id": "dtmi:inmarsat:idp:ut:properties:idpUserAccessLevel:enum:muted;2",
+            "@type": ["EnumValue"],
+            "displayName": {
+              "en": "Registration and modem internal messages only"
+            },
+            "enumValue": 5,
+            "name": "muted"
+          }
+        ]
+      }
     },
     {
       "@id": "dtmi:inmarsat:idp:ut:properties:idpLastRxMsgTime;2",
@@ -739,6 +811,31 @@
       },
       "description": {
         "en": "Queries the modem's current configuration set."
+      }
+    },
+    {
+      "comment": "Offline command",
+      "@id": "dtmi:inmarsat:idp:ut:commands:txMute;2",
+      "@type": "Command",
+      "durable": true,
+      "name": "txMute",
+      "displayName": {
+        "en": "Transmitter mute"
+      },
+      "description": {
+        "en": "Mutes (true) or Unmutes (false) the transmitter."
+      },
+      "request": {
+        "@type": "CommandPayload",
+        "name": "mute",
+        "displayName": {
+          "en": "Mute"
+        },
+        "description": "Sets User Access Level property to 5 (true) or 0 (false).",
+        "schema": {
+          "@id": "dtmi:inmarsat:idp:ut:commands:txMute:request:mute;2",
+          "@type": "Boolean"
+        }
       }
     }
   ]

@@ -225,6 +225,52 @@ async function updateDeviceTemplates(context) {
   }
 }
 
+/**
+ * Returns the Mobile ID from a provisioned device ID
+ * @private
+ * @param {string} deviceId Unique provisioned device ID containing Mobile ID
+ * @returns {string} mobileId
+ */
+ function extractMobileId(deviceId) {
+  const manufacturerCodes = ['SKY', 'HON'];
+  let mobileId;
+  for (let m=0; m < manufacturerCodes.length; m++) {
+    if (deviceId.includes(manufacturerCodes[m])) {
+      const index = deviceId.search(manufacturerCodes[m]);
+      mobileId = deviceId.substring(index - 8, index + 7);
+      break;
+    }
+  }
+  return mobileId;
+}
+
+/**
+ * Looks up the provisioned device template for a device based on the 
+ * IDP Mobile ID to map to a device model
+ * @param {string} mobileId Unique satellite modem ID
+ * @returns {{ id: string, model: string, mobileId: string }}
+ */
+ async function getDeviceMeta(mobileId) {
+  const provisionedDevices = await listDevices();
+  let device;
+  for (let d=0; d < provisionedDevices.length; d++) {
+    if (provisionedDevices[d].id.includes(mobileId)) {
+      for (let template in templates) {
+        if (templates[template]['@id'] === provisionedDevices[d].template) {
+          device = {
+            id: provisionedDevices[d].id,
+            modelName: template,
+            mobileId: mobileId,
+          };
+          break;
+        }
+      }
+    }
+    if (device) break;
+  }
+  return device;
+}
+
 module.exports = {
   listDevices,
   getDeviceProperties,
@@ -233,4 +279,6 @@ module.exports = {
   removeDeviceTemplate,
   buildTemplate,
   updateDeviceTemplates,
+  extractMobileId,
+  getDeviceMeta,
 };
