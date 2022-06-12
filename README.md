@@ -1,3 +1,4 @@
+<!--
 ---
 languages:
 - nodejs
@@ -16,7 +17,7 @@ description: "This architecture walks you through the process involved in
 integrating Inmarsat's IsatData Pro (**IDP**) satellite IoT connectivity 
 into your Azure application."
 ---
-
+-->
 # Satellite IoT Messaging Serverless Microservices Reference Architecture
 
 > :warning: UNDER CONSTRUCTION
