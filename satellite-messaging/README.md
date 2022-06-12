@@ -1,3 +1,4 @@
+<!--
 ---
 languages:
 - nodejs
@@ -11,7 +12,7 @@ products:
 - azure-storage
 - azure-app-service
 ---
-
+-->
 # Satellite IoT Messaging Microservice
 
 ## IsatData Pro System Architecture
@@ -144,3 +145,22 @@ Is intended to allow for logs from the invoked library to be pushed into
 Application Insights.
 
 > TODO: convert relevant logs into Insights
+
+## Developer Section
+
+To run this project within VS Code has the following prerequisites:
+1. Nodejs must be installed.
+1. Azure Functions Core Tools must be installed:
+    ```
+    npm i -g azure-functions-core-tools
+    ```
+1. Create a `local.settings.json` file in the `/satellite-messaging` folder with
+the following `Values`, which can be found using your Azure portal login under
+the resource group you created:
+    * `AzureWebJobsStorage`: The connection string of an Azure Storage account.
+    * `COSMOS_DB_HOST`: The URI for your Azure Cosmos DB.
+    * `COSMOS_DB_PASS`: The connection string for your Cosmos DB.
+    * `EVENTGRID_TOPIC_ENDPOINT`: The EventGrid resource topic endpoint 
+    * `EVENTGRID_TOPIC_KEY`: The EventGrid resource topic key
+    * `MAILBOX_SECRET`: A Configuration property in the `satelliteMessaging`
+    Function App used to encrypt IDP mailbox passwords for storage in Cosmos DB.
