@@ -20,7 +20,7 @@ into your Azure application."
 -->
 # Satellite IoT Messaging Serverless Microservices Reference Architecture
 
-> :warning: UNDER CONSTRUCTION
+> :warning: UNDER CONSTRUCTION - MUST BE UPDATED FOR NEW AZURE FUNCTIONS V3+
 
 Inmarsat's **IsatData Pro** ("IDP") satellite IoT messaging behaves differently 
 than conventional IP-connected devices/gateways in two important ways:
