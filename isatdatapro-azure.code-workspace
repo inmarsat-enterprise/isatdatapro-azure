@@ -1,32 +1,22 @@
 {
 	"folders": [
-		{
-			"path": "arm"
-		},
-		{
-			"name": "device-bridge",
-			"path": "device-bridge"
-		},
-		{
-			"name": "docs",
-			"path": "docs"
-		},
-		{
-			"name": "notifications",
-			"path": "notifications"
-		},
-		{
-			"name": "orchestrators",
-			"path": "orchestrators"
-		},
-		{
-			"name": "satellite-messaging",
-			"path": "satellite-messaging"
-		},
-		{
-			"path": "web"
-		}
-	],
+        {
+            "name": "root",
+            "path": "."
+        },
+        {
+            "name": "device-bridge",
+            "path": "./device-bridge"
+        },
+        {
+            "name": "orchestrators",
+            "path": "./orchestrators"
+        },
+        {
+            "name": "satellite-messaging",
+            "path": "./satellite-messaging"
+        }
+    ],
 	"settings": {
 		"debug.internalConsoleOptions": "neverOpen"
 	},
@@ -37,7 +27,6 @@
 				"name": "Attach to all apps",
 				"configurations": [
 					"Attach to satellite-messaging",
-					"Attach to data-transformer",
 					"Attach to device-bridge",
 					"Attach to orchestrators"
 				]
