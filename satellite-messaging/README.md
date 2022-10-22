@@ -148,13 +148,25 @@ Application Insights.
 
 ## Developer Section
 
-To run this project within VS Code has the following prerequisites:
-1. Nodejs must be installed.
-1. Azure Functions Core Tools must be installed:
-    ```
-    npm i -g azure-functions-core-tools
-    ```
-1. Create a `local.settings.json` file in the `/satellite-messaging` folder with
+This project has been designed using VS Code using Node.js / Javascript for
+Azure Functions.
+
+### Prerequisites
+
+Using the **Azure Portal**:
+
+- [x] Created a **Resource Group** called `satellite-iot-serverless`
+- [x] Created and configured a **Cosmos DB** called `IsatDataPro`
+- [x] Created and configured a **Storage Account** called `idpfunctionstore`
+- [x] Created a **Function App** called `satelliteMessaging`
+- [x] Created an **Event Grid Topic** called `SatelliteMessagingExternalizations`
+- [x] Created and configured a **Logic App** called `IdpApiNotifications`
+- [x] Created and configured an **IoT Central Application** or **Azure IoT Hub**
+
+### Local Environment Setup
+
+* Using the template `example.local.settings.json`,
+create a `local.settings.json` file in the `/satellite-messaging` folder with
 the following `Values`, which can be found using your Azure portal login under
 the resource group you created:
     * `AzureWebJobsStorage`: The connection string of an Azure Storage account.
@@ -164,3 +176,36 @@ the resource group you created:
     * `EVENTGRID_TOPIC_KEY`: The EventGrid resource topic key
     * `MAILBOX_SECRET`: A Configuration property in the `satelliteMessaging`
     Function App used to encrypt IDP mailbox passwords for storage in Cosmos DB.
+
+* Ensure that your `launch.json` file for this sub-project in the `.vscode`
+folder has different `port` and `preLaunchTask` settings from the other
+microservices (`satelliteMessagingOrchestrator` and
+`satelliteMessagingDeviceBridge`).
+
+* Ensure that your `tasks.json` file for this sub-project in the `.vscode`
+folder aligns the task `command` for the function app with the `preLaunchTask`
+value in `launch.json`.
+
+### Test Data
+
+> :warning: Work in Progress
+
+The top-level project provides a Collection and Environment for use with
+[**Postman**](get.postman.com)
+
+### Deployment
+
+> :warning: Work in Progress
+
+### Upgrading Azure Functions Runtime
+
+> :warning: Over time Microsoft updates the Azure Functions versions and stops support of
+previous versions.
+
+[Upgrading](https://learn.microsoft.com/en-us/azure/azure-functions/functions-versions?tabs=azure-cli%2Cwindows%2Cin-process%2Cv4&pivots=programming-language-javascript#upgrade-your-local-project)
+
+Install the most current LTS version of Node.js using **`nvm`** and update
+node modules using **`npm`**:
+    ```
+    $ nvm install --lts && npm update
+    ```
