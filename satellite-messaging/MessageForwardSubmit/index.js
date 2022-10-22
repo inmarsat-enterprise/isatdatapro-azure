@@ -63,7 +63,7 @@ module.exports = async function (context, eventGridEvent) {
     function onApiOutage(satelliteGateway, timestamp) {
       const event = eventGrid.ApiOutageEvent(satelliteGateway, timestamp);
       context.log.warn(`Satellite API outage detected for ${satelliteGateway}`);
-      context.bindings.outputEvent.push(event);
+      // context.bindings.outputEvent.push(event);
     }
   
     /**
@@ -74,7 +74,7 @@ module.exports = async function (context, eventGridEvent) {
      function onApiRecovery(satelliteGateway, timestamp) {
       const event = eventGrid.ApiRecoveryEvent(satelliteGateway, timestamp);
       context.log.info(`Satellite API recovered for ${satelliteGateway}`);
-      context.bindings.outputEvent.push(event);
+      // context.bindings.outputEvent.push(event);
     }
   
     try {
