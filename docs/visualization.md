@@ -30,12 +30,10 @@ chart as time series data.
 
 The Inmarsat-defined [Device Twin Definition Language](https://github.com/Azure/opendigitaltwins-dtdl/tree/master/DTDL) template `urn:inmarsat:idp:capabilityModel:inmarsatPnpDevKit:1`
 defines 3 interfaces:
-    * **Device Information** includes information about the Raspberry Pi as an
-    IoT Gateway, using Microsoft's template
-    `urn:azureiot:DeviceManagement:DeviceInformation:1`.
-    * **Satellite Modem** includes information about the IDP modem.
-    * **FieldEdge Ultralite IDP** includes information and capabilities of the
-    Edge app that sends the telemetry data via the satellite modem.
+
+* **Device Information** includes information about the Raspberry Pi as an IoT Gateway, using Microsoft's template `urn:azureiot:DeviceManagement:DeviceInformation:1`.
+* **Satellite Modem** includes information about the IDP modem.
+* **FieldEdge Ultralite IDP** includes information and capabilities of the Edge app that sends the telemetry data via the satellite modem.
 
 1. Create a device Dashboard. Click **Views** and **Visualizing the device**.
     1. Set the *View name* to **`Dashboard`**.
