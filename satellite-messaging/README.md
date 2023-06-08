@@ -186,9 +186,12 @@ microservices (`satelliteMessagingOrchestrator` and
 folder aligns the task `command` for the function app with the `preLaunchTask`
 value in `launch.json`.
 
-### Test Data
+### Testing
 
 > :warning: Work in Progress
+
+The **`satelliteMessaging`** Function App provides a thin wrapper for
+the Inmarsat **`isatdatapro-microservices`** project.
 
 The top-level project provides a Collection and Environment for use with
 [**Postman**](get.postman.com)
