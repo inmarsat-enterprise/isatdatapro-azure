@@ -1,0 +1,25 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceGroupName": {
+            "type": "string",
+            "defaultValue": "satellite-iot-serverless"
+        },
+        "resourceGroupLocation": {
+            "type": "string",
+            "defaultValue": "Central US"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2022-09-01",
+            "name": "[parameters('resourceGroupName')]",
+            "location": "[parameters('resourceGroupLocation')]",
+            "properties": {}
+        }
+    ],
+    "outputs": {}
+  }

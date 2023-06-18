@@ -1,0 +1,512 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_satelliteMessaging_name": {
+            "defaultValue": "satelliteMessaging",
+            "type": "String"
+        },
+        "serverfarms_ASP_satelliteiotserverless_945a_externalid": {
+            "defaultValue": "/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/satellite-iot-serverless/providers/Microsoft.Web/serverfarms/ASP-satelliteiotserverless-945a",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2022-09-01",
+            "name": "[parameters('sites_satelliteMessaging_name')]",
+            "location": "Canada Central",
+            "kind": "functionapp",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "satellitemessaging.azurewebsites.net",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "satellitemessaging.scm.azurewebsites.net",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[parameters('serverfarms_ASP_satelliteiotserverless_945a_externalid')]",
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "vnetRouteAllEnabled": false,
+                "vnetImagePullEnabled": false,
+                "vnetContentShareEnabled": false,
+                "siteConfig": {
+                    "numberOfWorkers": -1,
+                    "acrUseManagedIdentityCreds": false,
+                    "alwaysOn": false,
+                    "http20Enabled": false,
+                    "functionAppScaleLimit": 0,
+                    "minimumElasticInstanceCount": 0
+                },
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": true,
+                "clientCertEnabled": false,
+                "clientCertMode": "Required",
+                "hostNamesDisabled": false,
+                "customDomainVerificationId": "41DC0A5A3B09153ADA77DD3DDDDBEAC74F7CACD256672FE78ED7D11F07871468",
+                "containerSize": 1536,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": false,
+                "redundancyMode": "None",
+                "storageAccountRequired": false,
+                "keyVaultReferenceIdentity": "SystemAssigned"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/ftp')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/scm')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/web')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": -1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php"
+                ],
+                "netFrameworkVersion": "v6.0",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "httpLoggingEnabled": false,
+                "acrUseManagedIdentityCreds": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$satelliteMessaging",
+                "scmType": "None",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": false,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "vnetRouteAllEnabled": false,
+                "vnetPrivatePortsCount": 0,
+                "cors": {
+                    "allowedOrigins": [
+                        "https://functions.azure.com",
+                        "https://functions-staging.azure.com",
+                        "https://functions-next.azure.com"
+                    ],
+                    "supportCredentials": false
+                },
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "scmMinTlsVersion": "1.0",
+                "ftpsState": "AllAllowed",
+                "preWarmedInstanceCount": 0,
+                "functionAppScaleLimit": 0,
+                "functionsRuntimeScaleMonitoringEnabled": false,
+                "minimumElasticInstanceCount": 0,
+                "azureStorageAccounts": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/19d070bc9edd4f2ea58d8c4842737c0f')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"1d8285151601aea174b34485b816c1f45ff24b51\",\"buildId\":\"58\",\"releaseId\":\"58\",\"buildNumber\":\"20210503.1\",\"releaseName\":\"Release-20\",\"repoProvider\":\"GitHub\",\"repoName\":\"Inmarsat/isatdatapro-azure\",\"collectionUrl\":\"https://dev.azure.com/GeoffBruce-Payne/\",\"teamProject\":\"43fe8469-0fb5-4d5e-8178-58c7a6e3e436\",\"buildProjectUrl\":\"https://dev.azure.com/GeoffBruce-Payne/43fe8469-0fb5-4d5e-8178-58c7a6e3e436\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"isatdatapro-azure\",\"slotName\":\"production\"}",
+                "start_time": "2021-05-03T14:26:08.8980608Z",
+                "end_time": "2021-05-03T14:26:13.960391Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/34f717b3ea1e440da56a7612e91f8db3')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "VS Code",
+                "deployer": "ZipDeploy",
+                "message": "Created via a push deployment",
+                "start_time": "2021-04-26T02:06:51.0411468Z",
+                "end_time": "2021-04-26T02:06:55.0711307Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/4d95e4e790734f02826adca1bd2684a4')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"7eef3abf1b103a155b73bd06e5cfbcd155ab9026\",\"buildId\":\"52\",\"releaseId\":\"52\",\"buildNumber\":\"20210501.1\",\"releaseName\":\"Release-18\",\"repoProvider\":\"GitHub\",\"repoName\":\"Inmarsat/isatdatapro-azure\",\"collectionUrl\":\"https://dev.azure.com/GeoffBruce-Payne/\",\"teamProject\":\"43fe8469-0fb5-4d5e-8178-58c7a6e3e436\",\"buildProjectUrl\":\"https://dev.azure.com/GeoffBruce-Payne/43fe8469-0fb5-4d5e-8178-58c7a6e3e436\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"isatdatapro-azure\",\"slotName\":\"production\"}",
+                "start_time": "2021-05-01T16:26:18.365225Z",
+                "end_time": "2021-05-01T16:26:23.1507905Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/6ea0a121378145dab816a135015fd48e')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "ms-azuretools-vscode",
+                "deployer": "ms-azuretools-vscode",
+                "message": "Created via a push deployment",
+                "start_time": "2023-06-08T21:11:04.7440982Z",
+                "end_time": "2023-06-08T21:11:06.3923902Z",
+                "active": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/72e1e169384a4894afe222952f3ce870')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "VS Code",
+                "deployer": "ZipDeploy",
+                "message": "Created via a push deployment",
+                "start_time": "2021-05-03T16:34:49.8567707Z",
+                "end_time": "2021-05-03T16:34:54.4618775Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/891a8d1c78744f53b0db01a65ab3cb4c')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "VS Code",
+                "deployer": "ZipDeploy",
+                "message": "Created via a push deployment",
+                "start_time": "2021-05-03T14:40:40.5324849Z",
+                "end_time": "2021-05-03T14:40:46.1712342Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/aec4406dea8049a298c5c0731d28667b')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"ed5110839515ba3a375067cc02470e24867510f7\",\"buildId\":\"61\",\"releaseId\":\"61\",\"buildNumber\":\"20210503.2\",\"releaseName\":\"Release-21\",\"repoProvider\":\"GitHub\",\"repoName\":\"Inmarsat/isatdatapro-azure\",\"collectionUrl\":\"https://dev.azure.com/GeoffBruce-Payne/\",\"teamProject\":\"43fe8469-0fb5-4d5e-8178-58c7a6e3e436\",\"buildProjectUrl\":\"https://dev.azure.com/GeoffBruce-Payne/43fe8469-0fb5-4d5e-8178-58c7a6e3e436\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"isatdatapro-azure\",\"slotName\":\"production\"}",
+                "start_time": "2021-05-03T14:34:58.3429809Z",
+                "end_time": "2021-05-03T14:35:02.6661877Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/b4bf19b872ac4eaa97704a516850982e')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"21838bf40c02ed34a84cc95220ffa9d13d3730b2\",\"buildId\":\"55\",\"releaseId\":\"55\",\"buildNumber\":\"20210502.1\",\"releaseName\":\"Release-19\",\"repoProvider\":\"GitHub\",\"repoName\":\"Inmarsat/isatdatapro-azure\",\"collectionUrl\":\"https://dev.azure.com/GeoffBruce-Payne/\",\"teamProject\":\"43fe8469-0fb5-4d5e-8178-58c7a6e3e436\",\"buildProjectUrl\":\"https://dev.azure.com/GeoffBruce-Payne/43fe8469-0fb5-4d5e-8178-58c7a6e3e436\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"isatdatapro-azure\",\"slotName\":\"production\"}",
+                "start_time": "2021-05-02T12:20:27.2310479Z",
+                "end_time": "2021-05-02T12:20:35.8333116Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/e5330de9707b4d48a7dc9d07220b95ec')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "VS Code",
+                "deployer": "ZipDeploy",
+                "message": "Created via a push deployment",
+                "start_time": "2021-05-03T14:14:48.2910978Z",
+                "end_time": "2021-05-03T14:14:56.1659333Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/e897a2f03d8240ee824e8ebbe4136506')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "VSTS",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"c5c106e5d8ed3fc363607ac05c4ed84a5feabaee\",\"buildId\":\"64\",\"releaseId\":\"64\",\"buildNumber\":\"20210503.3\",\"releaseName\":\"Release-22\",\"repoProvider\":\"GitHub\",\"repoName\":\"Inmarsat/isatdatapro-azure\",\"collectionUrl\":\"https://dev.azure.com/GeoffBruce-Payne/\",\"teamProject\":\"43fe8469-0fb5-4d5e-8178-58c7a6e3e436\",\"buildProjectUrl\":\"https://dev.azure.com/GeoffBruce-Payne/43fe8469-0fb5-4d5e-8178-58c7a6e3e436\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"isatdatapro-azure\",\"slotName\":\"production\"}",
+                "start_time": "2021-05-03T16:28:39.5963688Z",
+                "end_time": "2021-05-03T16:28:44.2432069Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/MailboxUpdate')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MailboxUpdate/",
+                "script_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MailboxUpdate/index.js",
+                "config_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MailboxUpdate/function.json",
+                "test_data_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/data/Functions/sampledata/MailboxUpdate.dat",
+                "href": "https://satellitemessaging.azurewebsites.net/admin/functions/MailboxUpdate",
+                "config": {},
+                "language": "node",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/MessageForwardGet')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MessageForwardGet/",
+                "script_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MessageForwardGet/index.js",
+                "config_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MessageForwardGet/function.json",
+                "test_data_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/data/Functions/sampledata/MessageForwardGet.dat",
+                "href": "https://satellitemessaging.azurewebsites.net/admin/functions/MessageForwardGet",
+                "config": {},
+                "language": "node",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/MessageForwardStatusGet')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MessageForwardStatusGet/",
+                "script_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MessageForwardStatusGet/index.js",
+                "config_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MessageForwardStatusGet/function.json",
+                "test_data_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/data/Functions/sampledata/MessageForwardStatusGet.dat",
+                "href": "https://satellitemessaging.azurewebsites.net/admin/functions/MessageForwardStatusGet",
+                "config": {},
+                "language": "node",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/MessageForwardSubmit')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MessageForwardSubmit/",
+                "script_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MessageForwardSubmit/index.js",
+                "config_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MessageForwardSubmit/function.json",
+                "test_data_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/data/Functions/sampledata/MessageForwardSubmit.dat",
+                "href": "https://satellitemessaging.azurewebsites.net/admin/functions/MessageForwardSubmit",
+                "config": {},
+                "language": "node",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/MessageReturnGet')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MessageReturnGet/",
+                "script_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MessageReturnGet/index.js",
+                "config_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MessageReturnGet/function.json",
+                "test_data_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/data/Functions/sampledata/MessageReturnGet.dat",
+                "href": "https://satellitemessaging.azurewebsites.net/admin/functions/MessageReturnGet",
+                "config": {},
+                "language": "node",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/MobileGet')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MobileGet/",
+                "script_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MobileGet/index.js",
+                "config_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/MobileGet/function.json",
+                "test_data_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/data/Functions/sampledata/MobileGet.dat",
+                "href": "https://satellitemessaging.azurewebsites.net/admin/functions/MobileGet",
+                "config": {},
+                "language": "node",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/functions",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/SatelliteGatewayUpdate')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "script_root_path_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/SatelliteGatewayUpdate/",
+                "script_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/SatelliteGatewayUpdate/index.js",
+                "config_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/site/wwwroot/SatelliteGatewayUpdate/function.json",
+                "test_data_href": "https://satellitemessaging.azurewebsites.net/admin/vfs/data/Functions/sampledata/SatelliteGatewayUpdate.dat",
+                "href": "https://satellitemessaging.azurewebsites.net/admin/functions/SatelliteGatewayUpdate",
+                "config": {},
+                "language": "node",
+                "isDisabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_satelliteMessaging_name'), '/', parameters('sites_satelliteMessaging_name'), '.azurewebsites.net')]",
+            "location": "Canada Central",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_satelliteMessaging_name'))]"
+            ],
+            "properties": {
+                "siteName": "satelliteMessaging",
+                "hostNameType": "Verified"
+            }
+        }
+    ]
+}
