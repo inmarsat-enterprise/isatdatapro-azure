@@ -1,0 +1,317 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "eventGridTopicName": {
+            "type": "string",
+            "defaultValue": "SatelliteIotExternalizations"
+        },
+        "eventGridTopicLocation": {
+            "type": "string",
+            "defaultValue": "Central US"
+        },
+        "topics_SatelliteMessagingExternalizations_name": {
+            "defaultValue": "SatelliteMessagingExternalizations",
+            "type": "String"
+        },
+        "sites_satelliteMessagingDeviceBridge_externalid": {
+            "defaultValue": "/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/satellite-iot-serverless/providers/Microsoft.Web/sites/satelliteMessagingDeviceBridge",
+            "type": "String"
+        },
+        "sites_satelliteMessaging_externalid": {
+            "defaultValue": "/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/satellite-iot-serverless/providers/Microsoft.Web/sites/satelliteMessaging",
+            "type": "String"
+        },
+        "sites_satelliteMessagingOrchestrators_externalid": {
+            "defaultValue": "/subscriptions/16fa9634-8673-4ed3-8893-4b7df5f9a2a9/resourceGroups/satellite-iot-serverless/providers/Microsoft.Web/sites/satelliteMessagingOrchestrators",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.EventGrid/topics",
+            "apiVersion": "2022-06-15",
+            "name": "[parameters('eventGridTopicName')]",
+            "location": "[parameters('eventGridTopicLocation')]",
+            "identity": {
+                "type": "None"
+            },
+            "properties": {
+                "inputSchema": "EventGridSchema",
+                "publicNetworkAccess": "Enabled",
+                "dataResidencyBoundary": "WithinGeopair"
+            }
+        },
+        {
+            "type": "Microsoft.EventGrid/topics/eventSubscriptions",
+            "apiVersion": "2022-06-15",
+            "name": "[concat(parameters('topics_SatelliteMessagingExternalizations_name'), '/DeviceToCloudBridge')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/topics', parameters('topics_SatelliteMessagingExternalizations_name'))]"
+            ],
+            "properties": {
+                "destination": {
+                    "properties": {
+                        "resourceId": "[concat(parameters('sites_satelliteMessagingDeviceBridge_externalid'), '/functions/DeviceToCloudBridge')]",
+                        "maxEventsPerBatch": 1,
+                        "preferredBatchSizeInKilobytes": 64,
+                        "deliveryAttributeMappings": []
+                    },
+                    "endpointType": "AzureFunction"
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "NewReturnMessage",
+                        "OtaCommandComplete"
+                    ]
+                },
+                "labels": [],
+                "eventDeliverySchema": "EventGridSchema",
+                "retryPolicy": {
+                    "maxDeliveryAttempts": 30,
+                    "eventTimeToLiveInMinutes": 1440
+                }
+            }
+        },
+        {
+            "type": "Microsoft.EventGrid/topics/eventSubscriptions",
+            "apiVersion": "2022-06-15",
+            "name": "[concat(parameters('topics_SatelliteMessagingExternalizations_name'), '/LogicAppf6d512c4-1873-4120-9a7b-0b21d690d57b')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/topics', parameters('topics_SatelliteMessagingExternalizations_name'))]"
+            ],
+            "properties": {
+                "destination": {
+                    "properties": {
+                        "maxEventsPerBatch": 1,
+                        "preferredBatchSizeInKilobytes": 64
+                    },
+                    "endpointType": "WebHook"
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "ApiOutage",
+                        "ApiRecovery"
+                    ]
+                },
+                "eventDeliverySchema": "EventGridSchema",
+                "retryPolicy": {
+                    "maxDeliveryAttempts": 30,
+                    "eventTimeToLiveInMinutes": 1440
+                }
+            }
+        },
+        {
+            "type": "Microsoft.EventGrid/topics/eventSubscriptions",
+            "apiVersion": "2022-06-15",
+            "name": "[concat(parameters('topics_SatelliteMessagingExternalizations_name'), '/NewForwardSubmission')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/topics', parameters('topics_SatelliteMessagingExternalizations_name'))]"
+            ],
+            "properties": {
+                "destination": {
+                    "properties": {
+                        "resourceId": "[concat(parameters('sites_satelliteMessaging_externalid'), '/functions/MessageForwardSubmit')]",
+                        "maxEventsPerBatch": 1,
+                        "preferredBatchSizeInKilobytes": 64
+                    },
+                    "endpointType": "AzureFunction"
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "NewForwardSubmission"
+                    ]
+                },
+                "labels": [],
+                "eventDeliverySchema": "EventGridSchema",
+                "retryPolicy": {
+                    "maxDeliveryAttempts": 30,
+                    "eventTimeToLiveInMinutes": 1440
+                }
+            }
+        },
+        {
+            "type": "Microsoft.EventGrid/topics/eventSubscriptions",
+            "apiVersion": "2022-06-15",
+            "name": "[concat(parameters('topics_SatelliteMessagingExternalizations_name'), '/NewMobileFetch')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/topics', parameters('topics_SatelliteMessagingExternalizations_name'))]"
+            ],
+            "properties": {
+                "destination": {
+                    "properties": {
+                        "resourceId": "[concat(parameters('sites_satelliteMessaging_externalid'), '/functions/MobileGet')]",
+                        "maxEventsPerBatch": 1,
+                        "preferredBatchSizeInKilobytes": 64
+                    },
+                    "endpointType": "AzureFunction"
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "NewMobile"
+                    ]
+                },
+                "labels": [],
+                "eventDeliverySchema": "EventGridSchema",
+                "retryPolicy": {
+                    "maxDeliveryAttempts": 30,
+                    "eventTimeToLiveInMinutes": 1440
+                }
+            }
+        },
+        {
+            "type": "Microsoft.EventGrid/topics/eventSubscriptions",
+            "apiVersion": "2022-06-15",
+            "name": "[concat(parameters('topics_SatelliteMessagingExternalizations_name'), '/OrchestratorOtaCommandDelivery')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/topics', parameters('topics_SatelliteMessagingExternalizations_name'))]"
+            ],
+            "properties": {
+                "destination": {
+                    "properties": {
+                        "resourceId": "[concat(parameters('sites_satelliteMessagingOrchestrators_externalid'), '/functions/OtaCommand4Delivery')]",
+                        "maxEventsPerBatch": 1,
+                        "preferredBatchSizeInKilobytes": 64,
+                        "deliveryAttributeMappings": []
+                    },
+                    "endpointType": "AzureFunction"
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "ForwardMessageStateChange"
+                    ],
+                    "enableAdvancedFilteringOnArrays": true
+                },
+                "labels": [],
+                "eventDeliverySchema": "EventGridSchema",
+                "retryPolicy": {
+                    "maxDeliveryAttempts": 30,
+                    "eventTimeToLiveInMinutes": 1440
+                }
+            }
+        },
+        {
+            "type": "Microsoft.EventGrid/topics/eventSubscriptions",
+            "apiVersion": "2022-06-15",
+            "name": "[concat(parameters('topics_SatelliteMessagingExternalizations_name'), '/OrchestratorOtaCommandRequest')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/topics', parameters('topics_SatelliteMessagingExternalizations_name'))]"
+            ],
+            "properties": {
+                "destination": {
+                    "properties": {
+                        "resourceId": "[concat(parameters('sites_satelliteMessagingOrchestrators_externalid'), '/functions/OtaCommand1Start')]",
+                        "maxEventsPerBatch": 1,
+                        "preferredBatchSizeInKilobytes": 64,
+                        "deliveryAttributeMappings": []
+                    },
+                    "endpointType": "AzureFunction"
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "OtaCommandRequest"
+                    ],
+                    "enableAdvancedFilteringOnArrays": true
+                },
+                "labels": [],
+                "eventDeliverySchema": "EventGridSchema",
+                "retryPolicy": {
+                    "maxDeliveryAttempts": 30,
+                    "eventTimeToLiveInMinutes": 1440
+                }
+            }
+        },
+        {
+            "type": "Microsoft.EventGrid/topics/eventSubscriptions",
+            "apiVersion": "2022-06-15",
+            "name": "[concat(parameters('topics_SatelliteMessagingExternalizations_name'), '/OrchestratorOtaCommandResponse')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/topics', parameters('topics_SatelliteMessagingExternalizations_name'))]"
+            ],
+            "properties": {
+                "destination": {
+                    "properties": {
+                        "resourceId": "[concat(parameters('sites_satelliteMessagingOrchestrators_externalid'), '/functions/OtaCommand5Response')]",
+                        "maxEventsPerBatch": 1,
+                        "preferredBatchSizeInKilobytes": 64,
+                        "deliveryAttributeMappings": []
+                    },
+                    "endpointType": "AzureFunction"
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "NewReturnMessage"
+                    ],
+                    "enableAdvancedFilteringOnArrays": true
+                },
+                "labels": [],
+                "eventDeliverySchema": "EventGridSchema",
+                "retryPolicy": {
+                    "maxDeliveryAttempts": 30,
+                    "eventTimeToLiveInMinutes": 1440
+                }
+            }
+        },
+        {
+            "type": "Microsoft.EventGrid/topics/eventSubscriptions",
+            "apiVersion": "2022-06-15",
+            "name": "[concat(parameters('topics_SatelliteMessagingExternalizations_name'), '/OrchestratorOtaCommandSending')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/topics', parameters('topics_SatelliteMessagingExternalizations_name'))]"
+            ],
+            "properties": {
+                "destination": {
+                    "properties": {
+                        "resourceId": "[concat(parameters('sites_satelliteMessagingOrchestrators_externalid'), '/functions/OtaCommand3Sending')]",
+                        "maxEventsPerBatch": 1,
+                        "preferredBatchSizeInKilobytes": 64,
+                        "deliveryAttributeMappings": []
+                    },
+                    "endpointType": "AzureFunction"
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "NewForwardMessage"
+                    ],
+                    "enableAdvancedFilteringOnArrays": true
+                },
+                "labels": [],
+                "eventDeliverySchema": "EventGridSchema",
+                "retryPolicy": {
+                    "maxDeliveryAttempts": 30,
+                    "eventTimeToLiveInMinutes": 1440
+                }
+            }
+        },
+        {
+            "type": "Microsoft.EventGrid/topics/eventSubscriptions",
+            "apiVersion": "2022-06-15",
+            "name": "[concat(parameters('topics_SatelliteMessagingExternalizations_name'), '/OtherClientForwardSubmission')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/topics', parameters('topics_SatelliteMessagingExternalizations_name'))]"
+            ],
+            "properties": {
+                "destination": {
+                    "properties": {
+                        "resourceId": "[concat(parameters('sites_satelliteMessaging_externalid'), '/functions/MessageForwardGet')]",
+                        "maxEventsPerBatch": 1,
+                        "preferredBatchSizeInKilobytes": 64
+                    },
+                    "endpointType": "AzureFunction"
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "OtherClientForwardSubmission"
+                    ]
+                },
+                "labels": [],
+                "eventDeliverySchema": "EventGridSchema",
+                "retryPolicy": {
+                    "maxDeliveryAttempts": 30,
+                    "eventTimeToLiveInMinutes": 1440
+                }
+            }
+        }
+    ]
+}

@@ -2,18 +2,26 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "storageAccountName": {
+        "storageAccountPrefix": {
             "type": "string",
-            "defaultValue": "satelliteiotfunctionstore"
+            "defaultValue": "store",
+            "minLength": 3,
+            "maxLength": 11
+        },
+        "storageAccountLocation": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]"
         }
     },
-    "variables": {},
+    "variables": {
+        "uniqueStorageAccountName": "[concat(parameters('storageAccountPrefix'), uniqueString(resourceGroup().id))]"
+    },
     "resources": [
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2022-09-01",
-            "name": "[parameters('storageAccountName')]",
-            "location": "canadacentral",
+            "name": "[variables('uniqueStorageAccountName')]",
+            "location": "[parameters('storageAccountLocation')]",
             "sku": {
                 "name": "Standard_RAGRS",
                 "tier": "Standard"
@@ -48,9 +56,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "sku": {
                 "name": "Standard_RAGRS",
@@ -69,9 +77,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "sku": {
                 "name": "Standard_RAGRS",
@@ -89,9 +97,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "cors": {
@@ -102,9 +110,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "cors": {
@@ -115,10 +123,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/azure-webjobs-hosts')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/azure-webjobs-hosts')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "immutableStorageWithVersioning": {
@@ -132,10 +140,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/azure-webjobs-secrets')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/azure-webjobs-secrets')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "immutableStorageWithVersioning": {
@@ -149,10 +157,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/durablefunctionshub-leases')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/durablefunctionshub-leases')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "immutableStorageWithVersioning": {
@@ -166,10 +174,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/testhubname-applease')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/testhubname-applease')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "immutableStorageWithVersioning": {
@@ -183,10 +191,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/testhubname-leases')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/testhubname-leases')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "immutableStorageWithVersioning": {
@@ -200,10 +208,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/satellitedevicebridge9293')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/satellitedevicebridge9293')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "accessTier": "TransactionOptimized",
@@ -214,10 +222,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/satellitemessaging9243')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/satellitemessaging9243')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "accessTier": "TransactionOptimized",
@@ -228,10 +236,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/satellitemessagingb5c2')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/satellitemessagingb5c2')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "accessTier": "TransactionOptimized",
@@ -242,10 +250,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/satellitemessagingdevicebridgeb5f2')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/satellitemessagingdevicebridgeb5f2')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "accessTier": "TransactionOptimized",
@@ -256,10 +264,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/satellitemessagingorchestrators-5e9875f')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/satellitemessagingorchestrators-5e9875f')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "accessTier": "TransactionOptimized",
@@ -270,10 +278,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/satellitemessagingorchestrators-5e9875fea8c')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/satellitemessagingorchestrators-5e9875fea8c')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "accessTier": "TransactionOptimized",
@@ -284,10 +292,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/satellitemessagingorchestrators9190')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/satellitemessagingorchestrators9190')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "accessTier": "TransactionOptimized",
@@ -298,10 +306,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/satelliteorchestrators9828')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/satelliteorchestrators9828')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "accessTier": "TransactionOptimized",
@@ -312,10 +320,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/durablefunctionshub-control-00')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/durablefunctionshub-control-00')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "metadata": {}
@@ -324,10 +332,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/durablefunctionshub-control-01')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/durablefunctionshub-control-01')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "metadata": {}
@@ -336,10 +344,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/durablefunctionshub-control-02')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/durablefunctionshub-control-02')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "metadata": {}
@@ -348,10 +356,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/durablefunctionshub-control-03')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/durablefunctionshub-control-03')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "metadata": {}
@@ -360,10 +368,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/durablefunctionshub-workitems')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/durablefunctionshub-workitems')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "metadata": {}
@@ -372,10 +380,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/testhubname-control-00')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/testhubname-control-00')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "metadata": {}
@@ -384,10 +392,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/testhubname-control-01')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/testhubname-control-01')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "metadata": {}
@@ -396,10 +404,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/testhubname-control-02')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/testhubname-control-02')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "metadata": {}
@@ -408,10 +416,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/testhubname-control-03')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/testhubname-control-03')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "metadata": {}
@@ -420,10 +428,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/testhubname-workitems')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/testhubname-workitems')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {
                 "metadata": {}
@@ -432,40 +440,40 @@
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/DurableFunctionsHubHistory')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/DurableFunctionsHubHistory')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {}
         },
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/DurableFunctionsHubInstances')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/DurableFunctionsHubInstances')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {}
         },
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/TestHubNameHistory')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/TestHubNameHistory')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {}
         },
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/default/TestHubNameInstances')]",
+            "name": "[concat(variables('uniqueStorageAccountName'), '/default/TestHubNameInstances')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', parameters('storageAccountName'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', variables('uniqueStorageAccountName'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName'))]"
             ],
             "properties": {}
         }

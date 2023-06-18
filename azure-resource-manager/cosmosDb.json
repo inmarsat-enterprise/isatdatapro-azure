@@ -3,13 +3,13 @@
     "contentVersion": "1.0.0.0",
     "apiProfile": "2018-06-01-profile",
     "parameters": {
-        "databaseAccountName": {
+        "dbAccountName": {
             "type": "string",
             "defaultValue": "iotstoragewarm"
         },
-        "resourceGroupLocation": {
+        "dbLocation": {
             "type": "string",
-            "defaultValue": "Central US"
+            "defaultValue": "[resourceGroup().location]"
         }
     },
     "variables": {},
@@ -17,8 +17,8 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts",
             "apiVersion": "2022-11-15",
-            "name": "[parameters('databaseAccountName')]",
-            "location": "[parameters('resourceGroupLocation')]",
+            "name": "[parameters('dbAccountName')]",
+            "location": "[parameters('dbLocation')]",
             "tags": {
                 "defaultExperience": "Core (SQL)",
                 "hidden-cosmos-mmspecial": "",
@@ -50,7 +50,7 @@
                 },
                 "locations": [
                     {
-                        "locationName": "[parameters('resourceGroupLocation')]",
+                        "locationName": "[parameters('dbLocation')]",
                         "failoverPriority": 0,
                         "isZoneRedundant": false
                     }
@@ -73,9 +73,9 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
             "apiVersion": "2022-11-15",
-            "name": "[concat(parameters('databaseAccountName'), '/IsatDataPro')]",
+            "name": "[concat(parameters('dbAccountName'), '/IsatDataPro')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccountName'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('dbAccountName'))]"
             ],
             "properties": {
                 "resource": {
@@ -86,15 +86,15 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions",
             "apiVersion": "2022-11-15",
-            "name": "[concat(parameters('databaseAccountName'), '/00000000-0000-0000-0000-000000000001')]",
+            "name": "[concat(parameters('dbAccountName'), '/00000000-0000-0000-0000-000000000001')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccountName'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('dbAccountName'))]"
             ],
             "properties": {
                 "roleName": "Cosmos DB Built-in Data Reader",
                 "type": "BuiltInRole",
                 "assignableScopes": [
-                    "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccountName'))]"
+                    "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('dbAccountName'))]"
                 ],
                 "permissions": [
                     {
@@ -112,15 +112,15 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions",
             "apiVersion": "2022-11-15",
-            "name": "[concat(parameters('databaseAccountName'), '/00000000-0000-0000-0000-000000000002')]",
+            "name": "[concat(parameters('dbAccountName'), '/00000000-0000-0000-0000-000000000002')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccountName'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('dbAccountName'))]"
             ],
             "properties": {
                 "roleName": "Cosmos DB Built-in Data Contributor",
                 "type": "BuiltInRole",
                 "assignableScopes": [
-                    "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccountName'))]"
+                    "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('dbAccountName'))]"
                 ],
                 "permissions": [
                     {
@@ -137,10 +137,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2022-11-15",
-            "name": "[concat(parameters('databaseAccountName'), '/IsatDataPro/Main')]",
+            "name": "[concat(parameters('dbAccountName'), '/IsatDataPro/Main')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccountName'), 'IsatDataPro')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccountName'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('dbAccountName'), 'IsatDataPro')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('dbAccountName'))]"
             ],
             "properties": {
                 "resource": {
@@ -176,11 +176,11 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/throughputSettings",
             "apiVersion": "2022-11-15",
-            "name": "[concat(parameters('databaseAccountName'), '/IsatDataPro/Main/default')]",
+            "name": "[concat(parameters('dbAccountName'), '/IsatDataPro/Main/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers', parameters('databaseAccountName'), 'IsatDataPro', 'Main')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccountName'), 'IsatDataPro')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccountName'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers', parameters('dbAccountName'), 'IsatDataPro', 'Main')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('dbAccountName'), 'IsatDataPro')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('dbAccountName'))]"
             ],
             "properties": {
                 "resource": {
